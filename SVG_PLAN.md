@@ -265,87 +265,36 @@ We're going with **Approach B** - a high-level protocol that abstracts icon rend
 
 ### Phase 1: Protocol & Types
 
-#### Task 1: Define IconRenderer Protocol
-- [ ] Create `Sources/icon-generator/Rendering/IconRenderer.swift`
-- [ ] Define the protocol:
-  ```swift
-  protocol IconRenderer {
-      var size: CGSize { get }
-      
-      // Setup
-      mutating func beginIcon()
-      mutating func endIcon()
-      
-      // Background & clipping
-      mutating func renderBackground(_ background: Background, cornerStyle: CornerStyle, cornerRadius: CGFloat)
-      mutating func pushClip(cornerStyle: CornerStyle, cornerRadius: CGFloat)
-      mutating func popClip()
-      
-      // Labels
-      mutating func renderEdgeRibbon(position: LabelPosition, content: LabelContent, backgroundColor: Color, foregroundColor: Color, rotation: Double)
-      mutating func renderCornerRibbon(position: LabelPosition, content: LabelContent, backgroundColor: Color, foregroundColor: Color, rotateContent: Bool, rotation: Double)
-      mutating func renderPill(position: LabelPosition, content: LabelContent, backgroundColor: Color, foregroundColor: Color, rotation: Double)
-      
-      // Center content
-      mutating func renderCenterContent(_ content: CenterContent)
-  }
-  ```
-- [ ] Consider: Should we pass `IconLabel` directly or decompose into parameters?
+#### Task 1: Define IconRenderer Protocol ✅ DONE
+- [x] Create `Sources/icon-generator/Rendering/IconRenderer.swift`
+- [x] Define the protocol with:
+  - `size: CGSize`
+  - `renderBackground(_:cornerStyle:cornerRadius:)`
+  - `pushClip(cornerStyle:cornerRadius:)`
+  - `popClip()`
+  - `renderLabel(_:)` - takes `IconLabel` directly (simpler than decomposed params)
+  - `renderCenterContent(_:)`
+- [x] Decision: Pass `IconLabel` directly (simpler, reuses existing type)
 
-#### Task 2: Define Supporting Types
-- [ ] Create `Sources/icon-generator/Rendering/Fill.swift`
-  ```swift
-  enum Fill {
-      case color(Color)
-      case linearGradient(stops: [GradientStop], from: UnitPoint, to: UnitPoint)
-      case radialGradient(stops: [GradientStop], center: UnitPoint, startRadius: CGFloat, endRadius: CGFloat)
-      case angularGradient(stops: [GradientStop], center: UnitPoint)
-  }
-  
-  struct GradientStop {
-      let color: Color
-      let location: CGFloat
-  }
-  ```
-- [ ] Or reuse existing `Background` type if sufficient
+#### Task 2: Define Supporting Types ✅ DONE
+- [x] Reusing existing `Background` type (already has solid + gradients)
+- [x] Created `IconGeometry` enum with shared geometry calculations:
+  - `iconPath(in:cornerStyle:cornerRadius:)` → squircle path
+  - `edgeRibbonRect(for:in:)` → edge ribbon geometry  
+  - `cornerRibbonPath(for:in:)` → diagonal triangle path
+  - `cornerRibbonCentroid(for:in:)` → content placement point
+  - `cornerRibbonRotation(for:)` → content rotation angle
+  - `pillRect(for:in:contentSize:cornerRadiusRatio:)` → pill geometry
+  - `labelFontSize(for:)` → label font sizing
 
-#### Task 3: Create Render Orchestration
-- [ ] Create `Sources/icon-generator/Rendering/IconRenderPipeline.swift`
-  ```swift
-  func renderIcon<R: IconRenderer>(
-      to renderer: inout R,
-      background: Background,
-      cornerStyle: CornerStyle,
-      cornerRadius: CGFloat,
-      labels: [IconLabel],
-      centerContent: CenterContent?
-  ) {
-      renderer.beginIcon()
-      renderer.renderBackground(background, cornerStyle: cornerStyle, cornerRadius: cornerRadius)
-      
-      // Center content drawn before clipping
-      if let center = centerContent {
-          renderer.renderCenterContent(center)
-      }
-      
-      // Clip for labels
-      renderer.pushClip(cornerStyle: cornerStyle, cornerRadius: cornerRadius)
-      
-      for label in labels {
-          switch label.position {
-          case .top, .bottom, .left, .right:
-              renderer.renderEdgeRibbon(...)
-          case .topLeft, .topRight, .bottomLeft, .bottomRight:
-              renderer.renderCornerRibbon(...)
-          case .pillLeft, .pillCenter, .pillRight:
-              renderer.renderPill(...)
-          }
-      }
-      
-      renderer.popClip()
-      renderer.endIcon()
-  }
-  ```
+#### Task 3: Create Render Orchestration ✅ DONE
+- [x] Created `renderIcon(to:background:cornerStyle:cornerRadius:labels:centerContent:)` function
+- [x] Orchestrates rendering in correct order:
+  1. Background
+  2. Center content (before clipping)
+  3. Push clip
+  4. Labels
+  5. Pop clip
 
 ### Phase 2: Canvas/PNG Renderer
 
