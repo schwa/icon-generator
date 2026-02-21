@@ -121,16 +121,12 @@ struct IconGenerator: AsyncParsableCommand {
         }
 
         // Resolve values: CLI > config > defaults
-        let resolvedBackground = background ?? fileConfig?.background ?? "#FFFFFF"
+        let resolvedBackground = CSSColor(background ?? fileConfig?.background ?? "white")
         let resolvedOutput = output ?? fileConfig?.output ?? "icon.png"
         let resolvedSize = size ?? fileConfig?.size ?? 1024
         let resolvedCornerStyle = cornerStyle ?? fileConfig?.cornerStyle ?? .squircle
         let resolvedCornerRadius = cornerRadius ?? fileConfig?.cornerRadius ?? 0.2237
         let resolvedPlatform = platform ?? fileConfig?.platform
-
-        guard let color = Color(hex: resolvedBackground) else {
-            throw ValidationError("Invalid hex color: \(resolvedBackground)")
-        }
 
         // Merge labels: CLI labels + config labels
         var labels = label.map(\.label)
@@ -143,11 +139,8 @@ struct IconGenerator: AsyncParsableCommand {
         // Resolve center content: CLI > config
         let centerContent: CenterContent?
         if let centerString = center {
-            let resolvedCenterColor = centerColor ?? "#000000"
+            let resolvedCenterColor = CSSColor(centerColor ?? "black")
             let resolvedCenterSize = centerSize ?? 0.5
-            guard let centerCol = Color(hex: resolvedCenterColor) else {
-                throw ValidationError("Invalid center color: \(resolvedCenterColor)")
-            }
             let contentType: CenterContentType
             if centerString.hasPrefix("sf:") {
                 contentType = .sfSymbol(String(centerString.dropFirst(3)))
@@ -158,11 +151,11 @@ struct IconGenerator: AsyncParsableCommand {
             }
             centerContent = CenterContent(
                 content: contentType,
-                color: centerCol,
+                color: resolvedCenterColor,
                 sizeRatio: resolvedCenterSize
             )
         } else if let configCenter = fileConfig?.center {
-            centerContent = try configCenter.toCenterContent()
+            centerContent = configCenter.toCenterContent()
         } else {
             centerContent = nil
         }
@@ -176,7 +169,7 @@ struct IconGenerator: AsyncParsableCommand {
                 try AppIconSetGenerator.generate(
                     at: resolvedOutput,
                     platform: iconPlatform,
-                    backgroundColor: color,
+                    backgroundColor: resolvedBackground,
                     cornerStyle: resolvedCornerStyle,
                     cornerRadiusRatio: resolvedCornerRadius,
                     labels: labels,
@@ -197,7 +190,7 @@ struct IconGenerator: AsyncParsableCommand {
         } else {
             let cgImage = try await MainActor.run {
                 try renderSquircle(
-                    backgroundColor: color,
+                    backgroundColor: resolvedBackground,
                     size: resolvedSize,
                     cornerStyle: resolvedCornerStyle,
                     cornerRadiusRatio: resolvedCornerRadius,
@@ -221,7 +214,7 @@ struct IconGenerator: AsyncParsableCommand {
 
     @MainActor
     private func renderSquircle(
-        backgroundColor: Color,
+        backgroundColor: CSSColor,
         size: Int,
         cornerStyle: CornerStyle,
         cornerRadiusRatio: Double,

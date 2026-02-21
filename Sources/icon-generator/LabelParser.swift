@@ -52,16 +52,16 @@ struct LabelSpecification: ExpressibleByArgument, Sendable {
             colorStartIndex = 2
         }
 
-        let backgroundColor: Color
-        if parts.count > colorStartIndex, let color = Color(hex: parts[colorStartIndex]) {
-            backgroundColor = color
+        let backgroundColor: CSSColor
+        if parts.count > colorStartIndex {
+            backgroundColor = CSSColor(parts[colorStartIndex])
         } else {
             backgroundColor = .red
         }
 
-        let foregroundColor: Color
-        if parts.count > colorStartIndex + 1, let color = Color(hex: parts[colorStartIndex + 1]) {
-            foregroundColor = color
+        let foregroundColor: CSSColor
+        if parts.count > colorStartIndex + 1 {
+            foregroundColor = CSSColor(parts[colorStartIndex + 1])
         } else {
             foregroundColor = .white
         }

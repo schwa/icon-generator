@@ -208,14 +208,14 @@ icon-generator --background "#FF3B30" --center "sf:gift.fill" --center-color "#F
 | Option | Default | Description |
 |--------|---------|-------------|
 | `-c, --config` | - | JSON config file |
-| `--background` | `#FFFFFF` | Background color (hex) |
+| `--background` | `white` | Background color (CSS format) |
 | `-o, --output` | `icon.png` | Output path (`.png` or `.appiconset`) |
 | `--size` | `1024` | Size in pixels (single PNG only) |
 | `--corner-style` | `squircle` | `none`, `rounded`, `squircle` |
 | `--corner-radius` | `0.2237` | Radius ratio (0.0-0.5) |
 | `--platform` | `ios` | `ios`, `macos`, `watchos`, `universal` |
 | `--center` | - | Center content (text, `sf:symbol`, `@path`) |
-| `--center-color` | `#000000` | Center content color |
+| `--center-color` | `black` | Center content color (CSS format) |
 | `--center-size` | `0.5` | Center size ratio (0.0-1.0) |
 | `--label` | - | Label spec (repeatable) |
 
@@ -230,6 +230,29 @@ position:content[:background[:foreground[:options]]]
 **Content:** Text, `sf:symbol.name`, or `@/path/to/image.png`
 
 **Options:** `norotate` (keeps diagonal label content upright)
+
+### Color Formats
+
+Colors can be specified in multiple CSS-compatible formats:
+
+```bash
+# Hex (3, 6, or 8 digits)
+--background "#F00"
+--background "#FF0000"
+--background "#FF000080"    # with alpha
+
+# Named colors (140+ CSS colors)
+--background red
+--background steelblue
+--background rebeccapurple
+
+# RGB/RGBA functions
+--background "rgb(255, 128, 0)"
+--background "rgb(255 128 0)"
+--background "rgb(100%, 50%, 0%)"
+--background "rgba(255, 0, 0, 0.5)"
+--background "rgba(0 128 255 / 0.8)"
+```
 
 ## License
 

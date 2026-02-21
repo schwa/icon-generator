@@ -8,20 +8,30 @@ enum CenterContentType: Sendable {
 
 struct CenterContent: Sendable {
     let content: CenterContentType
-    let color: Color
+    let color: CSSColor
     let sizeRatio: CGFloat  // 0.0 to 1.0, relative to icon size
+
+    /// Resolved SwiftUI color
+    var resolvedColor: Color {
+        color.color() ?? .black
+    }
 }
 
 struct SquircleView: View {
-    let backgroundColor: Color
+    let backgroundColor: CSSColor
     let size: CGFloat
     let cornerStyle: CornerStyle
     let cornerRadiusRatio: CGFloat
     let labels: [IconLabel]
     let centerContent: CenterContent?
 
+    /// Resolved SwiftUI background color
+    var resolvedBackgroundColor: Color {
+        backgroundColor.color() ?? .white
+    }
+
     init(
-        backgroundColor: Color,
+        backgroundColor: CSSColor,
         size: CGFloat,
         cornerStyle: CornerStyle = .squircle,
         cornerRadiusRatio: CGFloat,
@@ -50,7 +60,7 @@ struct SquircleView: View {
             }
 
             // Fill background
-            context.fill(squirclePath, with: .color(backgroundColor))
+            context.fill(squirclePath, with: .color(resolvedBackgroundColor))
 
             // Draw center content (before clipping so it's not affected by label clip)
             if centerContent != nil, let symbol = context.resolveSymbol(id: centerContentID) {
@@ -87,7 +97,7 @@ struct SquircleView: View {
         case .text(let text):
             Text(text)
                 .font(.system(size: contentSize, weight: .bold))
-                .foregroundStyle(center.color)
+                .foregroundStyle(center.resolvedColor)
         case .image(let url):
             if let nsImage = NSImage(contentsOf: url) {
                 Image(nsImage: nsImage)
@@ -98,7 +108,7 @@ struct SquircleView: View {
         case .sfSymbol(let name):
             Image(systemName: name)
                 .font(.system(size: contentSize, weight: .bold))
-                .foregroundStyle(center.color)
+                .foregroundStyle(center.resolvedColor)
         }
     }
 
@@ -108,19 +118,19 @@ struct SquircleView: View {
         case .text(let text):
             Text(text)
                 .font(.system(size: size * 0.08, weight: .bold))
-                .foregroundStyle(label.foregroundColor)
+                .foregroundStyle(label.resolvedForegroundColor)
         case .image(let url):
             if let nsImage = NSImage(contentsOf: url) {
                 Image(nsImage: nsImage)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(height: size * 0.1)
-                    .foregroundStyle(label.foregroundColor)
+                    .foregroundStyle(label.resolvedForegroundColor)
             }
         case .sfSymbol(let name):
             Image(systemName: name)
                 .font(.system(size: size * 0.08, weight: .bold))
-                .foregroundStyle(label.foregroundColor)
+                .foregroundStyle(label.resolvedForegroundColor)
         }
     }
 
@@ -134,21 +144,21 @@ struct SquircleView: View {
         // Edge ribbons
         case .top:
             let rect = CGRect(x: 0, y: 0, width: canvasSize.width, height: ribbonThickness)
-            context.fill(Path(rect), with: .color(label.backgroundColor))
+            context.fill(Path(rect), with: .color(label.resolvedBackgroundColor))
             if let symbol = context.resolveSymbol(id: label.id) {
                 context.draw(symbol, at: CGPoint(x: canvasSize.width / 2, y: ribbonThickness / 2))
             }
 
         case .bottom:
             let rect = CGRect(x: 0, y: canvasSize.height - ribbonThickness, width: canvasSize.width, height: ribbonThickness)
-            context.fill(Path(rect), with: .color(label.backgroundColor))
+            context.fill(Path(rect), with: .color(label.resolvedBackgroundColor))
             if let symbol = context.resolveSymbol(id: label.id) {
                 context.draw(symbol, at: CGPoint(x: canvasSize.width / 2, y: canvasSize.height - ribbonThickness / 2))
             }
 
         case .left:
             let rect = CGRect(x: 0, y: 0, width: ribbonThickness, height: canvasSize.height)
-            context.fill(Path(rect), with: .color(label.backgroundColor))
+            context.fill(Path(rect), with: .color(label.resolvedBackgroundColor))
             if let symbol = context.resolveSymbol(id: label.id) {
                 var rotatedContext = context
                 rotatedContext.rotate(by: .degrees(-90))
@@ -157,7 +167,7 @@ struct SquircleView: View {
 
         case .right:
             let rect = CGRect(x: canvasSize.width - ribbonThickness, y: 0, width: ribbonThickness, height: canvasSize.height)
-            context.fill(Path(rect), with: .color(label.backgroundColor))
+            context.fill(Path(rect), with: .color(label.resolvedBackgroundColor))
             if let symbol = context.resolveSymbol(id: label.id) {
                 var rotatedContext = context
                 rotatedContext.rotate(by: .degrees(90))
@@ -167,7 +177,7 @@ struct SquircleView: View {
         // Diagonal corner ribbons
         case .topLeft:
             let path = diagonalRibbonPath(corner: .topLeft, size: canvasSize, width: diagonalWidth)
-            context.fill(path, with: .color(label.backgroundColor))
+            context.fill(path, with: .color(label.resolvedBackgroundColor))
             if let symbol = context.resolveSymbol(id: label.id) {
                 // Centroid of triangle at (0,0), (w,0), (0,w) is (w/3, w/3)
                 let centroid = CGPoint(x: diagonalWidth / 3, y: diagonalWidth / 3)
@@ -181,7 +191,7 @@ struct SquircleView: View {
 
         case .topRight:
             let path = diagonalRibbonPath(corner: .topRight, size: canvasSize, width: diagonalWidth)
-            context.fill(path, with: .color(label.backgroundColor))
+            context.fill(path, with: .color(label.resolvedBackgroundColor))
             if let symbol = context.resolveSymbol(id: label.id) {
                 // Centroid of triangle at (w,0), (w-d,0), (w,d)
                 let centroid = CGPoint(
@@ -198,7 +208,7 @@ struct SquircleView: View {
 
         case .bottomLeft:
             let path = diagonalRibbonPath(corner: .bottomLeft, size: canvasSize, width: diagonalWidth)
-            context.fill(path, with: .color(label.backgroundColor))
+            context.fill(path, with: .color(label.resolvedBackgroundColor))
             if let symbol = context.resolveSymbol(id: label.id) {
                 // Centroid of triangle at (0,h), (d,h), (0,h-d)
                 let centroid = CGPoint(
@@ -215,7 +225,7 @@ struct SquircleView: View {
 
         case .bottomRight:
             let path = diagonalRibbonPath(corner: .bottomRight, size: canvasSize, width: diagonalWidth)
-            context.fill(path, with: .color(label.backgroundColor))
+            context.fill(path, with: .color(label.resolvedBackgroundColor))
             if let symbol = context.resolveSymbol(id: label.id) {
                 // Centroid of triangle at (w,h), (w-d,h), (w,h-d)
                 let centroid = CGPoint(
@@ -242,7 +252,7 @@ struct SquircleView: View {
                     height: pillHeight
                 )
                 let pillPath = Path(roundedRect: pillRect, cornerRadius: pillHeight / 2)
-                context.fill(pillPath, with: .color(label.backgroundColor))
+                context.fill(pillPath, with: .color(label.resolvedBackgroundColor))
                 context.draw(symbol, at: CGPoint(x: pillRect.midX, y: pillRect.midY))
             }
 
@@ -257,7 +267,7 @@ struct SquircleView: View {
                     height: pillHeight
                 )
                 let pillPath = Path(roundedRect: pillRect, cornerRadius: pillHeight / 2)
-                context.fill(pillPath, with: .color(label.backgroundColor))
+                context.fill(pillPath, with: .color(label.resolvedBackgroundColor))
                 context.draw(symbol, at: CGPoint(x: pillRect.midX, y: pillRect.midY))
             }
 
@@ -272,7 +282,7 @@ struct SquircleView: View {
                     height: pillHeight
                 )
                 let pillPath = Path(roundedRect: pillRect, cornerRadius: pillHeight / 2)
-                context.fill(pillPath, with: .color(label.backgroundColor))
+                context.fill(pillPath, with: .color(label.resolvedBackgroundColor))
                 context.draw(symbol, at: CGPoint(x: pillRect.midX, y: pillRect.midY))
             }
         }

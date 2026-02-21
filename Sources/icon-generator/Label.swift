@@ -32,15 +32,15 @@ struct IconLabel: Sendable, Identifiable {
     let id = UUID()
     let content: LabelContent
     let position: LabelPosition
-    let backgroundColor: Color
-    let foregroundColor: Color
+    let backgroundColor: CSSColor
+    let foregroundColor: CSSColor
     let rotateContent: Bool
 
     init(
         content: LabelContent,
         position: LabelPosition,
-        backgroundColor: Color = .red,
-        foregroundColor: Color = .white,
+        backgroundColor: CSSColor = .red,
+        foregroundColor: CSSColor = .white,
         rotateContent: Bool = true
     ) {
         self.content = content
@@ -48,5 +48,15 @@ struct IconLabel: Sendable, Identifiable {
         self.backgroundColor = backgroundColor
         self.foregroundColor = foregroundColor
         self.rotateContent = rotateContent
+    }
+
+    /// Resolved SwiftUI background color
+    var resolvedBackgroundColor: Color {
+        backgroundColor.color() ?? .red
+    }
+
+    /// Resolved SwiftUI foreground color
+    var resolvedForegroundColor: Color {
+        foregroundColor.color() ?? .white
     }
 }

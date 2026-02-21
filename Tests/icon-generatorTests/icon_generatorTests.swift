@@ -23,7 +23,7 @@ struct IconGeneratorExampleTests {
     @MainActor
     private func renderAndSave(
         name: String,
-        backgroundColor: Color = .white,
+        backgroundColor: CSSColor = .white,
         size: Int = 512,
         cornerStyle: CornerStyle = .squircle,
         cornerRadiusRatio: Double = 0.2237,
@@ -82,7 +82,7 @@ struct IconGeneratorExampleTests {
         for (style, name) in styles {
             try renderAndSave(
                 name: name,
-                backgroundColor: Color(hex: "#3366FF")!,
+                backgroundColor: CSSColor("#3366FF"),
                 cornerStyle: style
             )
         }
@@ -96,7 +96,7 @@ struct IconGeneratorExampleTests {
         for radius in radii {
             try renderAndSave(
                 name: "radius-\(Int(radius * 100))",
-                backgroundColor: Color(hex: "#FF6600")!,
+                backgroundColor: CSSColor("#FF6600"),
                 cornerRadiusRatio: radius
             )
         }
@@ -128,7 +128,7 @@ struct IconGeneratorExampleTests {
         for (hex, name) in colors {
             try renderAndSave(
                 name: name,
-                backgroundColor: Color(hex: hex)!
+                backgroundColor: CSSColor(hex)
             )
         }
     }
@@ -143,7 +143,7 @@ struct IconGeneratorExampleTests {
         for text in texts {
             try renderAndSave(
                 name: "center-text-\(text)",
-                backgroundColor: Color(hex: "#3366FF")!,
+                backgroundColor: CSSColor("#3366FF"),
                 centerContent: CenterContent(
                     content: .text(text),
                     color: .white,
@@ -183,7 +183,7 @@ struct IconGeneratorExampleTests {
             let safeName = symbol.replacingOccurrences(of: ".", with: "-")
             try renderAndSave(
                 name: "center-sf-\(safeName)",
-                backgroundColor: Color(hex: "#5856D6")!,
+                backgroundColor: CSSColor("#5856D6"),
                 centerContent: CenterContent(
                     content: .sfSymbol(symbol),
                     color: .white,
@@ -201,7 +201,7 @@ struct IconGeneratorExampleTests {
         for size in sizes {
             try renderAndSave(
                 name: "center-size-\(Int(size * 100))",
-                backgroundColor: Color(hex: "#34C759")!,
+                backgroundColor: CSSColor("#34C759"),
                 centerContent: CenterContent(
                     content: .sfSymbol("star.fill"),
                     color: .white,
@@ -221,7 +221,7 @@ struct IconGeneratorExampleTests {
         for position in positions {
             try renderAndSave(
                 name: "ribbon-\(position.rawValue)",
-                backgroundColor: Color(hex: "#007AFF")!,
+                backgroundColor: CSSColor("#007AFF"),
                 labels: [
                     IconLabel(
                         content: .text(position.rawValue.uppercased()),
@@ -244,7 +244,7 @@ struct IconGeneratorExampleTests {
         for position in positions {
             try renderAndSave(
                 name: "corner-\(position.rawValue)",
-                backgroundColor: Color(hex: "#FF9500")!,
+                backgroundColor: CSSColor("#FF9500"),
                 labels: [
                     IconLabel(
                         content: .text("NEW"),
@@ -259,7 +259,7 @@ struct IconGeneratorExampleTests {
         // All corners at once
         try renderAndSave(
             name: "corner-all",
-            backgroundColor: Color(hex: "#FF9500")!,
+            backgroundColor: CSSColor("#FF9500"),
             labels: positions.map { position in
                 IconLabel(
                     content: .text("!"),
@@ -281,7 +281,7 @@ struct IconGeneratorExampleTests {
         for position in positions {
             try renderAndSave(
                 name: "pill-\(position.rawValue)",
-                backgroundColor: Color(hex: "#5856D6")!,
+                backgroundColor: CSSColor("#5856D6"),
                 labels: [
                     IconLabel(
                         content: .text("v1.0"),
@@ -296,7 +296,7 @@ struct IconGeneratorExampleTests {
         // All pills at once
         try renderAndSave(
             name: "pill-all",
-            backgroundColor: Color(hex: "#5856D6")!,
+            backgroundColor: CSSColor("#5856D6"),
             labels: [
                 IconLabel(content: .text("L"), position: .pillLeft, backgroundColor: .red, foregroundColor: .white),
                 IconLabel(content: .text("C"), position: .pillCenter, backgroundColor: .green, foregroundColor: .white),
@@ -310,7 +310,7 @@ struct IconGeneratorExampleTests {
     @Test("Label colors")
     @MainActor
     func labelColors() throws {
-        let colors: [(Color, Color, String)] = [
+        let colors: [(CSSColor, CSSColor, String)] = [
             (.red, .white, "red-white"),
             (.blue, .white, "blue-white"),
             (.green, .white, "green-white"),
@@ -324,7 +324,7 @@ struct IconGeneratorExampleTests {
         for (bg, fg, name) in colors {
             try renderAndSave(
                 name: "label-color-\(name)",
-                backgroundColor: Color(hex: "#CCCCCC")!,
+                backgroundColor: CSSColor("#CCCCCC"),
                 labels: [
                     IconLabel(
                         content: .text("LABEL"),
@@ -348,12 +348,12 @@ struct IconGeneratorExampleTests {
             let safeName = symbol.replacingOccurrences(of: ".", with: "-")
             try renderAndSave(
                 name: "label-sf-\(safeName)",
-                backgroundColor: Color(hex: "#007AFF")!,
+                backgroundColor: CSSColor("#007AFF"),
                 labels: [
                     IconLabel(
                         content: .sfSymbol(symbol),
                         position: .topRight,
-                        backgroundColor: Color(hex: "#FFD700")!,
+                        backgroundColor: CSSColor("#FFD700"),
                         foregroundColor: .black
                     )
                 ]
@@ -368,7 +368,7 @@ struct IconGeneratorExampleTests {
     func combinedCenterAndCorner() throws {
         try renderAndSave(
             name: "combo-center-corner",
-            backgroundColor: Color(hex: "#3366FF")!,
+            backgroundColor: CSSColor("#3366FF"),
             labels: [
                 IconLabel(content: .text("BETA"), position: .topRight, backgroundColor: .red, foregroundColor: .white)
             ],
@@ -381,7 +381,7 @@ struct IconGeneratorExampleTests {
     func combinedCenterAndPill() throws {
         try renderAndSave(
             name: "combo-center-pill",
-            backgroundColor: Color(hex: "#34C759")!,
+            backgroundColor: CSSColor("#34C759"),
             labels: [
                 IconLabel(content: .text("v2.0"), position: .pillCenter, backgroundColor: .black, foregroundColor: .white)
             ],
@@ -394,7 +394,7 @@ struct IconGeneratorExampleTests {
     func combinedCenterAndMultipleLabels() throws {
         try renderAndSave(
             name: "combo-full",
-            backgroundColor: Color(hex: "#F05138")!,
+            backgroundColor: CSSColor("#F05138"),
             labels: [
                 IconLabel(content: .text("NEW"), position: .topRight, backgroundColor: .blue, foregroundColor: .white),
                 IconLabel(content: .text("v3.0"), position: .pillCenter, backgroundColor: .black, foregroundColor: .white),
@@ -408,12 +408,12 @@ struct IconGeneratorExampleTests {
     func combinedAllEdgeRibbons() throws {
         try renderAndSave(
             name: "combo-all-edges",
-            backgroundColor: Color(hex: "#FFFFFF")!,
+            backgroundColor: CSSColor("#FFFFFF"),
             labels: [
                 IconLabel(content: .text("TOP"), position: .top, backgroundColor: .red, foregroundColor: .white),
                 IconLabel(content: .text("BOTTOM"), position: .bottom, backgroundColor: .blue, foregroundColor: .white),
                 IconLabel(content: .text("LEFT"), position: .left, backgroundColor: .green, foregroundColor: .white),
-                IconLabel(content: .text("RIGHT"), position: .right, backgroundColor: .orange, foregroundColor: .white),
+                IconLabel(content: .text("RIGHT"), position: .right, backgroundColor: CSSColor("orange"), foregroundColor: .white),
             ]
         )
     }
@@ -426,51 +426,51 @@ struct IconGeneratorExampleTests {
         // Swift app icon style
         try renderAndSave(
             name: "app-swift",
-            backgroundColor: Color(hex: "#F05138")!,
+            backgroundColor: CSSColor("#F05138"),
             centerContent: CenterContent(content: .sfSymbol("swift"), color: .white, sizeRatio: 0.55)
         )
 
         // Music app style
         try renderAndSave(
             name: "app-music",
-            backgroundColor: Color(hex: "#FC3C44")!,
+            backgroundColor: CSSColor("#FC3C44"),
             centerContent: CenterContent(content: .sfSymbol("music.note"), color: .white, sizeRatio: 0.5)
         )
 
         // Photos app style
         try renderAndSave(
             name: "app-photos",
-            backgroundColor: Color(hex: "#FFFFFF")!,
-            centerContent: CenterContent(content: .sfSymbol("photo.on.rectangle.angled"), color: Color(hex: "#FF9500")!, sizeRatio: 0.5)
+            backgroundColor: CSSColor("#FFFFFF"),
+            centerContent: CenterContent(content: .sfSymbol("photo.on.rectangle.angled"), color: CSSColor("#FF9500"), sizeRatio: 0.5)
         )
 
         // Settings app style
         try renderAndSave(
             name: "app-settings",
-            backgroundColor: Color(hex: "#8E8E93")!,
+            backgroundColor: CSSColor("#8E8E93"),
             centerContent: CenterContent(content: .sfSymbol("gear"), color: .white, sizeRatio: 0.55)
         )
 
         // Mail app style
         try renderAndSave(
             name: "app-mail",
-            backgroundColor: Color(hex: "#007AFF")!,
+            backgroundColor: CSSColor("#007AFF"),
             centerContent: CenterContent(content: .sfSymbol("envelope.fill"), color: .white, sizeRatio: 0.45)
         )
 
         // Weather app style
         try renderAndSave(
             name: "app-weather",
-            backgroundColor: Color(hex: "#5AC8FA")!,
-            centerContent: CenterContent(content: .sfSymbol("sun.max.fill"), color: Color(hex: "#FFD700")!, sizeRatio: 0.5)
+            backgroundColor: CSSColor("#5AC8FA"),
+            centerContent: CenterContent(content: .sfSymbol("sun.max.fill"), color: CSSColor("#FFD700"), sizeRatio: 0.5)
         )
 
         // Beta app
         try renderAndSave(
             name: "app-beta",
-            backgroundColor: Color(hex: "#5856D6")!,
+            backgroundColor: CSSColor("#5856D6"),
             labels: [
-                IconLabel(content: .text("BETA"), position: .topRight, backgroundColor: Color(hex: "#FF3B30")!, foregroundColor: .white)
+                IconLabel(content: .text("BETA"), position: .topRight, backgroundColor: CSSColor("#FF3B30"), foregroundColor: .white)
             ],
             centerContent: CenterContent(content: .sfSymbol("testtube.2"), color: .white, sizeRatio: 0.45)
         )
@@ -478,7 +478,7 @@ struct IconGeneratorExampleTests {
         // Debug build
         try renderAndSave(
             name: "app-debug",
-            backgroundColor: Color(hex: "#34C759")!,
+            backgroundColor: CSSColor("#34C759"),
             labels: [
                 IconLabel(content: .text("DEBUG"), position: .bottom, backgroundColor: .black, foregroundColor: .white)
             ],
@@ -488,7 +488,7 @@ struct IconGeneratorExampleTests {
         // Versioned release
         try renderAndSave(
             name: "app-versioned",
-            backgroundColor: Color(hex: "#007AFF")!,
+            backgroundColor: CSSColor("#007AFF"),
             labels: [
                 IconLabel(content: .text("v2.1.0"), position: .pillCenter, backgroundColor: .black, foregroundColor: .white)
             ],
@@ -504,32 +504,32 @@ struct IconGeneratorExampleTests {
         // Dark mode style
         try renderAndSave(
             name: "scheme-dark",
-            backgroundColor: Color(hex: "#1C1C1E")!,
-            centerContent: CenterContent(content: .sfSymbol("moon.fill"), color: Color(hex: "#BF5AF2")!, sizeRatio: 0.5)
+            backgroundColor: CSSColor("#1C1C1E"),
+            centerContent: CenterContent(content: .sfSymbol("moon.fill"), color: CSSColor("#BF5AF2"), sizeRatio: 0.5)
         )
 
         // Light mode style
         try renderAndSave(
             name: "scheme-light",
-            backgroundColor: Color(hex: "#F2F2F7")!,
-            centerContent: CenterContent(content: .sfSymbol("sun.max.fill"), color: Color(hex: "#FF9500")!, sizeRatio: 0.5)
+            backgroundColor: CSSColor("#F2F2F7"),
+            centerContent: CenterContent(content: .sfSymbol("sun.max.fill"), color: CSSColor("#FF9500"), sizeRatio: 0.5)
         )
 
         // Neon style
         try renderAndSave(
             name: "scheme-neon",
-            backgroundColor: Color(hex: "#000000")!,
+            backgroundColor: CSSColor("#000000"),
             labels: [
-                IconLabel(content: .text("NEON"), position: .bottom, backgroundColor: Color(hex: "#39FF14")!, foregroundColor: .black)
+                IconLabel(content: .text("NEON"), position: .bottom, backgroundColor: CSSColor("#39FF14"), foregroundColor: .black)
             ],
-            centerContent: CenterContent(content: .sfSymbol("bolt.fill"), color: Color(hex: "#39FF14")!, sizeRatio: 0.5)
+            centerContent: CenterContent(content: .sfSymbol("bolt.fill"), color: CSSColor("#39FF14"), sizeRatio: 0.5)
         )
 
         // Pastel style
         try renderAndSave(
             name: "scheme-pastel",
-            backgroundColor: Color(hex: "#FFE5EC")!,
-            centerContent: CenterContent(content: .sfSymbol("heart.fill"), color: Color(hex: "#FF8FAB")!, sizeRatio: 0.5)
+            backgroundColor: CSSColor("#FFE5EC"),
+            centerContent: CenterContent(content: .sfSymbol("heart.fill"), color: CSSColor("#FF8FAB"), sizeRatio: 0.5)
         )
     }
 
@@ -543,7 +543,7 @@ struct IconGeneratorExampleTests {
         for size in sizes {
             try renderAndSave(
                 name: "size-\(size)",
-                backgroundColor: Color(hex: "#007AFF")!,
+                backgroundColor: CSSColor("#007AFF"),
                 size: size,
                 centerContent: CenterContent(content: .sfSymbol("star.fill"), color: .white, sizeRatio: 0.5)
             )
@@ -559,7 +559,7 @@ struct IconGeneratorExampleTests {
         try AppIconSetGenerator.generate(
             at: iconSetURL.path,
             platform: .ios,
-            backgroundColor: Color(hex: "#007AFF")!,
+            backgroundColor: CSSColor("#007AFF"),
             cornerStyle: .squircle,
             cornerRadiusRatio: 0.2237,
             labels: [],
@@ -575,7 +575,7 @@ struct IconGeneratorExampleTests {
         try AppIconSetGenerator.generate(
             at: iconSetURL.path,
             platform: .macos,
-            backgroundColor: Color(hex: "#F05138")!,
+            backgroundColor: CSSColor("#F05138"),
             cornerStyle: .squircle,
             cornerRadiusRatio: 0.2237,
             labels: [
@@ -593,7 +593,7 @@ struct IconGeneratorExampleTests {
         try AppIconSetGenerator.generate(
             at: iconSetURL.path,
             platform: .watchos,
-            backgroundColor: Color(hex: "#34C759")!,
+            backgroundColor: CSSColor("#34C759"),
             cornerStyle: .squircle,
             cornerRadiusRatio: 0.2237,
             labels: [],
@@ -609,13 +609,13 @@ struct IconGeneratorExampleTests {
         try AppIconSetGenerator.generate(
             at: iconSetURL.path,
             platform: .universal,
-            backgroundColor: Color(hex: "#5856D6")!,
+            backgroundColor: CSSColor("#5856D6"),
             cornerStyle: .squircle,
             cornerRadiusRatio: 0.2237,
             labels: [
                 IconLabel(content: .text("v1.0"), position: .pillCenter, backgroundColor: .black, foregroundColor: .white)
             ],
-            centerContent: CenterContent(content: .sfSymbol("star.fill"), color: Color(hex: "#FFD700")!, sizeRatio: 0.5)
+            centerContent: CenterContent(content: .sfSymbol("star.fill"), color: CSSColor("#FFD700"), sizeRatio: 0.5)
         )
         print("✅ Generated: TestUniversal.appiconset")
     }

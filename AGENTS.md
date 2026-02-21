@@ -27,7 +27,7 @@ icon-generator --config config.json
 | Option | Default | Description |
 |--------|---------|-------------|
 | `-c, --config` | - | Path to JSON configuration file |
-| `--background` | `#FFFFFF` | Background color (hex) |
+| `--background` | `white` | Background color (CSS format) |
 | `-o, --output` | `icon.png` | Output file path (use `.appiconset` for Xcode asset) |
 | `--size` | `1024` | Image size in pixels (single PNG only) |
 | `--corner-style` | `squircle` | Corner style: `none`, `rounded`, or `squircle` |
@@ -35,7 +35,7 @@ icon-generator --config config.json
 | `--platform` | `ios` | App icon platform: `ios`, `macos`, `watchos`, `universal` |
 | `--label` | - | Label specification (repeatable) |
 | `--center` | - | Center content |
-| `--center-color` | `#000000` | Center content color (hex) |
+| `--center-color` | `black` | Center content color (CSS format) |
 | `--center-size` | `0.5` | Center content size ratio (0.0-1.0) |
 
 ### Corner Styles
@@ -146,6 +146,7 @@ Sources/icon-generator/
 ├── Configuration.swift   # JSON config file parsing
 ├── CornerStyle.swift     # Corner style enum (none/rounded/squircle)
 ├── AppIconSet.swift      # Xcode .appiconset generation
+├── CSSColor.swift        # CSS color parsing (hex, rgb, named colors)
 └── Color+Hex.swift       # Hex color parsing extension
 ```
 

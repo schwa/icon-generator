@@ -53,25 +53,8 @@ struct LabelConfiguration: Codable, Sendable {
             labelContent = .text(content)
         }
 
-        let bgColor: Color
-        if let bg = backgroundColor {
-            guard let color = Color(hex: bg) else {
-                throw ConfigurationError.invalidColor(bg)
-            }
-            bgColor = color
-        } else {
-            bgColor = .red
-        }
-
-        let fgColor: Color
-        if let fg = foregroundColor {
-            guard let color = Color(hex: fg) else {
-                throw ConfigurationError.invalidColor(fg)
-            }
-            fgColor = color
-        } else {
-            fgColor = .white
-        }
+        let bgColor = CSSColor(backgroundColor ?? "red")
+        let fgColor = CSSColor(foregroundColor ?? "white")
 
         return IconLabel(
             content: labelContent,
@@ -88,7 +71,7 @@ struct CenterConfiguration: Codable, Sendable {
     var color: String?
     var size: Double?
 
-    func toCenterContent() throws -> CenterContent {
+    func toCenterContent() -> CenterContent {
         let contentType: CenterContentType
         if content.hasPrefix("sf:") {
             contentType = .sfSymbol(String(content.dropFirst(3)))
@@ -98,19 +81,9 @@ struct CenterConfiguration: Codable, Sendable {
             contentType = .text(content)
         }
 
-        let centerColor: Color
-        if let colorHex = color {
-            guard let c = Color(hex: colorHex) else {
-                throw ConfigurationError.invalidColor(colorHex)
-            }
-            centerColor = c
-        } else {
-            centerColor = .black
-        }
-
         return CenterContent(
             content: contentType,
-            color: centerColor,
+            color: CSSColor(color ?? "black"),
             sizeRatio: size ?? 0.5
         )
     }

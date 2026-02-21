@@ -114,7 +114,7 @@ struct AppIconSetGenerator {
     static func generate(
         at outputPath: String,
         platform: AppIconPlatform,
-        backgroundColor: Color,
+        backgroundColor: CSSColor,
         cornerStyle: CornerStyle,
         cornerRadiusRatio: Double,
         labels: [IconLabel],
