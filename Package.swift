@@ -10,6 +10,7 @@ let package = Package(
     products: [
         .library(name: "SVGXML", targets: ["SVGXML"]),
         .library(name: "IconRendering", targets: ["IconRendering"]),
+        .library(name: "SVGRasterizer", targets: ["SVGRasterizer"]),
         .executable(name: "icon-generator", targets: ["icon-generator"]),
     ],
     dependencies: [
@@ -26,6 +27,11 @@ let package = Package(
         .target(
             name: "IconRendering",
             dependencies: ["SVGXML"]
+        ),
+
+        // SVGRasterizer - WebKit-based SVG to PNG conversion
+        .target(
+            name: "SVGRasterizer"
         ),
 
         // CLI executable (depends on IconRendering and ArgumentParser)
@@ -48,10 +54,11 @@ let package = Package(
         ),
         .testTarget(
             name: "icon-generatorTests",
-            dependencies: ["icon-generator", "IconRendering", "SVGXML", "GoldenImage"],
+            dependencies: ["icon-generator", "IconRendering", "SVGXML", "SVGRasterizer", "GoldenImage"],
             resources: [
                 .copy("GoldenImages"),
-                .copy("GoldenSVGs")
+                .copy("GoldenSVGs"),
+                .copy("GoldenSVGRasters")
             ]
         ),
     ],
