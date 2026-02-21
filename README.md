@@ -113,6 +113,17 @@ icon-generator -o AppIcon.appiconset --platform macos --background "#F05138"
 icon-generator --config icon.json
 ```
 
+Use `--dump-config` to output the resolved configuration as JSON without generating an image. This is useful for creating a config file from CLI arguments:
+
+```bash
+# Generate a config file from CLI options
+icon-generator --background "#3366FF" --center "sf:swift" --label "topRight:BETA" --dump-config > icon.json
+
+# See what --kitchen-sink or --random produce
+icon-generator --kitchen-sink --dump-config
+icon-generator --random --dump-config
+```
+
 ## License
 
 MIT
