@@ -20,7 +20,7 @@ struct KitchenSinkGenerator {
                 LabelConfiguration(
                     position: "topRight",
                     text: "BETA",              // Text content
-                    backgroundColor: "#FF3B30",
+                    backgroundColor: "linear-gradient(45deg, #FF3B30, #FF9500)",  // Gradient label
                     foregroundColor: "#FFFFFF",
                     rotateContent: true,       // Rotated with ribbon (default)
                     rotation: 0
