@@ -125,6 +125,9 @@ struct IconGenerator: AsyncParsableCommand {
     @Option(name: .long, help: "Center rotation in degrees (positive = clockwise)")
     var centerRotation: Double?
 
+    @Option(name: .long, help: "Font family for SVG text (default: system fonts)")
+    var svgFont: String?
+
     @Flag(name: .long, help: "Output resolved configuration as JSON (no image generated)")
     var dumpConfig: Bool = false
 
@@ -306,7 +309,8 @@ struct IconGenerator: AsyncParsableCommand {
                     cornerStyle: resolvedCornerStyle,
                     cornerRadiusRatio: resolvedCornerRadius,
                     labels: labels,
-                    centerContent: centerContent
+                    centerContent: centerContent,
+                    fontFamily: svgFont
                 )
             }
 
@@ -376,10 +380,16 @@ struct IconGenerator: AsyncParsableCommand {
         cornerStyle: CornerStyle,
         cornerRadiusRatio: Double,
         labels: [IconLabel],
-        centerContent: CenterContent?
+        centerContent: CenterContent?,
+        fontFamily: String?
     ) -> String {
         let iconSize = CGSize(width: size, height: size)
-        var renderer = SVGIconRenderer(size: iconSize, cornerRadiusRatio: cornerRadiusRatio)
+        var renderer: SVGIconRenderer
+        if let fontFamily {
+            renderer = SVGIconRenderer(size: iconSize, cornerRadiusRatio: cornerRadiusRatio, fontFamily: fontFamily)
+        } else {
+            renderer = SVGIconRenderer(size: iconSize, cornerRadiusRatio: cornerRadiusRatio)
+        }
 
         renderIcon(
             to: &renderer,

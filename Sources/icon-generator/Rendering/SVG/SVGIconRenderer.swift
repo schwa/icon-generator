@@ -4,17 +4,22 @@ import AppKit
 /// An IconRenderer implementation that renders to an SVG document
 @MainActor
 struct SVGIconRenderer: IconRenderer {
+    /// Default font family for SVG text elements
+    static let defaultFontFamily = "-apple-system, BlinkMacSystemFont, 'SF Pro', sans-serif"
+
     var document: SVGDocument
     let size: CGSize
     let cornerRadiusRatio: CGFloat
+    let fontFamily: String
 
     private var clipPathID: String?
     private var gradientID: String?
 
-    init(size: CGSize, cornerRadiusRatio: CGFloat) {
+    init(size: CGSize, cornerRadiusRatio: CGFloat, fontFamily: String = defaultFontFamily) {
         self.document = SVGDocument(width: size.width, height: size.height)
         self.size = size
         self.cornerRadiusRatio = cornerRadiusRatio
+        self.fontFamily = fontFamily
     }
 
     // MARK: - Background
@@ -275,6 +280,7 @@ struct SVGIconRenderer: IconRenderer {
             x: point.x,
             y: point.y,
             fontSize: fontSize,
+            fontFamily: fontFamily,
             fontWeight: "bold",
             fill: foreground,
             textAnchor: "middle",
