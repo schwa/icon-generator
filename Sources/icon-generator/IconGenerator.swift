@@ -139,6 +139,20 @@ struct IconGenerator: AsyncParsableCommand {
     var kitchenSink: Bool = false
 
     mutating func run() async throws {
+        // If no meaningful arguments provided, show help
+        let hasAnyInput = config != nil ||
+                          background != nil ||
+                          output != nil ||
+                          center != nil ||
+                          !label.isEmpty ||
+                          kitchenSink ||
+                          random ||
+                          dumpConfig
+
+        if !hasAnyInput {
+            throw CleanExit.helpRequest(self)
+        }
+
         // Handle --kitchen-sink flag: generate demo using all features
         if kitchenSink {
             let kitchenSinkConfig = KitchenSinkGenerator.generate()

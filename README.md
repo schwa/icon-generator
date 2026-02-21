@@ -22,7 +22,6 @@ cp .build/release/icon-generator /usr/local/bin/
 | `icon-generator --background "#3366FF" --label "topRight:BETA:#FF0000:#FFFFFF"` | ![Label](Documentation/example-label.png) |
 | `icon-generator --background "#3366FF" --label "pillCenter:v2.0:#FFFFFF:#000000"` | ![Pill](Documentation/example-pill.png) |
 | `icon-generator --background "#3366FF" --corner-style rounded` | ![Rounded](Documentation/example-rounded.png) |
-| `icon-generator --kitchen-sink` | ![Kitchen Sink](Documentation/example-kitchen-sink.png) |
 
 ## Options
 
