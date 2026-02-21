@@ -12,6 +12,9 @@ Renders a squircle (rounded rectangle with continuous corners) to PNG using Swif
 # Single PNG
 icon-generator --background "#3366FF" -o icon.png
 
+# Single SVG
+icon-generator --background "#3366FF" -o icon.svg
+
 # App Icon Set for iOS
 icon-generator -o AppIcon.appiconset --platform ios --background "#3366FF"
 

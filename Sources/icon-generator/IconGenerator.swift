@@ -14,6 +14,7 @@ struct IconGenerator: AsyncParsableCommand {
 
             Output Formats:
               - Single PNG: --output icon.png
+              - Single SVG: --output icon.svg
               - App Icon Set: --output AppIcon.appiconset --platform ios
 
             App Icon Platforms:
@@ -70,6 +71,7 @@ struct IconGenerator: AsyncParsableCommand {
 
             Examples:
               icon-generator --background "#3366FF" -o icon.png
+              icon-generator --background "#3366FF" -o icon.svg
               icon-generator -o AppIcon.appiconset --platform ios --background "#FF0000"
               icon-generator -o AppIcon.appiconset --platform macos --center "sf:swift"
               icon-generator --config config.json
@@ -291,10 +293,34 @@ struct IconGenerator: AsyncParsableCommand {
             return
         }
 
-        // Check if output is an appiconset directory
+        // Check output format
         let isAppIconSet = resolvedOutput.hasSuffix(".appiconset")
+        let isSVG = resolvedOutput.lowercased().hasSuffix(".svg")
 
-        if isAppIconSet {
+        if isSVG {
+            // SVG output
+            let svg = await MainActor.run {
+                renderSVG(
+                    background: resolvedBackground,
+                    size: resolvedSize,
+                    cornerStyle: resolvedCornerStyle,
+                    cornerRadiusRatio: resolvedCornerRadius,
+                    labels: labels,
+                    centerContent: centerContent
+                )
+            }
+
+            let url = URL(fileURLWithPath: resolvedOutput)
+            try svg.write(to: url, atomically: true, encoding: .utf8)
+
+            print("Generated \(resolvedSize)x\(resolvedSize) SVG icon at \(resolvedOutput)")
+            if !labels.isEmpty {
+                print("  with \(labels.count) label(s)")
+            }
+            if centerContent != nil {
+                print("  with center content")
+            }
+        } else if isAppIconSet {
             let iconPlatform = resolvedPlatform ?? .ios
             try await MainActor.run {
                 try AppIconSetGenerator.generate(
@@ -341,6 +367,30 @@ struct IconGenerator: AsyncParsableCommand {
                 print("  with center content")
             }
         }
+    }
+
+    @MainActor
+    private func renderSVG(
+        background: Background,
+        size: Int,
+        cornerStyle: CornerStyle,
+        cornerRadiusRatio: Double,
+        labels: [IconLabel],
+        centerContent: CenterContent?
+    ) -> String {
+        let iconSize = CGSize(width: size, height: size)
+        var renderer = SVGIconRenderer(size: iconSize, cornerRadiusRatio: cornerRadiusRatio)
+
+        renderIcon(
+            to: &renderer,
+            background: background,
+            cornerStyle: cornerStyle,
+            cornerRadius: cornerRadiusRatio,
+            labels: labels,
+            centerContent: centerContent
+        )
+
+        return renderer.render()
     }
 
     @MainActor

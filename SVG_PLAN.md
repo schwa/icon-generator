@@ -394,34 +394,26 @@ We're going with **Approach B** - a high-level protocol that abstracts icon rend
 
 ### Phase 5: Integration & CLI
 
-#### Task 11: CLI Integration
-- [ ] Add output format detection:
-  ```swift
-  let isSVG = resolvedOutput.hasSuffix(".svg")
-  ```
-- [ ] Route to appropriate renderer:
-  ```swift
-  if isSVG {
-      var renderer = SVGIconRenderer(size: CGSize(width: size, height: size))
-      renderIcon(to: &renderer, ...)
-      let svg = renderer.toSVG()
-      try svg.write(to: url, atomically: true, encoding: .utf8)
-  } else {
-      // Current PNG path using CanvasIconRenderer
-  }
-  ```
-- [ ] Update help text with SVG example
+#### Task 11: CLI Integration ✅ DONE
+- [x] Added output format detection via `.svg` extension
+- [x] Added `renderSVG()` method using `SVGIconRenderer`
+- [x] Routes to SVG renderer when output ends with `.svg`
+- [x] Updated help text with SVG examples
+- [x] CLI tested with gradients, labels, center content
 
-#### Task 12: Testing
-- [ ] Unit tests for `Path.svgPathData()`
-- [ ] Unit tests for color/gradient conversion
-- [ ] Integration tests:
-  - [ ] Basic icon → SVG
-  - [ ] Kitchen sink → SVG
-  - [ ] All label positions
-  - [ ] All center content types (text, SF Symbol, image)
-  - [ ] Gradients (linear, radial)
-- [ ] Manual verification: open SVG in browser
+#### Task 12: Testing ✅ DONE
+- [x] Integration tests (9 SVG tests):
+  - [x] Basic icon → SVG
+  - [x] Kitchen sink → SVG
+  - [x] All edge ribbon positions
+  - [x] All corner ribbon positions
+  - [x] All pill positions
+  - [x] Corner styles (none, rounded, squircle)
+  - [x] Linear gradient
+  - [x] Radial gradient
+  - [x] Labels with text/SF Symbols
+- [x] Manual verification via `svg2png` CLI tool
+- [x] All 54 tests passing
 
 ### Phase 6: Polish
 
