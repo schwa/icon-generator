@@ -37,6 +37,9 @@ icon-generator --config config.json
 | `--center` | - | Center content |
 | `--center-color` | `black` | Center content color (CSS format) |
 | `--center-size` | `0.5` | Center content size ratio (0.0-1.0) |
+| `--center-align` | `typographic` | Alignment mode: `visual` or `typographic` |
+| `--center-anchor` | `center` | Vertical anchor: `baseline`, `cap`, or `center` |
+| `--center-y-offset` | `0` | Vertical offset ratio (-1.0 to 1.0, positive = up) |
 
 ### Corner Styles
 
@@ -94,6 +97,18 @@ Format: `position:content[:backgroundColor[:foregroundColor]]`
 --center "@/path/to/logo.png" --center-size 0.4
 ```
 
+**Alignment options:**
+```bash
+# Visual centering (based on glyph bounding box - best for single characters)
+--center "Ə" --center-align visual
+
+# Anchor at cap height
+--center "text" --center-anchor cap
+
+# Fine-tune with proportional offset
+--center "ə" --center-y-offset 0.15
+```
+
 ### JSON Configuration File
 
 All options can be specified in a JSON file with `--config`:
@@ -134,6 +149,9 @@ All options can be specified in a JSON file with `--config`:
   - `content`: Content string
   - `color`: Optional color (hex)
   - `size`: Optional size ratio
+  - `alignment`: Optional alignment mode (`visual`, `typographic`)
+  - `anchor`: Optional vertical anchor (`baseline`, `cap`, `center`)
+  - `y-offset`: Optional vertical offset ratio
 
 ## Architecture
 
@@ -146,8 +164,7 @@ Sources/icon-generator/
 ├── Configuration.swift   # JSON config file parsing
 ├── CornerStyle.swift     # Corner style enum (none/rounded/squircle)
 ├── AppIconSet.swift      # Xcode .appiconset generation
-├── CSSColor.swift        # CSS color parsing (hex, rgb, named colors)
-└── Color+Hex.swift       # Hex color parsing extension
+└── CSSColor.swift        # CSS color parsing (hex, rgb, named colors)
 ```
 
 ### Key Implementation Details

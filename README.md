@@ -217,7 +217,28 @@ icon-generator --background "#FF3B30" --center "sf:gift.fill" --center-color "#F
 | `--center` | - | Center content (text, `sf:symbol`, `@path`) |
 | `--center-color` | `black` | Center content color (CSS format) |
 | `--center-size` | `0.5` | Center size ratio (0.0-1.0) |
+| `--center-align` | `typographic` | `visual` (glyph bounds) or `typographic` (font metrics) |
+| `--center-anchor` | `center` | `baseline`, `cap`, or `center` |
+| `--center-y-offset` | `0` | Vertical offset ratio (-1.0 to 1.0, positive = up) |
 | `--label` | - | Label spec (repeatable) |
+
+### Center Alignment
+
+For precise text/glyph positioning:
+
+```bash
+# Visual centering - centers based on actual glyph pixels (best for single characters)
+icon-generator --center "Ə" --center-align visual -o schwa.png
+
+# Anchor at baseline
+icon-generator --center "Hello" --center-anchor baseline -o baseline.png
+
+# Anchor at cap height (top of uppercase letters)
+icon-generator --center "abc" --center-anchor cap -o cap.png
+
+# Fine-tune with proportional offset (15% up)
+icon-generator --center "ə" --center-y-offset 0.15 -o offset.png
+```
 
 ### Label Format
 

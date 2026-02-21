@@ -619,6 +619,101 @@ struct IconGeneratorExampleTests {
         )
         print("✅ Generated: TestUniversal.appiconset")
     }
+
+    // MARK: - Center Alignment Options
+
+    @Test("Center alignment - visual")
+    @MainActor
+    func centerAlignmentVisual() throws {
+        try renderAndSave(
+            name: "align-visual",
+            backgroundColor: .black,
+            centerContent: CenterContent(
+                content: .text("Ə"),
+                color: .white,
+                sizeRatio: 0.8,
+                alignment: .visual
+            )
+        )
+    }
+
+    @Test("Center alignment - typographic")
+    @MainActor
+    func centerAlignmentTypographic() throws {
+        try renderAndSave(
+            name: "align-typographic",
+            backgroundColor: .black,
+            centerContent: CenterContent(
+                content: .text("Ə"),
+                color: .white,
+                sizeRatio: 0.8,
+                alignment: .typographic
+            )
+        )
+    }
+
+    @Test("Center anchor - baseline")
+    @MainActor
+    func centerAnchorBaseline() throws {
+        try renderAndSave(
+            name: "anchor-baseline",
+            backgroundColor: CSSColor("#007AFF"),
+            centerContent: CenterContent(
+                content: .text("Ag"),
+                color: .white,
+                sizeRatio: 0.5,
+                alignment: .typographic,
+                anchor: .baseline
+            )
+        )
+    }
+
+    @Test("Center anchor - cap")
+    @MainActor
+    func centerAnchorCap() throws {
+        try renderAndSave(
+            name: "anchor-cap",
+            backgroundColor: CSSColor("#007AFF"),
+            centerContent: CenterContent(
+                content: .text("Ag"),
+                color: .white,
+                sizeRatio: 0.5,
+                alignment: .typographic,
+                anchor: .cap
+            )
+        )
+    }
+
+    @Test("Center y-offset")
+    @MainActor
+    func centerYOffset() throws {
+        try renderAndSave(
+            name: "offset-up",
+            backgroundColor: CSSColor("#34C759"),
+            centerContent: CenterContent(
+                content: .text("ə"),
+                color: .white,
+                sizeRatio: 0.6,
+                alignment: .typographic,
+                anchor: .center,
+                yOffset: 0.15
+            )
+        )
+
+        try renderAndSave(
+            name: "offset-down",
+            backgroundColor: CSSColor("#FF3B30"),
+            centerContent: CenterContent(
+                content: .text("ə"),
+                color: .white,
+                sizeRatio: 0.6,
+                alignment: .typographic,
+                anchor: .center,
+                yOffset: -0.15
+            )
+        )
+        print("✅ Generated: TestUniversal.appiconset")
+    }
 }
 
 /// Separate suite that just prints the output directory for easy access
