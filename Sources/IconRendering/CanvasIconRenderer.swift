@@ -2,12 +2,12 @@ import SwiftUI
 
 /// An IconRenderer implementation that renders to a SwiftUI GraphicsContext (for PNG output)
 @MainActor
-struct CanvasIconRenderer: IconRenderer {
-    var context: GraphicsContext
-    let size: CGSize
-    let cornerRadiusRatio: CGFloat
+public struct CanvasIconRenderer: IconRenderer {
+    public var context: GraphicsContext
+    public let size: CGSize
+    public let cornerRadiusRatio: CGFloat
 
-    init(context: GraphicsContext, size: CGSize, cornerRadiusRatio: CGFloat) {
+    public init(context: GraphicsContext, size: CGSize, cornerRadiusRatio: CGFloat) {
         self.context = context
         self.size = size
         self.cornerRadiusRatio = cornerRadiusRatio
@@ -15,7 +15,7 @@ struct CanvasIconRenderer: IconRenderer {
 
     // MARK: - Background
 
-    mutating func renderBackground(
+    public mutating func renderBackground(
         _ background: Background,
         cornerStyle: CornerStyle,
         cornerRadius: CGFloat
@@ -27,13 +27,13 @@ struct CanvasIconRenderer: IconRenderer {
 
     // MARK: - Clipping
 
-    mutating func pushClip(cornerStyle: CornerStyle, cornerRadius: CGFloat) {
+    public mutating func pushClip(cornerStyle: CornerStyle, cornerRadius: CGFloat) {
         let rect = CGRect(origin: .zero, size: size)
         let path = IconGeometry.iconPath(in: rect, cornerStyle: cornerStyle, cornerRadius: cornerRadius)
         context.clip(to: path)
     }
 
-    mutating func popClip() {
+    public mutating func popClip() {
         // Note: GraphicsContext.clip() is not reversible in the traditional sense.
         // In SwiftUI's Canvas, we typically work around this by:
         // 1. Drawing clipped content in order (which we do)
@@ -47,7 +47,7 @@ struct CanvasIconRenderer: IconRenderer {
 
     // MARK: - Labels
 
-    mutating func renderLabel(_ label: IconLabel) {
+    public mutating func renderLabel(_ label: IconLabel) {
         switch label.position {
         case .top, .bottom, .left, .right:
             renderEdgeRibbon(label)
@@ -136,7 +136,7 @@ struct CanvasIconRenderer: IconRenderer {
 
     // MARK: - Center Content
 
-    mutating func renderCenterContent(_ content: CenterContent) {
+    public mutating func renderCenterContent(_ content: CenterContent) {
         let contentSize = size.width * content.sizeRatio
         let yOffsetPoints = contentSize * content.yOffset
         let center = CGPoint(x: size.width / 2, y: size.height / 2 - yOffsetPoints)

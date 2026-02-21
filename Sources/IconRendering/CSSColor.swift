@@ -10,37 +10,37 @@ import SwiftUI
 /// - RGBA: `rgba(255, 128, 0, 0.5)`, `rgba(255 128 0 / 0.5)`
 /// - RGB percentages: `rgb(100%, 50%, 0%)`
 /// - Named colors: `red`, `blue`, `steelblue`, etc.
-struct CSSColor: Sendable, Hashable, CustomStringConvertible {
-    let rawValue: String
+public struct CSSColor: Sendable, Hashable, CustomStringConvertible {
+    public let rawValue: String
 
-    init(_ rawValue: String) {
+    public init(_ rawValue: String) {
         self.rawValue = rawValue
     }
 
-    var description: String { rawValue }
+    public var description: String { rawValue }
 
     /// Parse and return as SwiftUI Color, or nil if invalid
-    func color() -> Color? {
+    public func color() -> Color? {
         guard let components = parse() else { return nil }
         return Color(red: components.red, green: components.green, blue: components.blue, opacity: components.alpha)
     }
 
     /// Parse and return as CGColor, or nil if invalid
-    func cgColor() -> CGColor? {
+    public func cgColor() -> CGColor? {
         guard let components = parse() else { return nil }
         return CGColor(red: components.red, green: components.green, blue: components.blue, alpha: components.alpha)
     }
 
     /// Parsed RGBA components (0.0-1.0)
-    struct Components: Sendable, Hashable {
-        let red: Double
-        let green: Double
-        let blue: Double
-        let alpha: Double
+    public struct Components: Sendable, Hashable {
+        public let red: Double
+        public let green: Double
+        public let blue: Double
+        public let alpha: Double
     }
 
     /// Parse the color string into components
-    func parse() -> Components? {
+    public func parse() -> Components? {
         let input = rawValue.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
 
         // Try hex format
@@ -333,7 +333,7 @@ struct CSSColor: Sendable, Hashable, CustomStringConvertible {
 // MARK: - ArgumentParser conformance
 
 extension CSSColor: ExpressibleByArgument {
-    init?(argument: String) {
+    public init?(argument: String) {
         self.init(argument)
     }
 }
@@ -341,12 +341,12 @@ extension CSSColor: ExpressibleByArgument {
 // MARK: - Codable conformance
 
 extension CSSColor: Codable {
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         self.rawValue = try container.decode(String.self)
     }
 
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(rawValue)
     }
@@ -355,15 +355,15 @@ extension CSSColor: Codable {
 // MARK: - Default colors
 
 extension CSSColor {
-    static let white = CSSColor("white")
-    static let black = CSSColor("black")
-    static let red = CSSColor("red")
-    static let blue = CSSColor("blue")
-    static let green = CSSColor("green")
-    static let yellow = CSSColor("yellow")
-    static let orange = CSSColor("orange")
-    static let purple = CSSColor("purple")
-    static let pink = CSSColor("pink")
-    static let gray = CSSColor("gray")
-    static let clear = CSSColor("transparent")
+    public static let white = CSSColor("white")
+    public static let black = CSSColor("black")
+    public static let red = CSSColor("red")
+    public static let blue = CSSColor("blue")
+    public static let green = CSSColor("green")
+    public static let yellow = CSSColor("yellow")
+    public static let orange = CSSColor("orange")
+    public static let purple = CSSColor("purple")
+    public static let pink = CSSColor("pink")
+    public static let gray = CSSColor("gray")
+    public static let clear = CSSColor("transparent")
 }

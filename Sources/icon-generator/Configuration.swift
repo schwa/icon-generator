@@ -1,3 +1,4 @@
+import IconRendering
 import Foundation
 import SwiftUI
 

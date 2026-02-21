@@ -2,7 +2,7 @@ import ArgumentParser
 import SwiftUI
 
 /// Corner style for the icon shape
-enum CornerStyle: String, CaseIterable, Sendable, Codable, ExpressibleByArgument {
+public enum CornerStyle: String, CaseIterable, Sendable, Codable, ExpressibleByArgument {
     /// No rounded corners (square)
     case none
     /// Standard rounded corners (circular arcs)
@@ -10,7 +10,7 @@ enum CornerStyle: String, CaseIterable, Sendable, Codable, ExpressibleByArgument
     /// Continuous/superellipse corners (iOS-style squircle)
     case squircle
 
-    var roundedCornerStyle: RoundedCornerStyle? {
+    public var roundedCornerStyle: RoundedCornerStyle? {
         switch self {
         case .none:
             return nil

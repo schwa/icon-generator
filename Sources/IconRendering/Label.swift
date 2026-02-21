@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// Position where a label can be placed on the icon
-enum LabelPosition: String, CaseIterable, Sendable {
+public enum LabelPosition: String, CaseIterable, Sendable {
     // Ribbon/banner style along edges
     case top
     case bottom
@@ -21,23 +21,37 @@ enum LabelPosition: String, CaseIterable, Sendable {
 }
 
 /// Content type for a label
-enum LabelContent: Sendable {
+public enum LabelContent: Sendable {
     case text(String)
     case image(URL)
     case sfSymbol(String)
+
+    /// Parse a content string into LabelContent
+    /// - "sf:symbol.name" -> .sfSymbol("symbol.name")
+    /// - "@/path/to/image" -> .image(URL)
+    /// - "text" -> .text("text")
+    public static func parse(_ string: String) -> LabelContent {
+        if string.hasPrefix("sf:") {
+            return .sfSymbol(String(string.dropFirst(3)))
+        } else if string.hasPrefix("@") {
+            return .image(URL(fileURLWithPath: String(string.dropFirst())))
+        } else {
+            return .text(string)
+        }
+    }
 }
 
 /// A label to overlay on the icon
-struct IconLabel: Sendable, Identifiable {
-    let id = UUID()
-    let content: LabelContent
-    let position: LabelPosition
-    let backgroundColor: CSSColor
-    let foregroundColor: CSSColor
-    let rotateContent: Bool
-    let rotation: Double        // Additional rotation in degrees (positive = clockwise)
+public struct IconLabel: Sendable, Identifiable {
+    public let id = UUID()
+    public let content: LabelContent
+    public let position: LabelPosition
+    public let backgroundColor: CSSColor
+    public let foregroundColor: CSSColor
+    public let rotateContent: Bool
+    public let rotation: Double        // Additional rotation in degrees (positive = clockwise)
 
-    init(
+    public init(
         content: LabelContent,
         position: LabelPosition,
         backgroundColor: CSSColor = .red,
@@ -54,12 +68,12 @@ struct IconLabel: Sendable, Identifiable {
     }
 
     /// Resolved SwiftUI background color
-    var resolvedBackgroundColor: Color {
+    public var resolvedBackgroundColor: Color {
         backgroundColor.color() ?? .red
     }
 
     /// Resolved SwiftUI foreground color
-    var resolvedForegroundColor: Color {
+    public var resolvedForegroundColor: Color {
         foregroundColor.color() ?? .white
     }
 }

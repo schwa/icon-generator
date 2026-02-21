@@ -3,6 +3,8 @@ import ImageIO
 import SwiftUI
 import Testing
 import UniformTypeIdentifiers
+import IconRendering
+import SVGXML
 
 @testable import icon_generator
 

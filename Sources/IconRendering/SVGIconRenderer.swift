@@ -1,21 +1,22 @@
 import SwiftUI
 import AppKit
+import SVGXML
 
 /// An IconRenderer implementation that renders to an SVG document
 @MainActor
-struct SVGIconRenderer: IconRenderer {
+public struct SVGIconRenderer: IconRenderer {
     /// Default font family for SVG text elements
-    static let defaultFontFamily = "-apple-system, BlinkMacSystemFont, 'SF Pro', sans-serif"
+    public static let defaultFontFamily = "-apple-system, BlinkMacSystemFont, 'SF Pro', sans-serif"
 
-    var document: SVGDocument
-    let size: CGSize
-    let cornerRadiusRatio: CGFloat
-    let fontFamily: String
+    public var document: SVGDocument
+    public let size: CGSize
+    public let cornerRadiusRatio: CGFloat
+    public let fontFamily: String
 
     private var clipPathID: String?
     private var gradientID: String?
 
-    init(size: CGSize, cornerRadiusRatio: CGFloat, fontFamily: String = defaultFontFamily) {
+    public init(size: CGSize, cornerRadiusRatio: CGFloat, fontFamily: String = defaultFontFamily) {
         self.document = SVGDocument(width: size.width, height: size.height)
         self.size = size
         self.cornerRadiusRatio = cornerRadiusRatio
@@ -24,7 +25,7 @@ struct SVGIconRenderer: IconRenderer {
 
     // MARK: - Background
 
-    mutating func renderBackground(
+    public mutating func renderBackground(
         _ background: Background,
         cornerStyle: CornerStyle,
         cornerRadius: CGFloat
@@ -47,19 +48,19 @@ struct SVGIconRenderer: IconRenderer {
 
     // MARK: - Clipping
 
-    mutating func pushClip(cornerStyle: CornerStyle, cornerRadius: CGFloat) {
+    public mutating func pushClip(cornerStyle: CornerStyle, cornerRadius: CGFloat) {
         let rect = CGRect(origin: .zero, size: size)
         let path = IconGeometry.iconPath(in: rect, cornerStyle: cornerStyle, cornerRadius: cornerRadius)
         clipPathID = document.addClipPath(path: path)
     }
 
-    mutating func popClip() {
+    public mutating func popClip() {
         clipPathID = nil
     }
 
     // MARK: - Labels
 
-    mutating func renderLabel(_ label: IconLabel) {
+    public mutating func renderLabel(_ label: IconLabel) {
         switch label.position {
         case .top, .bottom, .left, .right:
             renderEdgeRibbon(label)
@@ -202,7 +203,7 @@ struct SVGIconRenderer: IconRenderer {
 
     // MARK: - Center Content
 
-    mutating func renderCenterContent(_ content: CenterContent) {
+    public mutating func renderCenterContent(_ content: CenterContent) {
         let contentSize = size.width * content.sizeRatio
         let yOffsetPoints = contentSize * content.yOffset
         let center = CGPoint(x: size.width / 2, y: size.height / 2 - yOffsetPoints)
@@ -454,12 +455,12 @@ struct SVGIconRenderer: IconRenderer {
     // MARK: - Output
 
     /// Get the rendered SVG as a string
-    func render(compact: Bool = false) -> String {
+    public func render(compact: Bool = false) -> String {
         document.render(compact: compact)
     }
 
     /// Get the rendered SVG as Data (UTF-8 encoded)
-    func renderData() -> Data? {
+    public func renderData() -> Data? {
         render().data(using: .utf8)
     }
 }

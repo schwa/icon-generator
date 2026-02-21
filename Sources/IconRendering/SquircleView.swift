@@ -4,14 +4,14 @@ import ArgumentParser
 import CoreText
 
 /// A text view that supports different alignment and anchor modes
-struct CenteredText: View {
-    let text: String
-    let fontSize: CGFloat
-    let color: Color
-    let alignment: CenterAlignment
-    let anchor: CenterAnchor
+public struct CenteredText: View {
+    public let text: String
+    public let fontSize: CGFloat
+    public let color: Color
+    public let alignment: CenterAlignment
+    public let anchor: CenterAnchor
 
-    var body: some View {
+    public var body: some View {
         if alignment == .visual {
             visualAlignedText
         } else {
@@ -79,14 +79,28 @@ struct CenteredText: View {
     }
 }
 
-enum CenterContentType: Sendable {
+public enum CenterContentType: Sendable {
     case text(String)
     case image(URL)
     case sfSymbol(String)
+
+    /// Parse a content string into CenterContentType
+    /// - "sf:symbol.name" -> .sfSymbol("symbol.name")
+    /// - "@/path/to/image" -> .image(URL)
+    /// - "text" -> .text("text")
+    public static func parse(_ string: String) -> CenterContentType {
+        if string.hasPrefix("sf:") {
+            return .sfSymbol(String(string.dropFirst(3)))
+        } else if string.hasPrefix("@") {
+            return .image(URL(fileURLWithPath: String(string.dropFirst())))
+        } else {
+            return .text(string)
+        }
+    }
 }
 
 /// How to align center content
-enum CenterAlignment: String, CaseIterable, Sendable, Codable, ExpressibleByArgument {
+public enum CenterAlignment: String, CaseIterable, Sendable, Codable, ExpressibleByArgument {
     /// Align based on visual bounding box of the glyph
     case visual
     /// Align based on typographic metrics (default SwiftUI behavior)
@@ -94,7 +108,7 @@ enum CenterAlignment: String, CaseIterable, Sendable, Codable, ExpressibleByArgu
 }
 
 /// Vertical anchor point for center content
-enum CenterAnchor: String, CaseIterable, Sendable, Codable, ExpressibleByArgument {
+public enum CenterAnchor: String, CaseIterable, Sendable, Codable, ExpressibleByArgument {
     /// Anchor at the baseline
     case baseline
     /// Anchor at the cap height (top of uppercase letters)
@@ -103,16 +117,16 @@ enum CenterAnchor: String, CaseIterable, Sendable, Codable, ExpressibleByArgumen
     case center
 }
 
-struct CenterContent: Sendable {
-    let content: CenterContentType
-    let color: CSSColor
-    let sizeRatio: CGFloat      // 0.0 to 1.0, relative to icon size
-    let alignment: CenterAlignment
-    let anchor: CenterAnchor
-    let yOffset: CGFloat        // -1.0 to 1.0, proportional offset (positive = up)
-    let rotation: Double        // Rotation in degrees (positive = clockwise)
+public struct CenterContent: Sendable {
+    public let content: CenterContentType
+    public let color: CSSColor
+    public let sizeRatio: CGFloat      // 0.0 to 1.0, relative to icon size
+    public let alignment: CenterAlignment
+    public let anchor: CenterAnchor
+    public let yOffset: CGFloat        // -1.0 to 1.0, proportional offset (positive = up)
+    public let rotation: Double        // Rotation in degrees (positive = clockwise)
 
-    init(
+    public init(
         content: CenterContentType,
         color: CSSColor,
         sizeRatio: CGFloat,
@@ -131,7 +145,7 @@ struct CenterContent: Sendable {
     }
 
     /// Convenience initializer that parses content string
-    init(
+    public init(
         contentString: String,
         color: CSSColor,
         sizeRatio: CGFloat,
@@ -140,7 +154,7 @@ struct CenterContent: Sendable {
         yOffset: CGFloat = 0,
         rotation: Double = 0
     ) {
-        self.content = parseCenterContentType(contentString)
+        self.content = CenterContentType.parse(contentString)
         self.color = color
         self.sizeRatio = sizeRatio
         self.alignment = alignment
@@ -150,20 +164,20 @@ struct CenterContent: Sendable {
     }
 
     /// Resolved SwiftUI color
-    var resolvedColor: Color {
+    public var resolvedColor: Color {
         color.color() ?? .black
     }
 }
 
-struct SquircleView: View {
-    let background: Background
-    let size: CGFloat
-    let cornerStyle: CornerStyle
-    let cornerRadiusRatio: CGFloat
-    let labels: [IconLabel]
-    let centerContent: CenterContent?
+public struct SquircleView: View {
+    public let background: Background
+    public let size: CGFloat
+    public let cornerStyle: CornerStyle
+    public let cornerRadiusRatio: CGFloat
+    public let labels: [IconLabel]
+    public let centerContent: CenterContent?
 
-    init(
+    public init(
         background: Background,
         size: CGFloat,
         cornerStyle: CornerStyle = .squircle,
@@ -180,7 +194,7 @@ struct SquircleView: View {
     }
 
     /// Convenience initializer for solid color backgrounds
-    init(
+    public init(
         backgroundColor: CSSColor,
         size: CGFloat,
         cornerStyle: CornerStyle = .squircle,
@@ -196,7 +210,7 @@ struct SquircleView: View {
         self.centerContent = centerContent
     }
 
-    var body: some View {
+    public var body: some View {
         Canvas { context, canvasSize in
             var renderer = CanvasIconRenderer(
                 context: context,

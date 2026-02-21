@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// Represents a background fill - either a solid color or a gradient
-enum Background: Sendable, Equatable {
+public enum Background: Sendable, Equatable {
     case solid(CSSColor)
     case linearGradient(colors: [CSSColor], startPoint: UnitPoint, endPoint: UnitPoint)
     case radialGradient(colors: [CSSColor], center: UnitPoint, startRadius: CGFloat, endRadius: CGFloat)
@@ -14,7 +14,7 @@ enum Background: Sendable, Equatable {
     ///   - Linear: "linear-gradient(45deg, red, blue)"
     ///   - Radial: "radial-gradient(#FF0000, #0000FF)"
     ///   - Angular: "angular-gradient(red, orange, yellow, green, blue, purple, red)"
-    init(_ string: String) {
+    public init(_ string: String) {
         let trimmed = string.trimmingCharacters(in: .whitespaces)
 
         if trimmed.hasPrefix("linear-gradient(") {
@@ -29,7 +29,7 @@ enum Background: Sendable, Equatable {
     }
 
     /// Raw string representation for serialization
-    var rawValue: String {
+    public var rawValue: String {
         switch self {
         case .solid(let color):
             return color.rawValue
@@ -48,7 +48,7 @@ enum Background: Sendable, Equatable {
 
     /// Convert to SwiftUI ShapeStyle for filling
     @MainActor
-    func shapeStyle(in rect: CGRect) -> AnyShapeStyle {
+    public func shapeStyle(in rect: CGRect) -> AnyShapeStyle {
         switch self {
         case .solid(let cssColor):
             return AnyShapeStyle(cssColor.color() ?? .white)
@@ -219,21 +219,21 @@ enum Background: Sendable, Equatable {
 // MARK: - Convenience Static Properties
 
 extension Background {
-    static let white = Background.solid(CSSColor("white"))
-    static let black = Background.solid(CSSColor("black"))
-    static let clear = Background.solid(CSSColor("transparent"))
+    public static let white = Background.solid(CSSColor("white"))
+    public static let black = Background.solid(CSSColor("black"))
+    public static let clear = Background.solid(CSSColor("transparent"))
 }
 
 // MARK: - Codable
 
 extension Background: Codable {
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let string = try container.decode(String.self)
         self.init(string)
     }
 
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(rawValue)
     }

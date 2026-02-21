@@ -3,26 +3,26 @@ import Foundation
 // MARK: - XML Element
 
 /// A type-safe representation of an XML element
-struct XMLElement {
-    var name: String
-    var attributes: [String: String] = [:]
-    var children: [XMLContent] = []
+public struct XMLElement {
+    public var name: String
+    public var attributes: [String: String] = [:]
+    public var children: [XMLContent] = []
 
-    init(name: String, attributes: [String: String] = [:], children: [XMLContent] = []) {
+    public init(name: String, attributes: [String: String] = [:], children: [XMLContent] = []) {
         self.name = name
         self.attributes = attributes
         self.children = children
     }
 
     /// Convenience initializer for elements with only element children
-    init(name: String, attributes: [String: String] = [:], children: [XMLElement]) {
+    public init(name: String, attributes: [String: String] = [:], children: [XMLElement]) {
         self.name = name
         self.attributes = attributes
         self.children = children.map { .element($0) }
     }
 
     /// Convenience initializer for elements with text content
-    init(name: String, attributes: [String: String] = [:], text: String) {
+    public init(name: String, attributes: [String: String] = [:], text: String) {
         self.name = name
         self.attributes = attributes
         self.children = [.text(text)]
@@ -32,7 +32,7 @@ struct XMLElement {
 // MARK: - XML Content
 
 /// Content that can appear inside an XML element
-enum XMLContent {
+public enum XMLContent {
     case element(XMLElement)
     case text(String)
     case cdata(String)
@@ -43,7 +43,7 @@ enum XMLContent {
 
 extension XMLElement {
     /// Render to XML string with optional indentation
-    func render(indent: Int = 0, indentString: String = "  ") -> String {
+    public func render(indent: Int = 0, indentString: String = "  ") -> String {
         let prefix = String(repeating: indentString, count: indent)
         var result = prefix + "<" + name
 
@@ -75,7 +75,7 @@ extension XMLElement {
     }
 
     /// Render to compact XML string (no indentation)
-    func renderCompact() -> String {
+    public func renderCompact() -> String {
         var result = "<" + name
 
         for (key, value) in attributes.sorted(by: { $0.key < $1.key }) {
@@ -97,7 +97,7 @@ extension XMLElement {
 }
 
 extension XMLContent {
-    func render(indent: Int = 0, indentString: String = "  ") -> String {
+    public func render(indent: Int = 0, indentString: String = "  ") -> String {
         let prefix = String(repeating: indentString, count: indent)
 
         switch self {
@@ -112,7 +112,7 @@ extension XMLContent {
         }
     }
 
-    func renderCompact() -> String {
+    public func renderCompact() -> String {
         switch self {
         case .element(let element):
             return element.renderCompact()
@@ -152,7 +152,7 @@ private func escapeAttribute(_ value: String) -> String {
 
 extension XMLElement {
     /// Create an SVG root element
-    static func svg(
+    public static func svg(
         width: CGFloat,
         height: CGFloat,
         viewBox: String? = nil,
@@ -172,12 +172,12 @@ extension XMLElement {
     }
 
     /// Create a defs element (for gradients, clip paths, etc.)
-    static func defs(children: [XMLElement]) -> XMLElement {
+    public static func defs(children: [XMLElement]) -> XMLElement {
         XMLElement(name: "defs", children: children)
     }
 
     /// Create a group element
-    static func g(
+    public static func g(
         transform: String? = nil,
         clipPath: String? = nil,
         children: [XMLElement] = []
@@ -193,7 +193,7 @@ extension XMLElement {
     }
 
     /// Create a rect element
-    static func rect(
+    public static func rect(
         x: CGFloat = 0,
         y: CGFloat = 0,
         width: CGFloat,
@@ -219,7 +219,7 @@ extension XMLElement {
     }
 
     /// Create a path element
-    static func path(
+    public static func path(
         d: String,
         fill: String? = nil,
         stroke: String? = nil,
@@ -235,7 +235,7 @@ extension XMLElement {
     }
 
     /// Create a circle element
-    static func circle(
+    public static func circle(
         cx: CGFloat,
         cy: CGFloat,
         r: CGFloat,
@@ -255,7 +255,7 @@ extension XMLElement {
     }
 
     /// Create a text element
-    static func text(
+    public static func text(
         _ content: String,
         x: CGFloat,
         y: CGFloat,
@@ -282,7 +282,7 @@ extension XMLElement {
     }
 
     /// Create an image element (for embedded images)
-    static func image(
+    public static func image(
         href: String,
         x: CGFloat,
         y: CGFloat,
@@ -302,12 +302,12 @@ extension XMLElement {
     }
 
     /// Create a clipPath element
-    static func clipPath(id: String, children: [XMLElement]) -> XMLElement {
+    public static func clipPath(id: String, children: [XMLElement]) -> XMLElement {
         XMLElement(name: "clipPath", attributes: ["id": id], children: children)
     }
 
     /// Create a linearGradient element
-    static func linearGradient(
+    public static func linearGradient(
         id: String,
         x1: String = "0%",
         y1: String = "0%",
@@ -329,7 +329,7 @@ extension XMLElement {
     }
 
     /// Create a radialGradient element
-    static func radialGradient(
+    public static func radialGradient(
         id: String,
         cx: String = "50%",
         cy: String = "50%",

@@ -17,7 +17,7 @@ import SwiftUI
 /// 5. `popClip()` - Remove clipping
 ///
 @MainActor
-protocol IconRenderer {
+public protocol IconRenderer {
     /// The size of the icon being rendered
     var size: CGSize { get }
 
@@ -75,7 +75,7 @@ protocol IconRenderer {
 ///   - labels: The labels to render
 ///   - centerContent: Optional center content
 @MainActor
-func renderIcon<R: IconRenderer>(
+public func renderIcon<R: IconRenderer>(
     to renderer: inout R,
     background: Background,
     cornerStyle: CornerStyle,
@@ -106,24 +106,24 @@ func renderIcon<R: IconRenderer>(
 // MARK: - Geometry Helpers
 
 /// Shared geometry calculations for icon rendering
-enum IconGeometry {
+public enum IconGeometry {
     /// Standard ribbon thickness as a ratio of icon size
-    static let ribbonThicknessRatio: CGFloat = 0.15
+    public static let ribbonThicknessRatio: CGFloat = 0.15
 
     /// Standard pill height as a ratio of icon size
-    static let pillHeightRatio: CGFloat = 0.12
+    public static let pillHeightRatio: CGFloat = 0.12
 
     /// Standard pill padding as a ratio of icon size
-    static let pillPaddingRatio: CGFloat = 0.05
+    public static let pillPaddingRatio: CGFloat = 0.05
 
     /// Diagonal ribbon width as a ratio of icon size
-    static let diagonalWidthRatio: CGFloat = 0.35
+    public static let diagonalWidthRatio: CGFloat = 0.35
 
     /// Label font size as a ratio of icon size
-    static let labelFontSizeRatio: CGFloat = 0.08
+    public static let labelFontSizeRatio: CGFloat = 0.08
 
     /// Create the squircle/rounded rect path for the icon shape
-    static func iconPath(in rect: CGRect, cornerStyle: CornerStyle, cornerRadius: CGFloat) -> Path {
+    public static func iconPath(in rect: CGRect, cornerStyle: CornerStyle, cornerRadius: CGFloat) -> Path {
         let radius = min(rect.width, rect.height) * cornerRadius
         if let style = cornerStyle.roundedCornerStyle {
             return Path(roundedRect: rect, cornerRadius: radius, style: style)
@@ -133,7 +133,7 @@ enum IconGeometry {
     }
 
     /// Calculate the rect for an edge ribbon
-    static func edgeRibbonRect(for position: LabelPosition, in size: CGSize) -> CGRect {
+    public static func edgeRibbonRect(for position: LabelPosition, in size: CGSize) -> CGRect {
         let thickness = size.height * ribbonThicknessRatio
         switch position {
         case .top:
@@ -150,7 +150,7 @@ enum IconGeometry {
     }
 
     /// Calculate the triangle path for a corner ribbon
-    static func cornerRibbonPath(for position: LabelPosition, in size: CGSize) -> Path {
+    public static func cornerRibbonPath(for position: LabelPosition, in size: CGSize) -> Path {
         let width = size.width * diagonalWidthRatio
         var path = Path()
 
@@ -183,7 +183,7 @@ enum IconGeometry {
     }
 
     /// Calculate the centroid point for a corner ribbon (where content is placed)
-    static func cornerRibbonCentroid(for position: LabelPosition, in size: CGSize) -> CGPoint {
+    public static func cornerRibbonCentroid(for position: LabelPosition, in size: CGSize) -> CGPoint {
         let width = size.width * diagonalWidthRatio
         switch position {
         case .topLeft:
@@ -200,7 +200,7 @@ enum IconGeometry {
     }
 
     /// Get the rotation angle for a corner ribbon's content
-    static func cornerRibbonRotation(for position: LabelPosition) -> Angle {
+    public static func cornerRibbonRotation(for position: LabelPosition) -> Angle {
         switch position {
         case .topLeft: return .degrees(-45)
         case .topRight: return .degrees(45)
@@ -216,7 +216,7 @@ enum IconGeometry {
     ///   - size: The icon size
     ///   - contentSize: The size of the content inside the pill
     ///   - cornerRadiusRatio: The icon's corner radius ratio (for safe padding)
-    static func pillRect(
+    public static func pillRect(
         for position: LabelPosition,
         in size: CGSize,
         contentSize: CGSize,
@@ -242,7 +242,7 @@ enum IconGeometry {
     }
 
     /// Get the font size for labels
-    static func labelFontSize(for iconSize: CGSize) -> CGFloat {
+    public static func labelFontSize(for iconSize: CGSize) -> CGFloat {
         iconSize.width * labelFontSizeRatio
     }
 }

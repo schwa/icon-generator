@@ -1,15 +1,15 @@
 import SwiftUI
 
 /// A builder for constructing SVG documents using XMLElement
-class SVGDocument {
-    let width: CGFloat
-    let height: CGFloat
+public class SVGDocument {
+    public let width: CGFloat
+    public let height: CGFloat
 
     private var defs: [XMLElement] = []
     private var bodyElements: [XMLElement] = []
     private var idCounter = 0
 
-    init(width: CGFloat, height: CGFloat) {
+    public init(width: CGFloat, height: CGFloat) {
         self.width = width
         self.height = height
     }
@@ -17,7 +17,7 @@ class SVGDocument {
     // MARK: - ID Generation
 
     /// Generate a unique ID for definitions
-    func generateID(prefix: String = "id") -> String {
+    public func generateID(prefix: String = "id") -> String {
         idCounter += 1
         return "\(prefix)\(idCounter)"
     }
@@ -26,7 +26,7 @@ class SVGDocument {
 
     /// Add a definition element (gradient, clipPath, etc.) and return its ID
     @discardableResult
-    func addDef(_ element: XMLElement) -> String {
+    public func addDef(_ element: XMLElement) -> String {
         // Extract or generate ID
         let id = element.attributes["id"] ?? generateID()
         var elementWithID = element
@@ -35,21 +35,8 @@ class SVGDocument {
         return id
     }
 
-    /// Add a gradient definition from a Background
-    /// Returns the fill reference (e.g., "url(#grad1)") or nil if solid color
-    func addGradient(from background: Background, id: String? = nil) -> String? {
-        let rect = CGRect(x: 0, y: 0, width: width, height: height)
-        let gradientID = id ?? generateID(prefix: "gradient")
-
-        if let (element, fillRef) = background.svgGradient(id: gradientID, in: rect) {
-            defs.append(element)
-            return fillRef
-        }
-        return nil
-    }
-
     /// Add a clip path definition
-    func addClipPath(path: Path, id: String? = nil) -> String {
+    public func addClipPath(path: Path, id: String? = nil) -> String {
         let clipID = id ?? generateID(prefix: "clip")
         let pathData = path.svgPathData()
         let clipPath = XMLElement.clipPath(id: clipID, children: [
@@ -62,17 +49,17 @@ class SVGDocument {
     // MARK: - Body Elements
 
     /// Add an element to the document body
-    func addElement(_ element: XMLElement) {
+    public func addElement(_ element: XMLElement) {
         bodyElements.append(element)
     }
 
     /// Add multiple elements to the document body
-    func addElements(_ elements: [XMLElement]) {
+    public func addElements(_ elements: [XMLElement]) {
         bodyElements.append(contentsOf: elements)
     }
 
     /// Add a group of elements
-    func addGroup(transform: String? = nil, clipPath: String? = nil, children: [XMLElement]) {
+    public func addGroup(transform: String? = nil, clipPath: String? = nil, children: [XMLElement]) {
         let group = XMLElement.g(transform: transform, clipPath: clipPath, children: children)
         bodyElements.append(group)
     }
@@ -80,7 +67,7 @@ class SVGDocument {
     // MARK: - Building
 
     /// Build the complete SVG document as XMLElement
-    func build() -> XMLElement {
+    public func build() -> XMLElement {
         var children: [XMLElement] = []
 
         // Add defs if any
@@ -95,7 +82,7 @@ class SVGDocument {
     }
 
     /// Render the document to an SVG string
-    func render(compact: Bool = false) -> String {
+    public func render(compact: Bool = false) -> String {
         let svg = build()
         let xmlDeclaration = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
 
@@ -111,7 +98,7 @@ class SVGDocument {
 
 extension SVGDocument {
     /// Add a filled rectangle
-    func addRect(
+    public func addRect(
         x: CGFloat = 0,
         y: CGFloat = 0,
         width: CGFloat,
@@ -123,16 +110,17 @@ extension SVGDocument {
     }
 
     /// Add a filled path
-    func addPath(d: String, fill: String) {
+    public func addPath(d: String, fill: String) {
         addElement(XMLElement.path(d: d, fill: fill))
     }
 
     /// Add text
-    func addText(
+    public func addText(
         _ content: String,
         x: CGFloat,
         y: CGFloat,
         fontSize: CGFloat,
+        fontFamily: String = "-apple-system, BlinkMacSystemFont, 'SF Pro', sans-serif",
         fontWeight: String = "bold",
         fill: String,
         textAnchor: String = "middle",
@@ -144,7 +132,7 @@ extension SVGDocument {
             x: x,
             y: y,
             fontSize: fontSize,
-            fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro', sans-serif",
+            fontFamily: fontFamily,
             fontWeight: fontWeight,
             fill: fill,
             textAnchor: textAnchor,
@@ -154,7 +142,7 @@ extension SVGDocument {
     }
 
     /// Add an embedded image (base64)
-    func addImage(
+    public func addImage(
         data: Data,
         mimeType: String = "image/png",
         x: CGFloat,
