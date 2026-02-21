@@ -110,12 +110,16 @@ struct IconRenderingTests {
         let label = IconLabel(
             content: .text("BETA"),
             position: .topRight,
-            backgroundColor: CSSColor("#FF0000"),
+            backgroundColor: .solid(CSSColor("#FF0000")),
             foregroundColor: CSSColor("#FFFFFF")
         )
 
         #expect(label.position == .topRight)
-        #expect(label.resolvedBackgroundColor != Color.clear)
+        if case .solid(let color) = label.backgroundColor {
+            #expect(color.color() != nil)
+        } else {
+            Issue.record("Expected solid background")
+        }
     }
 
     // MARK: - CenterContent Tests

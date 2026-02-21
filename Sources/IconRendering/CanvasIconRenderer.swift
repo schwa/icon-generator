@@ -58,12 +58,18 @@ public struct CanvasIconRenderer: IconRenderer {
         }
     }
 
+    // MARK: - Fill Helper
+
+    private mutating func fillPath(_ path: Path, with background: Background, in rect: CGRect) {
+        context.fill(path, with: .style(background.shapeStyle(in: rect)))
+    }
+
     // MARK: - Edge Ribbons
 
     private mutating func renderEdgeRibbon(_ label: IconLabel) {
         let rect = IconGeometry.edgeRibbonRect(for: label.position, in: size)
         let path = Path(rect)
-        context.fill(path, with: .color(label.resolvedBackgroundColor))
+        fillPath(path, with: label.backgroundColor, in: rect)
 
         // Resolve and draw content
         let resolvedContent = resolveContent(label.content, foregroundColor: label.resolvedForegroundColor, rotation: label.rotation)
@@ -96,7 +102,7 @@ public struct CanvasIconRenderer: IconRenderer {
 
     private mutating func renderCornerRibbon(_ label: IconLabel) {
         let path = IconGeometry.cornerRibbonPath(for: label.position, in: size)
-        context.fill(path, with: .color(label.resolvedBackgroundColor))
+        fillPath(path, with: label.backgroundColor, in: path.boundingRect)
 
         // Resolve content
         let resolvedContent = resolveContent(label.content, foregroundColor: label.resolvedForegroundColor, rotation: label.rotation)
@@ -128,7 +134,7 @@ public struct CanvasIconRenderer: IconRenderer {
 
         // Draw pill background
         let pillPath = Path(roundedRect: pillRect, cornerRadius: pillRect.height / 2)
-        context.fill(pillPath, with: .color(label.resolvedBackgroundColor))
+        fillPath(pillPath, with: label.backgroundColor, in: pillRect)
 
         // Draw centered content
         drawResolved(resolvedContent, at: CGPoint(x: pillRect.midX, y: pillRect.midY))

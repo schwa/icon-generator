@@ -176,7 +176,7 @@ struct IconGenerator: AsyncParsableCommand {
 
             let cgImage = try await MainActor.run {
                 try renderSquircle(
-                    background: Background(kitchenSinkConfig.background),
+                    background: kitchenSinkConfig.background.toBackground(),
                     size: kitchenSinkConfig.size,
                     cornerStyle: kitchenSinkConfig.cornerStyle,
                     cornerRadiusRatio: kitchenSinkConfig.cornerRadius,
@@ -218,7 +218,7 @@ struct IconGenerator: AsyncParsableCommand {
                     try AppIconSetGenerator.generate(
                         at: resolvedOutput,
                         platform: iconPlatform,
-                        background: Background(randomConfig.background),
+                        background: randomConfig.background.toBackground(),
                         cornerStyle: randomConfig.cornerStyle,
                         cornerRadiusRatio: randomConfig.cornerRadius,
                         labels: labels,
@@ -229,7 +229,7 @@ struct IconGenerator: AsyncParsableCommand {
             } else {
                 let cgImage = try await MainActor.run {
                     try renderSquircle(
-                        background: Background(randomConfig.background),
+                        background: randomConfig.background.toBackground(),
                         size: randomConfig.size,
                         cornerStyle: randomConfig.cornerStyle,
                         cornerRadiusRatio: randomConfig.cornerRadius,
@@ -254,7 +254,14 @@ struct IconGenerator: AsyncParsableCommand {
         }
 
         // Resolve values: CLI > config > defaults
-        let resolvedBackground = Background(background ?? fileConfig?.background ?? "white")
+        let resolvedBackground: Background
+        if let bgString = background {
+            resolvedBackground = Background(bgString)
+        } else if let bgConfig = fileConfig?.background {
+            resolvedBackground = bgConfig.toBackground()
+        } else {
+            resolvedBackground = .white
+        }
         let resolvedOutput = output ?? fileConfig?.output ?? "icon.png"
         let resolvedSize = size ?? fileConfig?.size ?? 1024
         let resolvedCornerStyle = cornerStyle ?? fileConfig?.cornerStyle ?? .squircle
@@ -301,7 +308,7 @@ struct IconGenerator: AsyncParsableCommand {
         // If --dump-config, output JSON and exit without generating image
         if dumpConfig {
             let resolvedConfig = ResolvedConfiguration(
-                background: resolvedBackground.rawValue,
+                background: BackgroundConfiguration(from: resolvedBackground),
                 output: resolvedOutput,
                 size: resolvedSize,
                 cornerStyle: resolvedCornerStyle,

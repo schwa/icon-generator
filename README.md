@@ -95,10 +95,22 @@ icon-generator -o AppIcon.appiconset --platform macos --background "#F05138"
 
 ```json
 {
-  "background": "linear-gradient(135deg, #667eea, #764ba2)",
+  "background": {
+    "type": "linear",
+    "colors": ["#667eea", "#764ba2"],
+    "angle": 135
+  },
   "output": "icon.png",
   "labels": [
-    {"position": "topRight", "text": "BETA", "background-color": "#FF0000"},
+    {
+      "position": "topRight",
+      "text": "BETA",
+      "background-color": {
+        "type": "linear",
+        "colors": ["#FF3B30", "#FF9500"],
+        "angle": 45
+      }
+    },
     {"position": "topLeft", "symbol": "star.fill", "background-color": "#FFD700"}
   ],
   "center": {
@@ -109,10 +121,41 @@ icon-generator -o AppIcon.appiconset --platform macos --background "#F05138"
 }
 ```
 
-Content is specified using one of these keys:
+### Content Keys
 - `text` - Plain text string
 - `symbol` - SF Symbol name (without `sf:` prefix)
 - `image` - Path to image file (without `@` prefix)
+
+### Background/Color Values
+Solid colors can be specified as strings (`"#FF0000"`, `"red"`).
+
+Gradients use structured objects:
+
+```json
+// Linear gradient
+{
+  "type": "linear",
+  "colors": ["#FF0000", "#0000FF"],
+  "angle": 45
+}
+
+// Radial gradient
+{
+  "type": "radial",
+  "colors": ["#FFCC00", "#FF6600"],
+  "center": [0.5, 0.5],
+  "start-radius": 0,
+  "end-radius": 0.7
+}
+
+// Angular/conic gradient
+{
+  "type": "angular",
+  "colors": ["red", "orange", "yellow", "green", "blue", "purple", "red"],
+  "center": [0.5, 0.5],
+  "angle": 0
+}
+```
 
 ```bash
 icon-generator --config icon.json
@@ -155,7 +198,7 @@ Corner Styles:
 
 JSON Config Example:
   {
-    "background": "#3366FF",
+    "background": {"type": "linear", "colors": ["#667eea", "#764ba2"], "angle": 135},
     "output": "icon.png",
     "size": 1024,
     "corner-style": "squircle",
@@ -176,6 +219,12 @@ JSON content keys (use one per label/center):
   "text": "BETA"           Plain text
   "symbol": "star.fill"    SF Symbol name
   "image": "/path/to.png"  Image file path
+
+JSON gradient backgrounds:
+  Solid:   "#FF0000" or "red"
+  Linear:  {"type": "linear", "colors": [...], "angle": 45}
+  Radial:  {"type": "radial", "colors": [...]}
+  Angular: {"type": "angular", "colors": [...]}
 
 Labels can be added using the --label option (repeatable).
 

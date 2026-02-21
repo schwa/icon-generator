@@ -71,11 +71,21 @@ public struct SVGIconRenderer: IconRenderer {
         }
     }
 
+    // MARK: - Fill Helper
+
+    private mutating func fillString(for background: Background) -> String {
+        if let fillRef = document.addGradient(from: background) {
+            return fillRef
+        } else {
+            return background.svgFill()
+        }
+    }
+
     // MARK: - Edge Ribbons
 
     private mutating func renderEdgeRibbon(_ label: IconLabel) {
         let rect = IconGeometry.edgeRibbonRect(for: label.position, in: size)
-        let fill = label.resolvedBackgroundColor.svgString()
+        let fill = fillString(for: label.backgroundColor)
 
         // Background rect (clipped to icon shape)
         var rectElement = XMLElement.rect(
@@ -131,7 +141,7 @@ public struct SVGIconRenderer: IconRenderer {
     private mutating func renderCornerRibbon(_ label: IconLabel) {
         let path = IconGeometry.cornerRibbonPath(for: label.position, in: size)
         let pathData = path.svgPathData()
-        let fill = label.resolvedBackgroundColor.svgString()
+        let fill = fillString(for: label.backgroundColor)
 
         // Background triangle (clipped to icon shape)
         var pathElement = XMLElement.path(d: pathData, fill: fill)
@@ -173,7 +183,7 @@ public struct SVGIconRenderer: IconRenderer {
         )
 
         // Draw pill background
-        let fill = label.resolvedBackgroundColor.svgString()
+        let fill = fillString(for: label.backgroundColor)
         var pillElement = XMLElement.rect(
             x: pillRect.minX,
             y: pillRect.minY,

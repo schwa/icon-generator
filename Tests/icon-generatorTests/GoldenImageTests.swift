@@ -135,7 +135,7 @@ struct GoldenImageTests {
     func cornerRibbon() throws {
         let image = try renderIcon(
             labels: [
-                IconLabel(content: .text("BETA"), position: .topRight, backgroundColor: CSSColor("#FF0000"), foregroundColor: CSSColor("#FFFFFF"))
+                IconLabel(content: .text("BETA"), position: .topRight, backgroundColor: .solid(CSSColor("#FF0000")), foregroundColor: CSSColor("#FFFFFF"))
             ]
         )
 
@@ -148,7 +148,7 @@ struct GoldenImageTests {
     func edgeRibbon() throws {
         let image = try renderIcon(
             labels: [
-                IconLabel(content: .text("TOP"), position: .top, backgroundColor: CSSColor("#FF0000"), foregroundColor: CSSColor("#FFFFFF"))
+                IconLabel(content: .text("TOP"), position: .top, backgroundColor: .solid(CSSColor("#FF0000")), foregroundColor: CSSColor("#FFFFFF"))
             ]
         )
 
@@ -161,7 +161,7 @@ struct GoldenImageTests {
     func pillLabel() throws {
         let image = try renderIcon(
             labels: [
-                IconLabel(content: .text("v2.0"), position: .pillCenter, backgroundColor: CSSColor("#FFFFFF"), foregroundColor: CSSColor("#000000"))
+                IconLabel(content: .text("v2.0"), position: .pillCenter, backgroundColor: .solid(CSSColor("#FFFFFF")), foregroundColor: CSSColor("#000000"))
             ]
         )
 
@@ -252,10 +252,10 @@ struct GoldenImageTests {
     func allCornerRibbons() throws {
         let image = try renderIcon(
             labels: [
-                IconLabel(content: .text("TL"), position: .topLeft, backgroundColor: CSSColor("#FF0000"), foregroundColor: CSSColor("#FFFFFF")),
-                IconLabel(content: .text("TR"), position: .topRight, backgroundColor: CSSColor("#00FF00"), foregroundColor: CSSColor("#000000")),
-                IconLabel(content: .text("BL"), position: .bottomLeft, backgroundColor: CSSColor("#0000FF"), foregroundColor: CSSColor("#FFFFFF")),
-                IconLabel(content: .text("BR"), position: .bottomRight, backgroundColor: CSSColor("#FFFF00"), foregroundColor: CSSColor("#000000")),
+                IconLabel(content: .text("TL"), position: .topLeft, backgroundColor: .solid(CSSColor("#FF0000")), foregroundColor: CSSColor("#FFFFFF")),
+                IconLabel(content: .text("TR"), position: .topRight, backgroundColor: .solid(CSSColor("#00FF00")), foregroundColor: CSSColor("#000000")),
+                IconLabel(content: .text("BL"), position: .bottomLeft, backgroundColor: .solid(CSSColor("#0000FF")), foregroundColor: CSSColor("#FFFFFF")),
+                IconLabel(content: .text("BR"), position: .bottomRight, backgroundColor: .solid(CSSColor("#FFFF00")), foregroundColor: CSSColor("#000000")),
             ]
         )
 
@@ -268,10 +268,10 @@ struct GoldenImageTests {
     func allEdgeRibbons() throws {
         let image = try renderIcon(
             labels: [
-                IconLabel(content: .text("TOP"), position: .top, backgroundColor: CSSColor("#FF0000"), foregroundColor: CSSColor("#FFFFFF")),
-                IconLabel(content: .text("BOT"), position: .bottom, backgroundColor: CSSColor("#00FF00"), foregroundColor: CSSColor("#000000")),
-                IconLabel(content: .text("L"), position: .left, backgroundColor: CSSColor("#0000FF"), foregroundColor: CSSColor("#FFFFFF")),
-                IconLabel(content: .text("R"), position: .right, backgroundColor: CSSColor("#FFFF00"), foregroundColor: CSSColor("#000000")),
+                IconLabel(content: .text("TOP"), position: .top, backgroundColor: .solid(CSSColor("#FF0000")), foregroundColor: CSSColor("#FFFFFF")),
+                IconLabel(content: .text("BOT"), position: .bottom, backgroundColor: .solid(CSSColor("#00FF00")), foregroundColor: CSSColor("#000000")),
+                IconLabel(content: .text("L"), position: .left, backgroundColor: .solid(CSSColor("#0000FF")), foregroundColor: CSSColor("#FFFFFF")),
+                IconLabel(content: .text("R"), position: .right, backgroundColor: .solid(CSSColor("#FFFF00")), foregroundColor: CSSColor("#000000")),
             ]
         )
 
@@ -284,9 +284,9 @@ struct GoldenImageTests {
     func allPillPositions() throws {
         let image = try renderIcon(
             labels: [
-                IconLabel(content: .text("L"), position: .pillLeft, backgroundColor: CSSColor("#FF0000"), foregroundColor: CSSColor("#FFFFFF")),
-                IconLabel(content: .text("C"), position: .pillCenter, backgroundColor: CSSColor("#00FF00"), foregroundColor: CSSColor("#000000")),
-                IconLabel(content: .text("R"), position: .pillRight, backgroundColor: CSSColor("#0000FF"), foregroundColor: CSSColor("#FFFFFF")),
+                IconLabel(content: .text("L"), position: .pillLeft, backgroundColor: .solid(CSSColor("#FF0000")), foregroundColor: CSSColor("#FFFFFF")),
+                IconLabel(content: .text("C"), position: .pillCenter, backgroundColor: .solid(CSSColor("#00FF00")), foregroundColor: CSSColor("#000000")),
+                IconLabel(content: .text("R"), position: .pillRight, backgroundColor: .solid(CSSColor("#0000FF")), foregroundColor: CSSColor("#FFFFFF")),
             ]
         )
 
@@ -301,7 +301,7 @@ struct GoldenImageTests {
     func sfSymbolCornerRibbon() throws {
         let image = try renderIcon(
             labels: [
-                IconLabel(content: .sfSymbol("star.fill"), position: .topRight, backgroundColor: CSSColor("#FFD700"), foregroundColor: CSSColor("#000000"))
+                IconLabel(content: .sfSymbol("star.fill"), position: .topRight, backgroundColor: .solid(CSSColor("#FFD700")), foregroundColor: CSSColor("#000000"))
             ]
         )
 
@@ -314,7 +314,7 @@ struct GoldenImageTests {
     func sfSymbolPill() throws {
         let image = try renderIcon(
             labels: [
-                IconLabel(content: .sfSymbol("heart.fill"), position: .pillCenter, backgroundColor: CSSColor("#FF69B4"), foregroundColor: CSSColor("#FFFFFF"))
+                IconLabel(content: .sfSymbol("heart.fill"), position: .pillCenter, backgroundColor: .solid(CSSColor("#FF69B4")), foregroundColor: CSSColor("#FFFFFF"))
             ]
         )
 
@@ -388,7 +388,7 @@ struct GoldenImageTests {
         let image = try renderIcon(
             background: .solid(CSSColor("coral")),
             labels: [
-                IconLabel(content: .text("OK"), position: .pillCenter, backgroundColor: CSSColor("navy"), foregroundColor: CSSColor("white"))
+                IconLabel(content: .text("OK"), position: .pillCenter, backgroundColor: .solid(CSSColor("navy")), foregroundColor: CSSColor("white"))
             ]
         )
 
@@ -402,9 +402,9 @@ struct GoldenImageTests {
     @MainActor
     func kitchenSink() throws {
         let labels = [
-            IconLabel(content: .sfSymbol("star.fill"), position: .topLeft, backgroundColor: CSSColor("#FFD700"), foregroundColor: CSSColor("#000000")),
-            IconLabel(content: .text("BETA"), position: .topRight, backgroundColor: CSSColor("#FF0000"), foregroundColor: CSSColor("#FFFFFF")),
-            IconLabel(content: .text("v2.0"), position: .pillCenter, backgroundColor: CSSColor("#FFFFFF"), foregroundColor: CSSColor("#000000")),
+            IconLabel(content: .sfSymbol("star.fill"), position: .topLeft, backgroundColor: .solid(CSSColor("#FFD700")), foregroundColor: CSSColor("#000000")),
+            IconLabel(content: .text("BETA"), position: .topRight, backgroundColor: .solid(CSSColor("#FF0000")), foregroundColor: CSSColor("#FFFFFF")),
+            IconLabel(content: .text("v2.0"), position: .pillCenter, backgroundColor: .solid(CSSColor("#FFFFFF")), foregroundColor: CSSColor("#000000")),
         ]
 
         let image = try renderIcon(
@@ -423,19 +423,19 @@ struct GoldenImageTests {
         // Test with all possible label positions filled
         let labels = [
             // Corner ribbons
-            IconLabel(content: .text("1"), position: .topLeft, backgroundColor: CSSColor("#FF0000"), foregroundColor: CSSColor("#FFFFFF")),
-            IconLabel(content: .text("2"), position: .topRight, backgroundColor: CSSColor("#FF7F00"), foregroundColor: CSSColor("#000000")),
-            IconLabel(content: .text("3"), position: .bottomLeft, backgroundColor: CSSColor("#FFFF00"), foregroundColor: CSSColor("#000000")),
-            IconLabel(content: .text("4"), position: .bottomRight, backgroundColor: CSSColor("#00FF00"), foregroundColor: CSSColor("#000000")),
+            IconLabel(content: .text("1"), position: .topLeft, backgroundColor: .solid(CSSColor("#FF0000")), foregroundColor: CSSColor("#FFFFFF")),
+            IconLabel(content: .text("2"), position: .topRight, backgroundColor: .solid(CSSColor("#FF7F00")), foregroundColor: CSSColor("#000000")),
+            IconLabel(content: .text("3"), position: .bottomLeft, backgroundColor: .solid(CSSColor("#FFFF00")), foregroundColor: CSSColor("#000000")),
+            IconLabel(content: .text("4"), position: .bottomRight, backgroundColor: .solid(CSSColor("#00FF00")), foregroundColor: CSSColor("#000000")),
             // Edge ribbons
-            IconLabel(content: .text("T"), position: .top, backgroundColor: CSSColor("#0000FF"), foregroundColor: CSSColor("#FFFFFF")),
-            IconLabel(content: .text("B"), position: .bottom, backgroundColor: CSSColor("#4B0082"), foregroundColor: CSSColor("#FFFFFF")),
-            IconLabel(content: .text("L"), position: .left, backgroundColor: CSSColor("#8B00FF"), foregroundColor: CSSColor("#FFFFFF")),
-            IconLabel(content: .text("R"), position: .right, backgroundColor: CSSColor("#FF1493"), foregroundColor: CSSColor("#FFFFFF")),
+            IconLabel(content: .text("T"), position: .top, backgroundColor: .solid(CSSColor("#0000FF")), foregroundColor: CSSColor("#FFFFFF")),
+            IconLabel(content: .text("B"), position: .bottom, backgroundColor: .solid(CSSColor("#4B0082")), foregroundColor: CSSColor("#FFFFFF")),
+            IconLabel(content: .text("L"), position: .left, backgroundColor: .solid(CSSColor("#8B00FF")), foregroundColor: CSSColor("#FFFFFF")),
+            IconLabel(content: .text("R"), position: .right, backgroundColor: .solid(CSSColor("#FF1493")), foregroundColor: CSSColor("#FFFFFF")),
             // Pills
-            IconLabel(content: .text("PL"), position: .pillLeft, backgroundColor: CSSColor("#FFFFFF"), foregroundColor: CSSColor("#000000")),
-            IconLabel(content: .text("PC"), position: .pillCenter, backgroundColor: CSSColor("#CCCCCC"), foregroundColor: CSSColor("#000000")),
-            IconLabel(content: .text("PR"), position: .pillRight, backgroundColor: CSSColor("#999999"), foregroundColor: CSSColor("#FFFFFF")),
+            IconLabel(content: .text("PL"), position: .pillLeft, backgroundColor: .solid(CSSColor("#FFFFFF")), foregroundColor: CSSColor("#000000")),
+            IconLabel(content: .text("PC"), position: .pillCenter, backgroundColor: .solid(CSSColor("#CCCCCC")), foregroundColor: CSSColor("#000000")),
+            IconLabel(content: .text("PR"), position: .pillRight, backgroundColor: .solid(CSSColor("#999999")), foregroundColor: CSSColor("#FFFFFF")),
         ]
 
         let image = try renderIcon(
@@ -453,8 +453,8 @@ struct GoldenImageTests {
         let image = try renderIcon(
             background: Background("radial-gradient(#4158D0, #C850C0, #FFCC70)"),
             labels: [
-                IconLabel(content: .text("PRO"), position: .topRight, backgroundColor: CSSColor("#FFD700"), foregroundColor: CSSColor("#000000")),
-                IconLabel(content: .text("v3.0"), position: .pillRight, backgroundColor: CSSColor("#FFFFFF"), foregroundColor: CSSColor("#000000")),
+                IconLabel(content: .text("PRO"), position: .topRight, backgroundColor: .solid(CSSColor("#FFD700")), foregroundColor: CSSColor("#000000")),
+                IconLabel(content: .text("v3.0"), position: .pillRight, backgroundColor: .solid(CSSColor("#FFFFFF")), foregroundColor: CSSColor("#000000")),
             ],
             centerContent: CenterContent(content: .sfSymbol("sparkles"), color: CSSColor("#FFFFFF"), sizeRatio: 0.45)
         )
@@ -471,7 +471,7 @@ struct GoldenImageTests {
         // With rotateContent=false, text stays upright on diagonal ribbons
         let image = try renderIcon(
             labels: [
-                IconLabel(content: .text("UP"), position: .topRight, backgroundColor: CSSColor("#FF0000"), foregroundColor: CSSColor("#FFFFFF"), rotateContent: false)
+                IconLabel(content: .text("UP"), position: .topRight, backgroundColor: .solid(CSSColor("#FF0000")), foregroundColor: CSSColor("#FFFFFF"), rotateContent: false)
             ]
         )
 
@@ -485,8 +485,8 @@ struct GoldenImageTests {
         // Show both rotated (default) and non-rotated on same icon
         let image = try renderIcon(
             labels: [
-                IconLabel(content: .text("ROT"), position: .topLeft, backgroundColor: CSSColor("#FF0000"), foregroundColor: CSSColor("#FFFFFF"), rotateContent: true),
-                IconLabel(content: .text("UP"), position: .topRight, backgroundColor: CSSColor("#0000FF"), foregroundColor: CSSColor("#FFFFFF"), rotateContent: false),
+                IconLabel(content: .text("ROT"), position: .topLeft, backgroundColor: .solid(CSSColor("#FF0000")), foregroundColor: CSSColor("#FFFFFF"), rotateContent: true),
+                IconLabel(content: .text("UP"), position: .topRight, backgroundColor: .solid(CSSColor("#0000FF")), foregroundColor: CSSColor("#FFFFFF"), rotateContent: false),
             ]
         )
 
@@ -578,7 +578,7 @@ struct GoldenImageTests {
 
         let image = try renderIcon(
             labels: [
-                IconLabel(content: .image(testImageURL), position: .pillCenter, backgroundColor: CSSColor("#FFFFFF"), foregroundColor: CSSColor("#000000"))
+                IconLabel(content: .image(testImageURL), position: .pillCenter, backgroundColor: .solid(CSSColor("#FFFFFF")), foregroundColor: CSSColor("#000000"))
             ]
         )
 
@@ -593,7 +593,7 @@ struct GoldenImageTests {
 
         let image = try renderIcon(
             labels: [
-                IconLabel(content: .image(testImageURL), position: .topRight, backgroundColor: CSSColor("#FFD700"), foregroundColor: CSSColor("#000000"))
+                IconLabel(content: .image(testImageURL), position: .topRight, backgroundColor: .solid(CSSColor("#FFD700")), foregroundColor: CSSColor("#000000"))
             ]
         )
 
@@ -654,7 +654,7 @@ struct GoldenImageTests {
     func labelWithRotation() throws {
         let image = try renderIcon(
             labels: [
-                IconLabel(content: .sfSymbol("arrow.right"), position: .pillCenter, backgroundColor: CSSColor("#FFFFFF"), foregroundColor: CSSColor("#000000"), rotation: 45)
+                IconLabel(content: .sfSymbol("arrow.right"), position: .pillCenter, backgroundColor: .solid(CSSColor("#FFFFFF")), foregroundColor: CSSColor("#000000"), rotation: 45)
             ]
         )
 
@@ -669,7 +669,7 @@ struct GoldenImageTests {
     func veryLongTextInPill() throws {
         let image = try renderIcon(
             labels: [
-                IconLabel(content: .text("LONGTEXT"), position: .pillCenter, backgroundColor: CSSColor("#FF0000"), foregroundColor: CSSColor("#FFFFFF"))
+                IconLabel(content: .text("LONGTEXT"), position: .pillCenter, backgroundColor: .solid(CSSColor("#FF0000")), foregroundColor: CSSColor("#FFFFFF"))
             ]
         )
 
@@ -751,8 +751,8 @@ struct GoldenImageTests {
         // Corner and edge labels that might overlap
         let image = try renderIcon(
             labels: [
-                IconLabel(content: .text("CORNER"), position: .topRight, backgroundColor: CSSColor("#FF0000"), foregroundColor: CSSColor("#FFFFFF")),
-                IconLabel(content: .text("EDGE"), position: .top, backgroundColor: CSSColor("#0000FF"), foregroundColor: CSSColor("#FFFFFF")),
+                IconLabel(content: .text("CORNER"), position: .topRight, backgroundColor: .solid(CSSColor("#FF0000")), foregroundColor: CSSColor("#FFFFFF")),
+                IconLabel(content: .text("EDGE"), position: .top, backgroundColor: .solid(CSSColor("#0000FF")), foregroundColor: CSSColor("#FFFFFF")),
             ]
         )
 
@@ -803,7 +803,7 @@ struct GoldenImageTests {
     func bottomLeftCornerRibbon() throws {
         let image = try renderIcon(
             labels: [
-                IconLabel(content: .text("BL"), position: .bottomLeft, backgroundColor: CSSColor("#9933FF"), foregroundColor: CSSColor("#FFFFFF"))
+                IconLabel(content: .text("BL"), position: .bottomLeft, backgroundColor: .solid(CSSColor("#9933FF")), foregroundColor: CSSColor("#FFFFFF"))
             ]
         )
 
@@ -816,7 +816,7 @@ struct GoldenImageTests {
     func bottomRightCornerRibbon() throws {
         let image = try renderIcon(
             labels: [
-                IconLabel(content: .text("BR"), position: .bottomRight, backgroundColor: CSSColor("#FF9933"), foregroundColor: CSSColor("#000000"))
+                IconLabel(content: .text("BR"), position: .bottomRight, backgroundColor: .solid(CSSColor("#FF9933")), foregroundColor: CSSColor("#000000"))
             ]
         )
 
@@ -831,7 +831,7 @@ struct GoldenImageTests {
     func leftEdgeRibbon() throws {
         let image = try renderIcon(
             labels: [
-                IconLabel(content: .text("LEFT"), position: .left, backgroundColor: CSSColor("#00CC99"), foregroundColor: CSSColor("#000000"))
+                IconLabel(content: .text("LEFT"), position: .left, backgroundColor: .solid(CSSColor("#00CC99")), foregroundColor: CSSColor("#000000"))
             ]
         )
 
@@ -844,7 +844,7 @@ struct GoldenImageTests {
     func rightEdgeRibbon() throws {
         let image = try renderIcon(
             labels: [
-                IconLabel(content: .text("RIGHT"), position: .right, backgroundColor: CSSColor("#CC9900"), foregroundColor: CSSColor("#000000"))
+                IconLabel(content: .text("RIGHT"), position: .right, backgroundColor: .solid(CSSColor("#CC9900")), foregroundColor: CSSColor("#000000"))
             ]
         )
 
@@ -857,7 +857,7 @@ struct GoldenImageTests {
     func bottomEdgeRibbon() throws {
         let image = try renderIcon(
             labels: [
-                IconLabel(content: .text("BOTTOM"), position: .bottom, backgroundColor: CSSColor("#CC0099"), foregroundColor: CSSColor("#FFFFFF"))
+                IconLabel(content: .text("BOTTOM"), position: .bottom, backgroundColor: .solid(CSSColor("#CC0099")), foregroundColor: CSSColor("#FFFFFF"))
             ]
         )
 
@@ -872,7 +872,7 @@ struct GoldenImageTests {
     func pillLeft() throws {
         let image = try renderIcon(
             labels: [
-                IconLabel(content: .text("L"), position: .pillLeft, backgroundColor: CSSColor("#FFFFFF"), foregroundColor: CSSColor("#000000"))
+                IconLabel(content: .text("L"), position: .pillLeft, backgroundColor: .solid(CSSColor("#FFFFFF")), foregroundColor: CSSColor("#000000"))
             ]
         )
 
@@ -885,7 +885,7 @@ struct GoldenImageTests {
     func pillRight() throws {
         let image = try renderIcon(
             labels: [
-                IconLabel(content: .text("R"), position: .pillRight, backgroundColor: CSSColor("#FFFFFF"), foregroundColor: CSSColor("#000000"))
+                IconLabel(content: .text("R"), position: .pillRight, backgroundColor: .solid(CSSColor("#FFFFFF")), foregroundColor: CSSColor("#000000"))
             ]
         )
 
@@ -911,7 +911,7 @@ struct GoldenImageTests {
     func unicodeInLabel() throws {
         let image = try renderIcon(
             labels: [
-                IconLabel(content: .text("日本"), position: .pillCenter, backgroundColor: CSSColor("#FFFFFF"), foregroundColor: CSSColor("#000000"))
+                IconLabel(content: .text("日本"), position: .pillCenter, backgroundColor: .solid(CSSColor("#FFFFFF")), foregroundColor: CSSColor("#000000"))
             ]
         )
 

@@ -243,7 +243,7 @@ struct SVGGoldenTests {
     func cornerRibbon() async throws {
         let svg = try renderSVG(
             labels: [
-                IconLabel(content: .text("BETA"), position: .topRight, backgroundColor: CSSColor("#FF0000"), foregroundColor: CSSColor("#FFFFFF"))
+                IconLabel(content: .text("BETA"), position: .topRight, backgroundColor: .solid(CSSColor("#FF0000")), foregroundColor: CSSColor("#FFFFFF"))
             ]
         )
 
@@ -259,7 +259,7 @@ struct SVGGoldenTests {
     func edgeRibbon() async throws {
         let svg = try renderSVG(
             labels: [
-                IconLabel(content: .text("TOP"), position: .top, backgroundColor: CSSColor("#FF0000"), foregroundColor: CSSColor("#FFFFFF"))
+                IconLabel(content: .text("TOP"), position: .top, backgroundColor: .solid(CSSColor("#FF0000")), foregroundColor: CSSColor("#FFFFFF"))
             ]
         )
 
@@ -275,7 +275,7 @@ struct SVGGoldenTests {
     func pillLabel() async throws {
         let svg = try renderSVG(
             labels: [
-                IconLabel(content: .text("v2.0"), position: .pillCenter, backgroundColor: CSSColor("#FFFFFF"), foregroundColor: CSSColor("#000000"))
+                IconLabel(content: .text("v2.0"), position: .pillCenter, backgroundColor: .solid(CSSColor("#FFFFFF")), foregroundColor: CSSColor("#000000"))
             ]
         )
 
@@ -291,10 +291,10 @@ struct SVGGoldenTests {
     func allLabelPositions() async throws {
         let svg = try renderSVG(
             labels: [
-                IconLabel(content: .text("TL"), position: .topLeft, backgroundColor: CSSColor("#FF0000"), foregroundColor: CSSColor("#FFFFFF")),
-                IconLabel(content: .text("TR"), position: .topRight, backgroundColor: CSSColor("#00FF00"), foregroundColor: CSSColor("#000000")),
-                IconLabel(content: .text("T"), position: .top, backgroundColor: CSSColor("#0000FF"), foregroundColor: CSSColor("#FFFFFF")),
-                IconLabel(content: .text("P"), position: .pillCenter, backgroundColor: CSSColor("#FFFFFF"), foregroundColor: CSSColor("#000000")),
+                IconLabel(content: .text("TL"), position: .topLeft, backgroundColor: .solid(CSSColor("#FF0000")), foregroundColor: CSSColor("#FFFFFF")),
+                IconLabel(content: .text("TR"), position: .topRight, backgroundColor: .solid(CSSColor("#00FF00")), foregroundColor: CSSColor("#000000")),
+                IconLabel(content: .text("T"), position: .top, backgroundColor: .solid(CSSColor("#0000FF")), foregroundColor: CSSColor("#FFFFFF")),
+                IconLabel(content: .text("P"), position: .pillCenter, backgroundColor: .solid(CSSColor("#FFFFFF")), foregroundColor: CSSColor("#000000")),
             ]
         )
 
@@ -357,8 +357,8 @@ struct SVGGoldenTests {
         let svg = try renderSVG(
             background: Background("linear-gradient(135deg, #667eea, #764ba2)"),
             labels: [
-                IconLabel(content: .text("BETA"), position: .topRight, backgroundColor: CSSColor("#FF0000"), foregroundColor: CSSColor("#FFFFFF")),
-                IconLabel(content: .text("v2.0"), position: .pillCenter, backgroundColor: CSSColor("#FFFFFF"), foregroundColor: CSSColor("#000000")),
+                IconLabel(content: .text("BETA"), position: .topRight, backgroundColor: .solid(CSSColor("#FF0000")), foregroundColor: CSSColor("#FFFFFF")),
+                IconLabel(content: .text("v2.0"), position: .pillCenter, backgroundColor: .solid(CSSColor("#FFFFFF")), foregroundColor: CSSColor("#000000")),
             ],
             centerContent: CenterContent(content: .text("S"), color: CSSColor("#FFFFFF"), sizeRatio: 0.4)
         )

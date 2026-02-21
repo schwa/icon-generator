@@ -53,11 +53,12 @@ struct LabelSpecification: ExpressibleByArgument, Sendable {
             colorStartIndex = 2
         }
 
-        let backgroundColor: CSSColor
+        let backgroundColor: Background
         if parts.count > colorStartIndex {
-            backgroundColor = CSSColor(parts[colorStartIndex])
+            // CLI labels support CSS-style gradient strings
+            backgroundColor = Background(parts[colorStartIndex])
         } else {
-            backgroundColor = .red
+            backgroundColor = .solid(.red)
         }
 
         let foregroundColor: CSSColor
