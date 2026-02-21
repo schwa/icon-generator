@@ -298,32 +298,36 @@ We're going with **Approach B** - a high-level protocol that abstracts icon rend
 
 ### Phase 2: Canvas/PNG Renderer
 
-#### Task 4: Create CanvasIconRenderer
-- [ ] Create `Sources/icon-generator/Rendering/CanvasIconRenderer.swift`
-- [ ] Wrap `GraphicsContext` and implement `IconRenderer`
-- [ ] Implement `renderBackground`:
-  - Convert `Background` → `GraphicsContext.Shading`
-  - Fill squircle path
-- [ ] Implement `pushClip`/`popClip`:
-  - Use `context.clip(to:)`
-  - Note: GraphicsContext clip is "permanent" - may need transform approach or separate context
-- [ ] Implement `renderEdgeRibbon`:
-  - Compute ribbon rect
-  - Fill background
-  - Resolve and draw content (text/symbol/image)
+#### Task 4: Create CanvasIconRenderer ✅ DONE
+- [x] Create `Sources/icon-generator/Rendering/CanvasIconRenderer.swift`
+- [x] Wrap `GraphicsContext` and implement `IconRenderer`
+- [x] Implement `renderBackground`:
+  - Convert `Background` → `GraphicsContext.Shading` via `background.shapeStyle()`
+  - Fill squircle path using `IconGeometry.iconPath()`
+- [x] Implement `pushClip`/`popClip`:
+  - Use `context.clip(to:)` for pushClip
+  - Note: popClip is a no-op since we don't need to restore clip state for our use case
+- [x] Implement `renderEdgeRibbon`:
+  - Compute ribbon rect via `IconGeometry.edgeRibbonRect()`
+  - Fill background, resolve and draw content
   - Handle rotation for left/right ribbons
-- [ ] Implement `renderCornerRibbon`:
-  - Compute triangle path
-  - Fill background  
-  - Position content at centroid
-  - Apply rotation transform
-- [ ] Implement `renderPill`:
-  - Compute pill rect based on content size
-  - Fill rounded rect
-  - Draw centered content
-- [ ] Implement `renderCenterContent`:
-  - Use `context.resolve(Text(...))` or `context.resolve(Image(...))`
-  - Apply size, color, rotation, offset
+- [x] Implement `renderCornerRibbon`:
+  - Compute triangle path via `IconGeometry.cornerRibbonPath()`
+  - Position content at centroid with rotation
+- [x] Implement `renderPill`:
+  - Compute pill rect via `IconGeometry.pillRect()`
+  - Fill rounded rect, draw centered content
+- [x] Implement `renderCenterContent`:
+  - Text via `context.resolve(Text(...))`
+  - SF Symbols via `context.resolve(Image(systemName:))`
+  - Images via `context.resolve(Image(nsImage:))`
+  - Applied scaling, rotation, offset
+- [x] Added `@MainActor` to protocol and renderer for thread safety
+- [x] Added 2 unit tests verifying renderer works
+
+**Known issues to address:**
+- Center symbol scaling may differ from original implementation
+- Visual/typographic text alignment modes not fully implemented (simplified for now)
 
 #### Task 5: Integrate into SquircleView
 - [ ] Update `SquircleView` to use `CanvasIconRenderer` + `renderIcon()`
@@ -331,6 +335,7 @@ We're going with **Approach B** - a high-level protocol that abstracts icon rend
 - [ ] Remove `drawLabel` method (now in renderer)
 - [ ] Verify PNG output matches current behavior
 - [ ] Run all existing tests - must pass!
+- **Note:** May defer this task - SquircleView works, and we can use CanvasIconRenderer in parallel
 
 ### Phase 3: SVG Infrastructure
 

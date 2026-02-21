@@ -16,6 +16,7 @@ import SwiftUI
 /// 4. `renderLabel()` (repeated) - Draw each label
 /// 5. `popClip()` - Remove clipping
 ///
+@MainActor
 protocol IconRenderer {
     /// The size of the icon being rendered
     var size: CGSize { get }
@@ -73,6 +74,7 @@ protocol IconRenderer {
 ///   - cornerRadius: The corner radius ratio
 ///   - labels: The labels to render
 ///   - centerContent: Optional center content
+@MainActor
 func renderIcon<R: IconRenderer>(
     to renderer: inout R,
     background: Background,

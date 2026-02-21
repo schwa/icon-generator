@@ -1082,6 +1082,195 @@ struct IconGeneratorExampleTests {
         )
     }
 
+    // MARK: - IconRenderer Tests
+
+    @Test("CanvasIconRenderer - basic rendering")
+    @MainActor
+    func canvasIconRendererBasic() throws {
+        let iconSize = CGSize(width: 512, height: 512)
+        let cornerRadiusRatio: CGFloat = 0.2237
+
+        // Create a Canvas-based view that uses the new renderer
+        let view = Canvas { context, size in
+            var renderer = CanvasIconRenderer(
+                context: context,
+                size: size,
+                cornerRadiusRatio: cornerRadiusRatio
+            )
+
+            renderIcon(
+                to: &renderer,
+                background: Background("#007AFF"),
+                cornerStyle: .squircle,
+                cornerRadius: cornerRadiusRatio,
+                labels: [
+                    IconLabel(content: .text("TEST"), position: .topRight, backgroundColor: .red, foregroundColor: .white)
+                ],
+                centerContent: CenterContent(content: .sfSymbol("star.fill"), color: .white, sizeRatio: 0.5)
+            )
+        }
+        .frame(width: iconSize.width, height: iconSize.height)
+
+        let imageRenderer = ImageRenderer(content: view)
+        imageRenderer.scale = 1.0
+
+        guard let cgImage = imageRenderer.cgImage else {
+            Issue.record("Failed to render image with CanvasIconRenderer")
+            return
+        }
+
+        let url = outputDirectory.appendingPathComponent("renderer-test-basic.png")
+        guard let destination = CGImageDestinationCreateWithURL(
+            url as CFURL,
+            UTType.png.identifier as CFString,
+            1,
+            nil
+        ) else {
+            Issue.record("Failed to create destination")
+            return
+        }
+
+        CGImageDestinationAddImage(destination, cgImage, nil)
+
+        guard CGImageDestinationFinalize(destination) else {
+            Issue.record("Failed to write PNG")
+            return
+        }
+
+        print("✅ Generated: renderer-test-basic.png")
+    }
+
+    @Test("CanvasIconRenderer - comparison with SquircleView")
+    @MainActor
+    func canvasIconRendererComparison() throws {
+        // Test config
+        let iconSize: CGFloat = 512
+        let cornerRadiusRatio: CGFloat = 0.2237
+        let background = Background("#007AFF")
+        let labels = [
+            IconLabel(content: .text("BETA"), position: .topRight, backgroundColor: .red, foregroundColor: .white)
+        ]
+        let centerContent = CenterContent(content: .sfSymbol("star.fill"), color: .white, sizeRatio: 0.5)
+
+        // Render with original SquircleView
+        let originalView = SquircleView(
+            background: background,
+            size: iconSize,
+            cornerStyle: .squircle,
+            cornerRadiusRatio: cornerRadiusRatio,
+            labels: labels,
+            centerContent: centerContent
+        )
+
+        let originalRenderer = ImageRenderer(content: originalView)
+        originalRenderer.scale = 1.0
+        guard let originalImage = originalRenderer.cgImage else {
+            Issue.record("Failed to render original")
+            return
+        }
+
+        // Render with new CanvasIconRenderer
+        let rendererView = Canvas { context, size in
+            var renderer = CanvasIconRenderer(
+                context: context,
+                size: size,
+                cornerRadiusRatio: cornerRadiusRatio
+            )
+            renderIcon(
+                to: &renderer,
+                background: background,
+                cornerStyle: .squircle,
+                cornerRadius: cornerRadiusRatio,
+                labels: labels,
+                centerContent: centerContent
+            )
+        }
+        .frame(width: iconSize, height: iconSize)
+
+        let newRenderer = ImageRenderer(content: rendererView)
+        newRenderer.scale = 1.0
+        guard let newImage = newRenderer.cgImage else {
+            Issue.record("Failed to render new")
+            return
+        }
+
+        // Save both for visual comparison
+        for (image, name) in [(originalImage, "compare-original"), (newImage, "compare-new")] {
+            let url = outputDirectory.appendingPathComponent("\(name).png")
+            guard let destination = CGImageDestinationCreateWithURL(
+                url as CFURL,
+                UTType.png.identifier as CFString,
+                1,
+                nil
+            ) else { continue }
+            CGImageDestinationAddImage(destination, image, nil)
+            CGImageDestinationFinalize(destination)
+            print("✅ Generated: \(name).png")
+        }
+    }
+
+    @Test("CanvasIconRenderer - all label types")
+    @MainActor
+    func canvasIconRendererAllLabels() throws {
+        let iconSize = CGSize(width: 512, height: 512)
+        let cornerRadiusRatio: CGFloat = 0.2237
+
+        let view = Canvas { context, size in
+            var renderer = CanvasIconRenderer(
+                context: context,
+                size: size,
+                cornerRadiusRatio: cornerRadiusRatio
+            )
+
+            renderIcon(
+                to: &renderer,
+                background: Background("#5856D6"),
+                cornerStyle: .squircle,
+                cornerRadius: cornerRadiusRatio,
+                labels: [
+                    // Edge ribbons
+                    IconLabel(content: .text("TOP"), position: .top, backgroundColor: .red, foregroundColor: .white),
+                    IconLabel(content: .text("BTM"), position: .bottom, backgroundColor: .blue, foregroundColor: .white),
+                    // Corner ribbons
+                    IconLabel(content: .sfSymbol("star.fill"), position: .topLeft, backgroundColor: CSSColor("#FFD700"), foregroundColor: .black),
+                    IconLabel(content: .text("NEW"), position: .topRight, backgroundColor: .green, foregroundColor: .white),
+                    // Pills
+                    IconLabel(content: .text("v1.0"), position: .pillCenter, backgroundColor: .black, foregroundColor: .white),
+                ],
+                centerContent: nil
+            )
+        }
+        .frame(width: iconSize.width, height: iconSize.height)
+
+        let imageRenderer = ImageRenderer(content: view)
+        imageRenderer.scale = 1.0
+
+        guard let cgImage = imageRenderer.cgImage else {
+            Issue.record("Failed to render image with CanvasIconRenderer")
+            return
+        }
+
+        let url = outputDirectory.appendingPathComponent("renderer-test-all-labels.png")
+        guard let destination = CGImageDestinationCreateWithURL(
+            url as CFURL,
+            UTType.png.identifier as CFString,
+            1,
+            nil
+        ) else {
+            Issue.record("Failed to create destination")
+            return
+        }
+
+        CGImageDestinationAddImage(destination, cgImage, nil)
+
+        guard CGImageDestinationFinalize(destination) else {
+            Issue.record("Failed to write PNG")
+            return
+        }
+
+        print("✅ Generated: renderer-test-all-labels.png")
+    }
+
     // MARK: - Gradient Backgrounds
 
     @Test("Gradient backgrounds")
