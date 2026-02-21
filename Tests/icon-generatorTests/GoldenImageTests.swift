@@ -601,6 +601,177 @@ struct GoldenImageTests {
         #expect(matches, "Embedded image in corner ribbon should match golden image")
     }
 
+    // MARK: - Gradient Direction Tests
+
+    @Test("Golden: Linear gradient to top")
+    @MainActor
+    func linearGradientToTop() throws {
+        let image = try renderIcon(
+            background: Background("linear-gradient(to top, #FF6600, #CC0066)")
+        )
+
+        let matches = try textComparison.image(image: image, matchesGoldenImageNamed: "linear-gradient-to-top")
+        #expect(matches, "Linear gradient to top should match golden image")
+    }
+
+    @Test("Golden: Linear gradient to right")
+    @MainActor
+    func linearGradientToRight() throws {
+        let image = try renderIcon(
+            background: Background("linear-gradient(to right, #00FF00, #0000FF)")
+        )
+
+        let matches = try textComparison.image(image: image, matchesGoldenImageNamed: "linear-gradient-to-right")
+        #expect(matches, "Linear gradient to right should match golden image")
+    }
+
+    @Test("Golden: Linear gradient to bottom right")
+    @MainActor
+    func linearGradientToBottomRight() throws {
+        let image = try renderIcon(
+            background: Background("linear-gradient(to bottom right, #FFCC00, #FF00CC)")
+        )
+
+        let matches = try textComparison.image(image: image, matchesGoldenImageNamed: "linear-gradient-to-bottom-right")
+        #expect(matches, "Linear gradient to bottom right should match golden image")
+    }
+
+    @Test("Golden: Multi-stop gradient")
+    @MainActor
+    func multiStopGradient() throws {
+        let image = try renderIcon(
+            background: Background("linear-gradient(to bottom, #FF0000, #FFFF00, #00FF00, #00FFFF, #0000FF)")
+        )
+
+        let matches = try textComparison.image(image: image, matchesGoldenImageNamed: "multi-stop-gradient")
+        #expect(matches, "Multi-stop gradient should match golden image")
+    }
+
+    // MARK: - Label Rotation Tests
+
+    @Test("Golden: Label with rotation")
+    @MainActor
+    func labelWithRotation() throws {
+        let image = try renderIcon(
+            labels: [
+                IconLabel(content: .sfSymbol("arrow.right"), position: .pillCenter, backgroundColor: CSSColor("#FFFFFF"), foregroundColor: CSSColor("#000000"), rotation: 45)
+            ]
+        )
+
+        let matches = try textComparison.image(image: image, matchesGoldenImageNamed: "label-with-rotation")
+        #expect(matches, "Label with rotation should match golden image")
+    }
+
+    // MARK: - Edge Cases
+
+    @Test("Golden: Very long text in pill")
+    @MainActor
+    func veryLongTextInPill() throws {
+        let image = try renderIcon(
+            labels: [
+                IconLabel(content: .text("LONGTEXT"), position: .pillCenter, backgroundColor: CSSColor("#FF0000"), foregroundColor: CSSColor("#FFFFFF"))
+            ]
+        )
+
+        let matches = try textComparison.image(image: image, matchesGoldenImageNamed: "very-long-text-pill")
+        #expect(matches, "Very long text in pill should match golden image")
+    }
+
+    @Test("Golden: Multiple center rotations")
+    @MainActor
+    func multipleCenterRotations() throws {
+        // Test various rotation angles
+        let image = try renderIcon(
+            centerContent: CenterContent(content: .sfSymbol("arrow.up"), color: CSSColor("#FFFFFF"), sizeRatio: 0.5, rotation: 90)
+        )
+
+        let matches = try textComparison.image(image: image, matchesGoldenImageNamed: "center-rotation-90")
+        #expect(matches, "Center rotation 90 should match golden image")
+    }
+
+    @Test("Golden: Center rotation 180")
+    @MainActor
+    func centerRotation180() throws {
+        let image = try renderIcon(
+            centerContent: CenterContent(content: .sfSymbol("arrow.up"), color: CSSColor("#FFFFFF"), sizeRatio: 0.5, rotation: 180)
+        )
+
+        let matches = try textComparison.image(image: image, matchesGoldenImageNamed: "center-rotation-180")
+        #expect(matches, "Center rotation 180 should match golden image")
+    }
+
+    @Test("Golden: Negative y-offset")
+    @MainActor
+    func negativeYOffset() throws {
+        let image = try renderIcon(
+            centerContent: CenterContent(content: .text("↓"), color: CSSColor("#FFFFFF"), sizeRatio: 0.5, yOffset: -0.15)
+        )
+
+        let matches = try textComparison.image(image: image, matchesGoldenImageNamed: "center-negative-y-offset")
+        #expect(matches, "Negative y-offset should match golden image")
+    }
+
+    @Test("Golden: RGB color format")
+    @MainActor
+    func rgbColorFormat() throws {
+        let image = try renderIcon(
+            background: .solid(CSSColor("rgb(128, 0, 255)"))
+        )
+
+        let matches = try exactComparison.image(image: image, matchesGoldenImageNamed: "rgb-color-format")
+        #expect(matches, "RGB color format should match golden image")
+    }
+
+    @Test("Golden: RGBA color format")
+    @MainActor
+    func rgbaColorFormat() throws {
+        let image = try renderIcon(
+            background: .solid(CSSColor("rgba(255, 128, 0, 0.75)")),
+            centerContent: CenterContent(content: .text("75%"), color: CSSColor("#000000"), sizeRatio: 0.3)
+        )
+
+        let matches = try textComparison.image(image: image, matchesGoldenImageNamed: "rgba-color-format")
+        #expect(matches, "RGBA color format should match golden image")
+    }
+
+    @Test("Golden: Short hex color")
+    @MainActor
+    func shortHexColor() throws {
+        let image = try renderIcon(
+            background: .solid(CSSColor("#F0F"))  // Short form of #FF00FF
+        )
+
+        let matches = try exactComparison.image(image: image, matchesGoldenImageNamed: "short-hex-color")
+        #expect(matches, "Short hex color should match golden image")
+    }
+
+    @Test("Golden: Overlapping labels")
+    @MainActor
+    func overlappingLabels() throws {
+        // Corner and edge labels that might overlap
+        let image = try renderIcon(
+            labels: [
+                IconLabel(content: .text("CORNER"), position: .topRight, backgroundColor: CSSColor("#FF0000"), foregroundColor: CSSColor("#FFFFFF")),
+                IconLabel(content: .text("EDGE"), position: .top, backgroundColor: CSSColor("#0000FF"), foregroundColor: CSSColor("#FFFFFF")),
+            ]
+        )
+
+        let matches = try textComparison.image(image: image, matchesGoldenImageNamed: "overlapping-labels")
+        #expect(matches, "Overlapping labels should match golden image")
+    }
+
+    @Test("Golden: Full alpha transparency")
+    @MainActor
+    func fullAlphaTransparency() throws {
+        let image = try renderIcon(
+            background: .solid(CSSColor("rgba(255, 0, 0, 0.0)")),  // Fully transparent
+            centerContent: CenterContent(content: .text("?"), color: CSSColor("#000000"), sizeRatio: 0.5)
+        )
+
+        let matches = try textComparison.image(image: image, matchesGoldenImageNamed: "full-alpha-transparency")
+        #expect(matches, "Full alpha transparency should match golden image")
+    }
+
     // MARK: - Helper for Creating Test Image
 
     /// Creates a simple 64x64 test image (red circle on transparent background)
