@@ -4,10 +4,11 @@ import SwiftUI
 
 // MARK: - Kitchen Sink Generator
 
-/// Generates a demo icon configuration using every available feature
+/// Generates a demo icon configuration showcasing all available features
 struct KitchenSinkGenerator {
     static func generate() -> ResolvedConfiguration {
         ResolvedConfiguration(
+            // Multi-stop linear gradient at an angle
             background: "linear-gradient(135deg, #667eea, #764ba2, #f093fb)",
             output: "kitchen-sink.png",
             size: 1024,
@@ -15,16 +16,49 @@ struct KitchenSinkGenerator {
             cornerRadius: 0.2237,
             platform: nil,
             labels: [
-                // Corner ribbon with rotated content
+                // All 4 corner ribbons
                 LabelConfiguration(
                     position: "topRight",
-                    content: "BETA",
+                    content: "BETA",           // Text content
                     backgroundColor: "#FF3B30",
+                    foregroundColor: "#FFFFFF",
+                    rotateContent: true,       // Rotated with ribbon (default)
+                    rotation: 0
+                ),
+                LabelConfiguration(
+                    position: "topLeft",
+                    content: "sf:star.fill",   // SF Symbol content
+                    backgroundColor: "#FFD700",
+                    foregroundColor: "#000000",
+                    rotateContent: false,      // Keep upright (norotate)
+                    rotation: 0
+                ),
+                LabelConfiguration(
+                    position: "bottomLeft",
+                    content: "NEW",
+                    backgroundColor: "#007AFF",
                     foregroundColor: "#FFFFFF",
                     rotateContent: true,
                     rotation: 0
                 ),
-                // Edge ribbon
+                LabelConfiguration(
+                    position: "bottomRight",
+                    content: "sf:bolt.fill",
+                    backgroundColor: "#FF9500",
+                    foregroundColor: "#FFFFFF",
+                    rotateContent: false,      // Upright symbol
+                    rotation: 0
+                ),
+
+                // Edge ribbons (top and bottom - left/right would overlap corners too much)
+                LabelConfiguration(
+                    position: "top",
+                    content: "FEATURED",
+                    backgroundColor: "rgba(0,0,0,0.7)",  // Semi-transparent
+                    foregroundColor: "#FFFFFF",
+                    rotateContent: true,
+                    rotation: 0
+                ),
                 LabelConfiguration(
                     position: "bottom",
                     content: "sf:sparkles",
@@ -33,7 +67,8 @@ struct KitchenSinkGenerator {
                     rotateContent: true,
                     rotation: 0
                 ),
-                // Pill with SF Symbol
+
+                // All 3 pill positions
                 LabelConfiguration(
                     position: "pillLeft",
                     content: "v2.0",
@@ -42,16 +77,14 @@ struct KitchenSinkGenerator {
                     rotateContent: true,
                     rotation: 0
                 ),
-                // Another corner
                 LabelConfiguration(
-                    position: "topLeft",
-                    content: "sf:star.fill",
-                    backgroundColor: "#FFD700",
-                    foregroundColor: "#000000",
-                    rotateContent: false,  // Keep upright
-                    rotation: 0
+                    position: "pillCenter",
+                    content: "sf:heart.fill",
+                    backgroundColor: "#FF2D55",
+                    foregroundColor: "#FFFFFF",
+                    rotateContent: true,
+                    rotation: 15               // Label rotation
                 ),
-                // Pill on right
                 LabelConfiguration(
                     position: "pillRight",
                     content: "sf:checkmark.circle.fill",
@@ -64,11 +97,11 @@ struct KitchenSinkGenerator {
             center: CenterConfiguration(
                 content: "sf:swift",
                 color: "#FFFFFF",
-                size: 0.4,
+                size: 0.35,                    // Smaller to fit with all labels
                 alignment: .typographic,
                 anchor: .center,
-                yOffset: 0.05,
-                rotation: -10
+                yOffset: 0.03,                 // Slight upward offset
+                rotation: -10                  // Slight counter-clockwise rotation
             )
         )
     }
