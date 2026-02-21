@@ -222,6 +222,20 @@ struct SVGGoldenTests {
         #expect(visualMatches, "Radial gradient SVG visual should match golden")
     }
 
+    @Test("SVG Golden: Angular gradient")
+    @MainActor
+    func angularGradient() async throws {
+        let svg = try renderSVG(
+            background: Background("angular-gradient(#FF0000, #00FF00, #0000FF, #FF0000)")
+        )
+
+        let textMatches = try compareSVGText(svg, toGoldenNamed: "angular-gradient")
+        #expect(textMatches, "Angular gradient SVG text should match golden")
+
+        let visualMatches = try await compareSVGVisual(svg, toGoldenNamed: "angular-gradient", size: CGSize(width: 256, height: 256))
+        #expect(visualMatches, "Angular gradient SVG visual should match golden")
+    }
+
     // MARK: - Label Tests
 
     @Test("SVG Golden: Corner ribbon")
@@ -272,6 +286,25 @@ struct SVGGoldenTests {
         #expect(visualMatches, "Pill label SVG visual should match golden")
     }
 
+    @Test("SVG Golden: All label positions")
+    @MainActor
+    func allLabelPositions() async throws {
+        let svg = try renderSVG(
+            labels: [
+                IconLabel(content: .text("TL"), position: .topLeft, backgroundColor: CSSColor("#FF0000"), foregroundColor: CSSColor("#FFFFFF")),
+                IconLabel(content: .text("TR"), position: .topRight, backgroundColor: CSSColor("#00FF00"), foregroundColor: CSSColor("#000000")),
+                IconLabel(content: .text("T"), position: .top, backgroundColor: CSSColor("#0000FF"), foregroundColor: CSSColor("#FFFFFF")),
+                IconLabel(content: .text("P"), position: .pillCenter, backgroundColor: CSSColor("#FFFFFF"), foregroundColor: CSSColor("#000000")),
+            ]
+        )
+
+        let textMatches = try compareSVGText(svg, toGoldenNamed: "all-label-positions")
+        #expect(textMatches, "All label positions SVG text should match golden")
+
+        let visualMatches = try await compareSVGVisual(svg, toGoldenNamed: "all-label-positions", size: CGSize(width: 256, height: 256))
+        #expect(visualMatches, "All label positions SVG visual should match golden")
+    }
+
     // MARK: - Center Content Tests
 
     @Test("SVG Golden: Center text")
@@ -286,6 +319,34 @@ struct SVGGoldenTests {
 
         let visualMatches = try await compareSVGVisual(svg, toGoldenNamed: "center-text", size: CGSize(width: 256, height: 256))
         #expect(visualMatches, "Center text SVG visual should match golden")
+    }
+
+    @Test("SVG Golden: Center SF Symbol")
+    @MainActor
+    func centerSFSymbol() async throws {
+        let svg = try renderSVG(
+            centerContent: CenterContent(content: .sfSymbol("swift"), color: CSSColor("#FFFFFF"), sizeRatio: 0.5)
+        )
+
+        let textMatches = try compareSVGText(svg, toGoldenNamed: "center-sf-symbol")
+        #expect(textMatches, "Center SF Symbol SVG text should match golden")
+
+        let visualMatches = try await compareSVGVisual(svg, toGoldenNamed: "center-sf-symbol", size: CGSize(width: 256, height: 256))
+        #expect(visualMatches, "Center SF Symbol SVG visual should match golden")
+    }
+
+    @Test("SVG Golden: Center rotated")
+    @MainActor
+    func centerRotated() async throws {
+        let svg = try renderSVG(
+            centerContent: CenterContent(content: .sfSymbol("arrow.up"), color: CSSColor("#FFFFFF"), sizeRatio: 0.5, rotation: 45)
+        )
+
+        let textMatches = try compareSVGText(svg, toGoldenNamed: "center-rotated")
+        #expect(textMatches, "Center rotated SVG text should match golden")
+
+        let visualMatches = try await compareSVGVisual(svg, toGoldenNamed: "center-rotated", size: CGSize(width: 256, height: 256))
+        #expect(visualMatches, "Center rotated SVG visual should match golden")
     }
 
     // MARK: - Complex Tests
