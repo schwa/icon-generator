@@ -339,46 +339,75 @@ We're going with **Approach B** - a high-level protocol that abstracts icon rend
 
 ### Phase 3: SVG Infrastructure
 
-#### Task 6: SVG Utilities
-- [ ] Create `Sources/icon-generator/Rendering/SVG/SVGUtilities.swift`
-- [ ] `Path` → SVG `d` attribute:
+#### Task 5: SVG/XML Type System
+- [ ] Create `Sources/icon-generator/Rendering/SVG/XMLElement.swift`
+- [ ] Model XML/SVG as proper types (not strings):
   ```swift
-  extension Path {
-      func svgPathData() -> String {
-          var d = ""
-          forEach { element in
-              switch element {
-              case .move(let to): d += "M \(to.x) \(to.y) "
-              case .line(let to): d += "L \(to.x) \(to.y) "
-              case .quadCurve(let to, let control): d += "Q \(control.x) \(control.y) \(to.x) \(to.y) "
-              case .curve(let to, let c1, let c2): d += "C \(c1.x) \(c1.y) \(c2.x) \(c2.y) \(to.x) \(to.y) "
-              case .closeSubpath: d += "Z "
-              }
-          }
-          return d
+  /// A type-safe representation of an XML/SVG element
+  struct XMLElement {
+      var name: String
+      var attributes: [String: String] = [:]
+      var children: [XMLContent] = []
+  }
+  
+  enum XMLContent {
+      case element(XMLElement)
+      case text(String)
+      case cdata(String)
+  }
+  
+  extension XMLElement {
+      func render() -> String {
+          // Renders to properly escaped XML string
       }
   }
   ```
-- [ ] `Color` → SVG color string
-- [ ] XML escaping for text content
+- [ ] Add convenience initializers for common SVG elements:
+  ```swift
+  extension XMLElement {
+      static func svg(width: CGFloat, height: CGFloat, children: [XMLElement]) -> XMLElement
+      static func rect(x: CGFloat, y: CGFloat, width: CGFloat, height: CGFloat, fill: String?, rx: CGFloat?) -> XMLElement
+      static func path(d: String, fill: String?, clipPath: String?) -> XMLElement
+      static func text(_ content: String, x: CGFloat, y: CGFloat, attributes: [String: String]) -> XMLElement
+      static func g(transform: String?, clipPath: String?, children: [XMLElement]) -> XMLElement
+      static func defs(children: [XMLElement]) -> XMLElement
+      static func clipPath(id: String, children: [XMLElement]) -> XMLElement
+      static func linearGradient(id: String, x1: String, y1: String, x2: String, y2: String, stops: [(offset: String, color: String)]) -> XMLElement
+      static func image(href: String, x: CGFloat, y: CGFloat, width: CGFloat, height: CGFloat) -> XMLElement
+  }
+  ```
+
+#### Task 6: SVG Utilities
+- [ ] Create `Sources/icon-generator/Rendering/SVG/SVGUtilities.swift`
+- [ ] `Path` → SVG path data string:
+  ```swift
+  extension Path {
+      func svgPathData() -> String
+  }
+  ```
+- [ ] `Color` → SVG color string (`#RRGGBB` or `rgba()`)
+- [ ] XML text escaping (for text content with special chars)
+- [ ] Transform string generation (`translate()`, `rotate()`, etc.)
 
 #### Task 7: SVG Document Builder
 - [ ] Create `Sources/icon-generator/Rendering/SVG/SVGDocument.swift`
-- [ ] Model SVG structure:
+- [ ] High-level builder using `XMLElement`:
   ```swift
   class SVGDocument {
       let width: CGFloat
       let height: CGFloat
-      private var defs: [String] = []
-      private var elements: [String] = []
+      private var defs: [XMLElement] = []
+      private var bodyElements: [XMLElement] = []
+      private var idCounter = 0
       
-      func addDef(_ def: String) -> String  // Returns ID
-      func addElement(_ element: String)
-      func toString() -> String
+      func addDef(_ element: XMLElement) -> String  // Returns generated ID
+      func addElement(_ element: XMLElement)
+      func build() -> XMLElement  // Returns complete <svg> element
+      func render() -> String     // Renders to XML string
   }
   ```
-- [ ] Generate `<linearGradient>`, `<radialGradient>`
-- [ ] Generate `<clipPath>`
+- [ ] Gradient definition helpers
+- [ ] Clip path management
 
 ### Phase 4: SVG Renderer
 
