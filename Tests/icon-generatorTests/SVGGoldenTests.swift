@@ -58,12 +58,11 @@ struct SVGGoldenTests {
             cornerRadiusRatio: cornerRadiusRatio
         )
 
-        let cornerRadius = Double(size) * cornerRadiusRatio
-
-        renderer.renderBackground(background, cornerStyle: cornerStyle, cornerRadius: cornerRadius)
+        // Note: cornerRadiusRatio is passed directly - IconGeometry.iconPath multiplies by size internally
+        renderer.renderBackground(background, cornerStyle: cornerStyle, cornerRadius: cornerRadiusRatio)
 
         if !labels.isEmpty || centerContent != nil {
-            renderer.pushClip(cornerStyle: cornerStyle, cornerRadius: cornerRadius)
+            renderer.pushClip(cornerStyle: cornerStyle, cornerRadius: cornerRadiusRatio)
         }
 
         for label in labels {
