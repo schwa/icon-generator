@@ -110,6 +110,7 @@ struct CenterContent: Sendable {
     let alignment: CenterAlignment
     let anchor: CenterAnchor
     let yOffset: CGFloat        // -1.0 to 1.0, proportional offset (positive = up)
+    let rotation: Double        // Rotation in degrees (positive = clockwise)
 
     init(
         content: CenterContentType,
@@ -117,7 +118,8 @@ struct CenterContent: Sendable {
         sizeRatio: CGFloat,
         alignment: CenterAlignment = .typographic,
         anchor: CenterAnchor = .center,
-        yOffset: CGFloat = 0
+        yOffset: CGFloat = 0,
+        rotation: Double = 0
     ) {
         self.content = content
         self.color = color
@@ -125,6 +127,7 @@ struct CenterContent: Sendable {
         self.alignment = alignment
         self.anchor = anchor
         self.yOffset = yOffset
+        self.rotation = rotation
     }
 
     /// Convenience initializer that parses content string
@@ -134,7 +137,8 @@ struct CenterContent: Sendable {
         sizeRatio: CGFloat,
         alignment: CenterAlignment = .typographic,
         anchor: CenterAnchor = .center,
-        yOffset: CGFloat = 0
+        yOffset: CGFloat = 0,
+        rotation: Double = 0
     ) {
         self.content = parseCenterContentType(contentString)
         self.color = color
@@ -142,6 +146,7 @@ struct CenterContent: Sendable {
         self.alignment = alignment
         self.anchor = anchor
         self.yOffset = yOffset
+        self.rotation = rotation
     }
 
     /// Resolved SwiftUI color
@@ -217,7 +222,7 @@ struct SquircleView: View {
 
             // Draw each label
             for label in labels {
-                drawLabel(label, in: context, canvasSize: canvasSize)
+                drawLabel(label, in: context, canvasSize: canvasSize, cornerRadiusRatio: cornerRadiusRatio)
             }
         } symbols: {
             // Center content symbol
@@ -249,6 +254,7 @@ struct SquircleView: View {
                 alignment: center.alignment,
                 anchor: center.anchor
             )
+            .rotationEffect(.degrees(center.rotation))
             .offset(y: -yOffsetPoints)
         case .image(let url):
             if let nsImage = NSImage(contentsOf: url) {
@@ -256,12 +262,14 @@ struct SquircleView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: contentSize, height: contentSize)
+                    .rotationEffect(.degrees(center.rotation))
                     .offset(y: -yOffsetPoints)
             }
         case .sfSymbol(let name):
             Image(systemName: name)
                 .font(.system(size: contentSize, weight: .bold))
                 .foregroundStyle(center.resolvedColor)
+                .rotationEffect(.degrees(center.rotation))
                 .offset(y: -yOffsetPoints)
         }
     }
@@ -273,6 +281,7 @@ struct SquircleView: View {
             Text(text)
                 .font(.system(size: size * 0.08, weight: .bold))
                 .foregroundStyle(label.resolvedForegroundColor)
+                .rotationEffect(.degrees(label.rotation))
         case .image(let url):
             if let nsImage = NSImage(contentsOf: url) {
                 Image(nsImage: nsImage)
@@ -280,18 +289,23 @@ struct SquircleView: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(height: size * 0.1)
                     .foregroundStyle(label.resolvedForegroundColor)
+                    .rotationEffect(.degrees(label.rotation))
             }
         case .sfSymbol(let name):
             Image(systemName: name)
                 .font(.system(size: size * 0.08, weight: .bold))
                 .foregroundStyle(label.resolvedForegroundColor)
+                .rotationEffect(.degrees(label.rotation))
         }
     }
 
-    private func drawLabel(_ label: IconLabel, in context: GraphicsContext, canvasSize: CGSize) {
+    private func drawLabel(_ label: IconLabel, in context: GraphicsContext, canvasSize: CGSize, cornerRadiusRatio: CGFloat) {
         let ribbonThickness = canvasSize.height * 0.15
         let pillHeight = canvasSize.height * 0.12
         let pillPadding = canvasSize.width * 0.05
+        // For corner pills, we need extra horizontal padding to clear the squircle corners
+        // Use the corner radius plus a small margin to ensure pills don't get clipped
+        let cornerSafePadding = canvasSize.width * (cornerRadiusRatio * 0.6 + 0.02)
         let diagonalWidth = canvasSize.width * 0.35
 
         switch label.position {
@@ -400,7 +414,7 @@ struct SquircleView: View {
                 let symbolSize = symbol.size
                 let pillWidth = symbolSize.width + pillPadding * 2
                 let pillRect = CGRect(
-                    x: pillPadding,
+                    x: cornerSafePadding,
                     y: canvasSize.height - pillHeight - pillPadding,
                     width: pillWidth,
                     height: pillHeight
@@ -430,7 +444,7 @@ struct SquircleView: View {
                 let symbolSize = symbol.size
                 let pillWidth = symbolSize.width + pillPadding * 2
                 let pillRect = CGRect(
-                    x: canvasSize.width - pillWidth - pillPadding,
+                    x: canvasSize.width - pillWidth - cornerSafePadding,
                     y: canvasSize.height - pillHeight - pillPadding,
                     width: pillWidth,
                     height: pillHeight

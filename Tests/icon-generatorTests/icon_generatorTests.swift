@@ -12,8 +12,7 @@ struct IconGeneratorExampleTests {
     let outputDirectory: URL
 
     init() throws {
-        let tmp = FileManager.default.temporaryDirectory
-        outputDirectory = tmp.appendingPathComponent("icon-generator-examples", isDirectory: true)
+        outputDirectory = URL(fileURLWithPath: "/tmp/icon-generator-test-images", isDirectory: true)
         try FileManager.default.createDirectory(at: outputDirectory, withIntermediateDirectories: true)
         print("📁 Output directory: \(outputDirectory.path)")
     }
@@ -715,6 +714,374 @@ struct IconGeneratorExampleTests {
         print("✅ Generated: TestUniversal.appiconset")
     }
 
+    // MARK: - Image Embedding
+
+    /// Creates a simple test image (a colored circle) and returns its URL
+    private func createTestImage(color: NSColor, size: Int = 256) throws -> URL {
+        let imageSize = NSSize(width: size, height: size)
+        let image = NSImage(size: imageSize)
+
+        image.lockFocus()
+        color.setFill()
+        let circlePath = NSBezierPath(ovalIn: NSRect(x: 0, y: 0, width: size, height: size))
+        circlePath.fill()
+        image.unlockFocus()
+
+        guard let tiffData = image.tiffRepresentation,
+              let bitmap = NSBitmapImageRep(data: tiffData),
+              let pngData = bitmap.representation(using: .png, properties: [:]) else {
+            throw NSError(domain: "TestError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to create test image"])
+        }
+
+        let url = outputDirectory.appendingPathComponent("test-image-\(color.description.hashValue).png")
+        try pngData.write(to: url)
+        return url
+    }
+
+    @Test("Center content - embedded image")
+    @MainActor
+    func centerContentImage() throws {
+        // Create test images
+        let redCircleURL = try createTestImage(color: .red)
+        let blueCircleURL = try createTestImage(color: .blue)
+        let greenCircleURL = try createTestImage(color: .green)
+
+        // Test center image with default size
+        try renderAndSave(
+            name: "center-image-red",
+            background: Background("#FFFFFF"),
+            centerContent: CenterContent(
+                content: .image(redCircleURL),
+                color: .black, // color is ignored for images
+                sizeRatio: 0.5
+            )
+        )
+
+        // Test center image with larger size
+        try renderAndSave(
+            name: "center-image-blue-large",
+            background: Background("#333333"),
+            centerContent: CenterContent(
+                content: .image(blueCircleURL),
+                color: .white,
+                sizeRatio: 0.7
+            )
+        )
+
+        // Test center image with smaller size
+        try renderAndSave(
+            name: "center-image-green-small",
+            background: Background("#FFCC00"),
+            centerContent: CenterContent(
+                content: .image(greenCircleURL),
+                color: .white,
+                sizeRatio: 0.3
+            )
+        )
+    }
+
+    @Test("Center content - image with y-offset")
+    @MainActor
+    func centerContentImageWithOffset() throws {
+        let circleURL = try createTestImage(color: .purple)
+
+        try renderAndSave(
+            name: "center-image-offset-up",
+            background: Background("#007AFF"),
+            centerContent: CenterContent(
+                content: .image(circleURL),
+                color: .white,
+                sizeRatio: 0.4,
+                yOffset: 0.2
+            )
+        )
+
+        try renderAndSave(
+            name: "center-image-offset-down",
+            background: Background("#FF3B30"),
+            centerContent: CenterContent(
+                content: .image(circleURL),
+                color: .white,
+                sizeRatio: 0.4,
+                yOffset: -0.2
+            )
+        )
+    }
+
+    @Test("Label content - embedded image in corner ribbon")
+    @MainActor
+    func labelImageCornerRibbon() throws {
+        let starURL = try createTestImage(color: .yellow, size: 64)
+
+        // Image in top-right corner
+        try renderAndSave(
+            name: "label-image-topRight",
+            background: Background("#5856D6"),
+            labels: [
+                IconLabel(
+                    content: .image(starURL),
+                    position: .topRight,
+                    backgroundColor: .red,
+                    foregroundColor: .white
+                )
+            ]
+        )
+
+        // Image in all corners
+        try renderAndSave(
+            name: "label-image-all-corners",
+            background: Background("#34C759"),
+            labels: [
+                IconLabel(content: .image(starURL), position: .topLeft, backgroundColor: .red, foregroundColor: .white),
+                IconLabel(content: .image(starURL), position: .topRight, backgroundColor: .blue, foregroundColor: .white),
+                IconLabel(content: .image(starURL), position: .bottomLeft, backgroundColor: .green, foregroundColor: .white),
+                IconLabel(content: .image(starURL), position: .bottomRight, backgroundColor: .orange, foregroundColor: .white),
+            ]
+        )
+    }
+
+    @Test("Label content - embedded image in edge ribbon")
+    @MainActor
+    func labelImageEdgeRibbon() throws {
+        let iconURL = try createTestImage(color: .cyan, size: 64)
+
+        try renderAndSave(
+            name: "label-image-top",
+            background: Background("#FF9500"),
+            labels: [
+                IconLabel(
+                    content: .image(iconURL),
+                    position: .top,
+                    backgroundColor: .black,
+                    foregroundColor: .white
+                )
+            ]
+        )
+
+        try renderAndSave(
+            name: "label-image-bottom",
+            background: Background("#FF9500"),
+            labels: [
+                IconLabel(
+                    content: .image(iconURL),
+                    position: .bottom,
+                    backgroundColor: .black,
+                    foregroundColor: .white
+                )
+            ]
+        )
+    }
+
+    @Test("Label content - embedded image in pill")
+    @MainActor
+    func labelImagePill() throws {
+        let badgeURL = try createTestImage(color: .magenta, size: 48)
+
+        try renderAndSave(
+            name: "label-image-pill-center",
+            background: Background("#007AFF"),
+            labels: [
+                IconLabel(
+                    content: .image(badgeURL),
+                    position: .pillCenter,
+                    backgroundColor: .white,
+                    foregroundColor: .black
+                )
+            ]
+        )
+
+        // All pill positions with images
+        try renderAndSave(
+            name: "label-image-pill-all",
+            background: Background("#5856D6"),
+            labels: [
+                IconLabel(content: .image(badgeURL), position: .pillLeft, backgroundColor: .red, foregroundColor: .white),
+                IconLabel(content: .image(badgeURL), position: .pillCenter, backgroundColor: .white, foregroundColor: .black),
+                IconLabel(content: .image(badgeURL), position: .pillRight, backgroundColor: .green, foregroundColor: .white),
+            ]
+        )
+    }
+
+    @Test("Combined: center image with labels")
+    @MainActor
+    func combinedCenterImageWithLabels() throws {
+        let logoURL = try createTestImage(color: .white, size: 256)
+
+        try renderAndSave(
+            name: "combo-center-image-corner-label",
+            background: Background("#F05138"),
+            labels: [
+                IconLabel(content: .text("NEW"), position: .topRight, backgroundColor: .blue, foregroundColor: .white)
+            ],
+            centerContent: CenterContent(content: .image(logoURL), color: .white, sizeRatio: 0.45)
+        )
+
+        try renderAndSave(
+            name: "combo-center-image-pill-label",
+            background: Background("#34C759"),
+            labels: [
+                IconLabel(content: .text("v1.0"), position: .pillCenter, backgroundColor: .black, foregroundColor: .white)
+            ],
+            centerContent: CenterContent(content: .image(logoURL), color: .white, sizeRatio: 0.5)
+        )
+    }
+
+    @Test("Combined: center SF symbol with image labels")
+    @MainActor
+    func combinedCenterSymbolWithImageLabels() throws {
+        let badgeURL = try createTestImage(color: .yellow, size: 64)
+
+        try renderAndSave(
+            name: "combo-center-symbol-image-labels",
+            background: Background("#007AFF"),
+            labels: [
+                IconLabel(content: .image(badgeURL), position: .topRight, backgroundColor: .red, foregroundColor: .white),
+                IconLabel(content: .image(badgeURL), position: .pillCenter, backgroundColor: .black, foregroundColor: .white),
+            ],
+            centerContent: CenterContent(content: .sfSymbol("swift"), color: .white, sizeRatio: 0.5)
+        )
+    }
+
+    // MARK: - Rotation
+
+    @Test("Center content - rotation")
+    @MainActor
+    func centerContentRotation() throws {
+        // Rotate SF symbol 45 degrees
+        try renderAndSave(
+            name: "rotation-center-45",
+            background: Background("#007AFF"),
+            centerContent: CenterContent(
+                content: .sfSymbol("arrow.up"),
+                color: .white,
+                sizeRatio: 0.5,
+                rotation: 45
+            )
+        )
+
+        // Rotate SF symbol 90 degrees
+        try renderAndSave(
+            name: "rotation-center-90",
+            background: Background("#34C759"),
+            centerContent: CenterContent(
+                content: .sfSymbol("arrow.up"),
+                color: .white,
+                sizeRatio: 0.5,
+                rotation: 90
+            )
+        )
+
+        // Rotate text -30 degrees (counter-clockwise)
+        try renderAndSave(
+            name: "rotation-center-text-negative",
+            background: Background("#FF9500"),
+            centerContent: CenterContent(
+                content: .text("A"),
+                color: .white,
+                sizeRatio: 0.6,
+                rotation: -30
+            )
+        )
+
+        // Rotate image 180 degrees
+        let imageURL = try createTestImage(color: .red, size: 128)
+        try renderAndSave(
+            name: "rotation-center-image-180",
+            background: Background("#5856D6"),
+            centerContent: CenterContent(
+                content: .image(imageURL),
+                color: .white,
+                sizeRatio: 0.5,
+                rotation: 180
+            )
+        )
+    }
+
+    @Test("Label content - rotation")
+    @MainActor
+    func labelContentRotation() throws {
+        // Rotate label content 15 degrees
+        try renderAndSave(
+            name: "rotation-label-15",
+            background: Background("#007AFF"),
+            labels: [
+                IconLabel(
+                    content: .text("SPIN"),
+                    position: .top,
+                    backgroundColor: .red,
+                    foregroundColor: .white,
+                    rotation: 15
+                )
+            ]
+        )
+
+        // Rotate pill label content
+        try renderAndSave(
+            name: "rotation-label-pill",
+            background: Background("#34C759"),
+            labels: [
+                IconLabel(
+                    content: .sfSymbol("star.fill"),
+                    position: .pillCenter,
+                    backgroundColor: .black,
+                    foregroundColor: CSSColor("#FFD700"),
+                    rotation: 45
+                )
+            ]
+        )
+
+        // Rotate corner label content (on top of diagonal rotation)
+        try renderAndSave(
+            name: "rotation-label-corner",
+            background: Background("#FF3B30"),
+            labels: [
+                IconLabel(
+                    content: .sfSymbol("bolt.fill"),
+                    position: .topRight,
+                    backgroundColor: CSSColor("#FFD700"),
+                    foregroundColor: .black,
+                    rotation: 90
+                )
+            ]
+        )
+    }
+
+    @Test("Combined: rotation with offset")
+    @MainActor
+    func combinedRotationWithOffset() throws {
+        // Combine rotation with y-offset
+        try renderAndSave(
+            name: "rotation-combo-offset",
+            background: Background("#1C1C1E"),
+            centerContent: CenterContent(
+                content: .sfSymbol("airplane"),
+                color: .white,
+                sizeRatio: 0.5,
+                yOffset: 0.1,
+                rotation: -45
+            )
+        )
+    }
+
+    // MARK: - Kitchen Sink
+
+    @Test("Kitchen sink - all features")
+    @MainActor
+    func kitchenSink() throws {
+        let config = KitchenSinkGenerator.generate()
+        let labels = try (config.labels ?? []).map { try $0.toIconLabel() }
+        let centerContent = config.center?.toCenterContent()
+
+        try renderAndSave(
+            name: "kitchen-sink",
+            background: Background(config.background),
+            cornerStyle: config.cornerStyle,
+            cornerRadiusRatio: config.cornerRadius,
+            labels: labels,
+            centerContent: centerContent
+        )
+    }
+
     // MARK: - Gradient Backgrounds
 
     @Test("Gradient backgrounds")
@@ -755,8 +1122,7 @@ struct IconGeneratorExampleTests {
 struct OutputInfoTests {
     @Test("Print output directory")
     func printOutputDirectory() {
-        let tmp = FileManager.default.temporaryDirectory
-        let outputDirectory = tmp.appendingPathComponent("icon-generator-examples", isDirectory: true)
+        let outputDirectory = URL(fileURLWithPath: "/tmp/icon-generator-test-images", isDirectory: true)
 
         print("\n" + String(repeating: "=", count: 60))
         print("📊 ICON GENERATOR EXAMPLES")

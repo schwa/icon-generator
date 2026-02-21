@@ -1,6 +1,78 @@
 import Foundation
 import SwiftUI
 
+// MARK: - Kitchen Sink Generator
+
+/// Generates a demo icon configuration using every available feature
+struct KitchenSinkGenerator {
+    static func generate() -> ResolvedConfiguration {
+        ResolvedConfiguration(
+            background: "linear-gradient(135deg, #667eea, #764ba2, #f093fb)",
+            output: "kitchen-sink.png",
+            size: 1024,
+            cornerStyle: .squircle,
+            cornerRadius: 0.2237,
+            platform: nil,
+            labels: [
+                // Corner ribbon with rotated content
+                LabelConfiguration(
+                    position: "topRight",
+                    content: "BETA",
+                    backgroundColor: "#FF3B30",
+                    foregroundColor: "#FFFFFF",
+                    rotateContent: true,
+                    rotation: 0
+                ),
+                // Edge ribbon
+                LabelConfiguration(
+                    position: "bottom",
+                    content: "sf:sparkles",
+                    backgroundColor: "#000000",
+                    foregroundColor: "#FFD700",
+                    rotateContent: true,
+                    rotation: 0
+                ),
+                // Pill with SF Symbol
+                LabelConfiguration(
+                    position: "pillLeft",
+                    content: "v2.0",
+                    backgroundColor: "#FFFFFF",
+                    foregroundColor: "#000000",
+                    rotateContent: true,
+                    rotation: 0
+                ),
+                // Another corner
+                LabelConfiguration(
+                    position: "topLeft",
+                    content: "sf:star.fill",
+                    backgroundColor: "#FFD700",
+                    foregroundColor: "#000000",
+                    rotateContent: false,  // Keep upright
+                    rotation: 0
+                ),
+                // Pill on right
+                LabelConfiguration(
+                    position: "pillRight",
+                    content: "sf:checkmark.circle.fill",
+                    backgroundColor: "#34C759",
+                    foregroundColor: "#FFFFFF",
+                    rotateContent: true,
+                    rotation: 0
+                )
+            ],
+            center: CenterConfiguration(
+                content: "sf:swift",
+                color: "#FFFFFF",
+                size: 0.4,
+                alignment: .typographic,
+                anchor: .center,
+                yOffset: 0.05,
+                rotation: -10
+            )
+        )
+    }
+}
+
 // MARK: - Random Configuration Generation
 
 /// Generates a random icon configuration
@@ -192,19 +264,22 @@ struct LabelConfiguration: Codable, Sendable {
     var backgroundColor: String?
     var foregroundColor: String?
     var rotateContent: Bool?
+    var rotation: Double?
 
     init(
         position: String,
         content: String,
         backgroundColor: String? = nil,
         foregroundColor: String? = nil,
-        rotateContent: Bool? = nil
+        rotateContent: Bool? = nil,
+        rotation: Double? = nil
     ) {
         self.position = position
         self.content = content
         self.backgroundColor = backgroundColor
         self.foregroundColor = foregroundColor
         self.rotateContent = rotateContent
+        self.rotation = rotation
     }
 
     enum CodingKeys: String, CodingKey {
@@ -213,6 +288,7 @@ struct LabelConfiguration: Codable, Sendable {
         case backgroundColor = "background-color"
         case foregroundColor = "foreground-color"
         case rotateContent = "rotate-content"
+        case rotation
     }
 
     func toIconLabel() throws -> IconLabel {
@@ -225,7 +301,8 @@ struct LabelConfiguration: Codable, Sendable {
             position: labelPosition,
             backgroundColor: CSSColor(backgroundColor ?? "red"),
             foregroundColor: CSSColor(foregroundColor ?? "white"),
-            rotateContent: rotateContent ?? true
+            rotateContent: rotateContent ?? true,
+            rotation: rotation ?? 0
         )
     }
 }
@@ -237,6 +314,7 @@ struct CenterConfiguration: Codable, Sendable {
     var alignment: CenterAlignment?
     var anchor: CenterAnchor?
     var yOffset: Double?
+    var rotation: Double?
 
     init(
         content: String,
@@ -244,7 +322,8 @@ struct CenterConfiguration: Codable, Sendable {
         size: Double? = nil,
         alignment: CenterAlignment? = nil,
         anchor: CenterAnchor? = nil,
-        yOffset: Double? = nil
+        yOffset: Double? = nil,
+        rotation: Double? = nil
     ) {
         self.content = content
         self.color = color
@@ -252,6 +331,7 @@ struct CenterConfiguration: Codable, Sendable {
         self.alignment = alignment
         self.anchor = anchor
         self.yOffset = yOffset
+        self.rotation = rotation
     }
 
     enum CodingKeys: String, CodingKey {
@@ -261,6 +341,7 @@ struct CenterConfiguration: Codable, Sendable {
         case alignment
         case anchor
         case yOffset = "y-offset"
+        case rotation
     }
 
     func toCenterContent() -> CenterContent {
@@ -270,7 +351,8 @@ struct CenterConfiguration: Codable, Sendable {
             sizeRatio: size ?? 0.5,
             alignment: alignment ?? .typographic,
             anchor: anchor ?? .center,
-            yOffset: yOffset ?? 0
+            yOffset: yOffset ?? 0,
+            rotation: rotation ?? 0
         )
     }
 }
@@ -345,6 +427,7 @@ extension LabelConfiguration {
         self.backgroundColor = label.backgroundColor.rawValue
         self.foregroundColor = label.foregroundColor.rawValue
         self.rotateContent = label.rotateContent
+        self.rotation = label.rotation
     }
 }
 
@@ -364,6 +447,7 @@ extension CenterConfiguration {
         self.alignment = centerContent.alignment
         self.anchor = centerContent.anchor
         self.yOffset = centerContent.yOffset
+        self.rotation = centerContent.rotation
     }
 }
 

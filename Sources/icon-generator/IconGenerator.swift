@@ -120,13 +120,53 @@ struct IconGenerator: AsyncParsableCommand {
     @Option(name: .long, help: "Center vertical offset ratio (-1.0 to 1.0, positive moves up)")
     var centerYOffset: Double?
 
+    @Option(name: .long, help: "Center rotation in degrees (positive = clockwise)")
+    var centerRotation: Double?
+
     @Flag(name: .long, help: "Output resolved configuration as JSON (no image generated)")
     var dumpConfig: Bool = false
 
     @Flag(name: .long, help: "Generate random icon configuration")
     var random: Bool = false
 
+    @Flag(name: .long, help: "Generate an icon using every feature (kitchen sink demo)")
+    var kitchenSink: Bool = false
+
     mutating func run() async throws {
+        // Handle --kitchen-sink flag: generate demo using all features
+        if kitchenSink {
+            let kitchenSinkConfig = KitchenSinkGenerator.generate()
+
+            if dumpConfig {
+                let encoder = JSONEncoder()
+                encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+                let data = try encoder.encode(kitchenSinkConfig)
+                print(String(data: data, encoding: .utf8)!)
+                return
+            }
+
+            let labels = try (kitchenSinkConfig.labels ?? []).map { try $0.toIconLabel() }
+            let centerContent = kitchenSinkConfig.center?.toCenterContent()
+            let resolvedOutput = output ?? kitchenSinkConfig.output
+
+            let cgImage = try await MainActor.run {
+                try renderSquircle(
+                    background: Background(kitchenSinkConfig.background),
+                    size: kitchenSinkConfig.size,
+                    cornerStyle: kitchenSinkConfig.cornerStyle,
+                    cornerRadiusRatio: kitchenSinkConfig.cornerRadius,
+                    labels: labels,
+                    centerContent: centerContent
+                )
+            }
+
+            let url = URL(fileURLWithPath: resolvedOutput)
+            try savePNG(cgImage: cgImage, to: url)
+            print("Generated kitchen sink demo icon at \(resolvedOutput)")
+            print("  Features: gradient background, rotated center content, multiple label types")
+            return
+        }
+
         // Handle --random flag: generate random config
         if random {
             let randomConfig = RandomConfigGenerator.generate()
@@ -214,7 +254,8 @@ struct IconGenerator: AsyncParsableCommand {
                 sizeRatio: centerSize ?? fileConfig?.center?.size ?? 0.5,
                 alignment: centerAlign ?? fileConfig?.center?.alignment ?? .typographic,
                 anchor: centerAnchor ?? fileConfig?.center?.anchor ?? .center,
-                yOffset: centerYOffset ?? fileConfig?.center?.yOffset ?? 0
+                yOffset: centerYOffset ?? fileConfig?.center?.yOffset ?? 0,
+                rotation: centerRotation ?? fileConfig?.center?.rotation ?? 0
             )
         } else if let configCenter = fileConfig?.center {
             // No CLI --center, but config has center: use config with CLI overrides
@@ -224,7 +265,8 @@ struct IconGenerator: AsyncParsableCommand {
                 sizeRatio: centerSize ?? configCenter.size ?? 0.5,
                 alignment: centerAlign ?? configCenter.alignment ?? .typographic,
                 anchor: centerAnchor ?? configCenter.anchor ?? .center,
-                yOffset: centerYOffset ?? configCenter.yOffset ?? 0
+                yOffset: centerYOffset ?? configCenter.yOffset ?? 0,
+                rotation: centerRotation ?? configCenter.rotation ?? 0
             )
         } else {
             centerContent = nil

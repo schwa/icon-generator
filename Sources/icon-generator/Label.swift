@@ -35,19 +35,22 @@ struct IconLabel: Sendable, Identifiable {
     let backgroundColor: CSSColor
     let foregroundColor: CSSColor
     let rotateContent: Bool
+    let rotation: Double        // Additional rotation in degrees (positive = clockwise)
 
     init(
         content: LabelContent,
         position: LabelPosition,
         backgroundColor: CSSColor = .red,
         foregroundColor: CSSColor = .white,
-        rotateContent: Bool = true
+        rotateContent: Bool = true,
+        rotation: Double = 0
     ) {
         self.content = content
         self.position = position
         self.backgroundColor = backgroundColor
         self.foregroundColor = foregroundColor
         self.rotateContent = rotateContent
+        self.rotation = rotation
     }
 
     /// Resolved SwiftUI background color

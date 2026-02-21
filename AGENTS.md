@@ -20,6 +20,9 @@ icon-generator -o AppIcon.appiconset --platform macos --center "sf:swift" --cent
 
 # From JSON config
 icon-generator --config config.json
+
+# Kitchen sink demo (all features)
+icon-generator --kitchen-sink -o demo.png
 ```
 
 ### Options
@@ -29,6 +32,7 @@ icon-generator --config config.json
 | `-c, --config` | - | Path to JSON configuration file |
 | `--background` | `white` | Background color or gradient |
 | `--random` | - | Generate random icon configuration |
+| `--kitchen-sink` | - | Generate demo icon using all features |
 | `--dump-config` | - | Output resolved config as JSON (no image) |
 | `-o, --output` | `icon.png` | Output file path (use `.appiconset` for Xcode asset) |
 | `--size` | `1024` | Image size in pixels (single PNG only) |
@@ -42,6 +46,7 @@ icon-generator --config config.json
 | `--center-align` | `typographic` | Alignment mode: `visual` or `typographic` |
 | `--center-anchor` | `center` | Vertical anchor: `baseline`, `cap`, or `center` |
 | `--center-y-offset` | `0` | Vertical offset ratio (-1.0 to 1.0, positive = up) |
+| `--center-rotation` | `0` | Center content rotation in degrees (positive = clockwise) |
 
 ### Corner Styles
 
@@ -109,6 +114,9 @@ Format: `position:content[:backgroundColor[:foregroundColor]]`
 
 # Fine-tune with proportional offset
 --center "ə" --center-y-offset 0.15
+
+# Rotate center content 45 degrees clockwise
+--center "sf:arrow.up" --center-rotation 45
 ```
 
 ### Gradient Backgrounds
@@ -161,6 +169,7 @@ All options can be specified in a JSON file with `--config`:
   - `background-color`: Optional background color (hex)
   - `foreground-color`: Optional foreground color (hex)
   - `rotate-content`: Optional boolean (default `true`), set `false` for upright diagonal labels
+  - `rotation`: Optional rotation in degrees (positive = clockwise)
 - `center`: Center content object
   - `content`: Content string
   - `color`: Optional color (hex)
