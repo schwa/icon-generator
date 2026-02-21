@@ -5,7 +5,7 @@ import PackageDescription
 let package = Package(
     name: "icon-generator",
     platforms: [
-        .macOS(.v14)
+        .macOS(.v15)
     ],
     products: [
         .library(name: "SVGXML", targets: ["SVGXML"]),
@@ -13,7 +13,8 @@ let package = Package(
         .executable(name: "icon-generator", targets: ["icon-generator"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.3.0")
+        .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.3.0"),
+        .package(path: "../../../Projects/GoldenImage"),
     ],
     targets: [
         // SVGXML - XML/SVG infrastructure (no dependencies)
@@ -47,7 +48,10 @@ let package = Package(
         ),
         .testTarget(
             name: "icon-generatorTests",
-            dependencies: ["icon-generator", "IconRendering"]
+            dependencies: ["icon-generator", "IconRendering", "GoldenImage"],
+            resources: [
+                .copy("GoldenImages")
+            ]
         ),
     ],
     swiftLanguageModes: [.v6]
