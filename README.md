@@ -98,15 +98,21 @@ icon-generator -o AppIcon.appiconset --platform macos --background "#F05138"
   "background": "linear-gradient(135deg, #667eea, #764ba2)",
   "output": "icon.png",
   "labels": [
-    {"position": "topRight", "content": "BETA", "background-color": "#FF0000"}
+    {"position": "topRight", "text": "BETA", "background-color": "#FF0000"},
+    {"position": "topLeft", "symbol": "star.fill", "background-color": "#FFD700"}
   ],
   "center": {
-    "content": "sf:swift",
+    "symbol": "swift",
     "color": "#FFFFFF",
     "size": 0.5
   }
 }
 ```
+
+Content is specified using one of these keys:
+- `text` - Plain text string
+- `symbol` - SF Symbol name (without `sf:` prefix)
+- `image` - Path to image file (without `@` prefix)
 
 ```bash
 icon-generator --config icon.json
@@ -156,15 +162,20 @@ JSON Config Example:
     "corner-radius": 0.2237,
     "platform": "ios",
     "labels": [
-      {"position": "topRight", "content": "BETA", "background-color": "#FF0000"},
-      {"position": "pillCenter", "content": "sf:star.fill", "foreground-color": "#FFD700"}
+      {"position": "topRight", "text": "BETA", "background-color": "#FF0000"},
+      {"position": "pillCenter", "symbol": "star.fill", "foreground-color": "#FFD700"}
     ],
     "center": {
-      "content": "sf:swift",
+      "symbol": "swift",
       "color": "#FFFFFF",
       "size": 0.5
     }
   }
+
+JSON content keys (use one per label/center):
+  "text": "BETA"           Plain text
+  "symbol": "star.fill"    SF Symbol name
+  "image": "/path/to.png"  Image file path
 
 Labels can be added using the --label option (repeatable).
 

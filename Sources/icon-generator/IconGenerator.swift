@@ -38,15 +38,20 @@ struct IconGenerator: AsyncParsableCommand {
                 "corner-radius": 0.2237,
                 "platform": "ios",
                 "labels": [
-                  {"position": "topRight", "content": "BETA", "background-color": "#FF0000"},
-                  {"position": "pillCenter", "content": "sf:star.fill", "foreground-color": "#FFD700"}
+                  {"position": "topRight", "text": "BETA", "background-color": "#FF0000"},
+                  {"position": "pillCenter", "symbol": "star.fill", "foreground-color": "#FFD700"}
                 ],
                 "center": {
-                  "content": "sf:swift",
+                  "symbol": "swift",
                   "color": "#FFFFFF",
                   "size": 0.5
                 }
               }
+
+            JSON content keys (use one per label/center):
+              "text": "BETA"           Plain text
+              "symbol": "star.fill"    SF Symbol name
+              "image": "/path/to.png"  Image file path
 
             Labels can be added using the --label option (repeatable).
 
@@ -166,7 +171,7 @@ struct IconGenerator: AsyncParsableCommand {
             }
 
             let labels = try (kitchenSinkConfig.labels ?? []).map { try $0.toIconLabel() }
-            let centerContent = kitchenSinkConfig.center?.toCenterContent()
+            let centerContent = try kitchenSinkConfig.center?.toCenterContent()
             let resolvedOutput = output ?? kitchenSinkConfig.output
 
             let cgImage = try await MainActor.run {
@@ -202,7 +207,7 @@ struct IconGenerator: AsyncParsableCommand {
 
             // Generate image from random config
             let labels = try (randomConfig.labels ?? []).map { try $0.toIconLabel() }
-            let centerContent = randomConfig.center?.toCenterContent()
+            let centerContent = try randomConfig.center?.toCenterContent()
             let resolvedOutput = output ?? randomConfig.output
 
             let isAppIconSet = resolvedOutput.hasSuffix(".appiconset")
@@ -279,8 +284,9 @@ struct IconGenerator: AsyncParsableCommand {
             )
         } else if let configCenter = fileConfig?.center {
             // No CLI --center, but config has center: use config with CLI overrides
+            let resolvedContent = try configCenter.resolveContent()
             centerContent = CenterContent(
-                contentString: configCenter.content,
+                contentString: resolvedContent,
                 color: CSSColor(centerColor ?? configCenter.color ?? "black"),
                 sizeRatio: centerSize ?? configCenter.size ?? 0.5,
                 alignment: centerAlign ?? configCenter.alignment ?? .typographic,

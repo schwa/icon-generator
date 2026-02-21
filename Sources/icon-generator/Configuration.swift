@@ -19,7 +19,7 @@ struct KitchenSinkGenerator {
                 // All 4 corner ribbons
                 LabelConfiguration(
                     position: "topRight",
-                    content: "BETA",           // Text content
+                    text: "BETA",              // Text content
                     backgroundColor: "#FF3B30",
                     foregroundColor: "#FFFFFF",
                     rotateContent: true,       // Rotated with ribbon (default)
@@ -27,7 +27,7 @@ struct KitchenSinkGenerator {
                 ),
                 LabelConfiguration(
                     position: "topLeft",
-                    content: "sf:star.fill",   // SF Symbol content
+                    symbol: "star.fill",       // SF Symbol content
                     backgroundColor: "#FFD700",
                     foregroundColor: "#000000",
                     rotateContent: false,      // Keep upright (norotate)
@@ -35,7 +35,7 @@ struct KitchenSinkGenerator {
                 ),
                 LabelConfiguration(
                     position: "bottomLeft",
-                    content: "NEW",
+                    text: "NEW",
                     backgroundColor: "#007AFF",
                     foregroundColor: "#FFFFFF",
                     rotateContent: true,
@@ -43,7 +43,7 @@ struct KitchenSinkGenerator {
                 ),
                 LabelConfiguration(
                     position: "bottomRight",
-                    content: "sf:bolt.fill",
+                    symbol: "bolt.fill",
                     backgroundColor: "#FF9500",
                     foregroundColor: "#FFFFFF",
                     rotateContent: false,      // Upright symbol
@@ -53,7 +53,7 @@ struct KitchenSinkGenerator {
                 // Edge ribbons (top and bottom - left/right would overlap corners too much)
                 LabelConfiguration(
                     position: "top",
-                    content: "FEATURED",
+                    text: "FEATURED",
                     backgroundColor: "rgba(0,0,0,0.7)",  // Semi-transparent
                     foregroundColor: "#FFFFFF",
                     rotateContent: true,
@@ -61,7 +61,7 @@ struct KitchenSinkGenerator {
                 ),
                 LabelConfiguration(
                     position: "bottom",
-                    content: "sf:sparkles",
+                    symbol: "sparkles",
                     backgroundColor: "#000000",
                     foregroundColor: "#FFD700",
                     rotateContent: true,
@@ -71,7 +71,7 @@ struct KitchenSinkGenerator {
                 // All 3 pill positions
                 LabelConfiguration(
                     position: "pillLeft",
-                    content: "v2.0",
+                    text: "v2.0",
                     backgroundColor: "#FFFFFF",
                     foregroundColor: "#000000",
                     rotateContent: true,
@@ -79,7 +79,7 @@ struct KitchenSinkGenerator {
                 ),
                 LabelConfiguration(
                     position: "pillCenter",
-                    content: "sf:heart.fill",
+                    symbol: "heart.fill",
                     backgroundColor: "#FF2D55",
                     foregroundColor: "#FFFFFF",
                     rotateContent: true,
@@ -87,7 +87,7 @@ struct KitchenSinkGenerator {
                 ),
                 LabelConfiguration(
                     position: "pillRight",
-                    content: "sf:checkmark.circle.fill",
+                    symbol: "checkmark.circle.fill",
                     backgroundColor: "#34C759",
                     foregroundColor: "#FFFFFF",
                     rotateContent: true,
@@ -95,7 +95,7 @@ struct KitchenSinkGenerator {
                 )
             ],
             center: CenterConfiguration(
-                content: "sf:swift",
+                symbol: "swift",
                 color: "#FFFFFF",
                 size: 0.35,                    // Smaller to fit with all labels
                 alignment: .typographic,
@@ -204,23 +204,27 @@ struct RandomConfigGenerator {
         let center: CenterConfiguration?
         if Bool.random() || Bool.random() || Bool.random() || Bool.random() { // ~94% chance
             let useSymbol = Bool.random() || Bool.random() // ~75% chance of SF Symbol
-            let content: String
             if useSymbol {
-                content = "sf:\(sfSymbols.randomElement()!)"
+                center = CenterConfiguration(
+                    symbol: sfSymbols.randomElement()!,
+                    color: centerColors.randomElement()!,
+                    size: Double.random(in: 0.4...0.7),
+                    alignment: Bool.random() ? .visual : .typographic,
+                    anchor: CenterAnchor.allCases.randomElement()!,
+                    yOffset: Bool.random() ? 0 : Double.random(in: -0.1...0.1)
+                )
             } else {
                 // Single letter or short text
                 let letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                content = String(letters.randomElement()!)
+                center = CenterConfiguration(
+                    text: String(letters.randomElement()!),
+                    color: centerColors.randomElement()!,
+                    size: Double.random(in: 0.4...0.7),
+                    alignment: Bool.random() ? .visual : .typographic,
+                    anchor: CenterAnchor.allCases.randomElement()!,
+                    yOffset: Bool.random() ? 0 : Double.random(in: -0.1...0.1)
+                )
             }
-
-            center = CenterConfiguration(
-                content: content,
-                color: centerColors.randomElement()!,
-                size: Double.random(in: 0.4...0.7),
-                alignment: Bool.random() ? .visual : .typographic,
-                anchor: CenterAnchor.allCases.randomElement()!,
-                yOffset: Bool.random() ? 0 : Double.random(in: -0.1...0.1)
-            )
         } else {
             center = nil
         }
@@ -237,22 +241,25 @@ struct RandomConfigGenerator {
                 usedPositions.insert(position)
 
                 let useSymbol = Bool.random() && Bool.random() // 25% chance
-                let content: String
-                if useSymbol {
-                    content = "sf:\(sfSymbols.prefix(20).randomElement()!)"
-                } else {
-                    content = labelTexts.randomElement()!
-                }
-
                 let isDiagonal = ["topLeft", "topRight", "bottomLeft", "bottomRight"].contains(position)
 
-                labels.append(LabelConfiguration(
-                    position: position,
-                    content: content,
-                    backgroundColor: backgroundColors.randomElement()!,
-                    foregroundColor: centerColors.randomElement()!,
-                    rotateContent: isDiagonal ? Bool.random() : true
-                ))
+                if useSymbol {
+                    labels.append(LabelConfiguration(
+                        position: position,
+                        symbol: sfSymbols.prefix(20).randomElement()!,
+                        backgroundColor: backgroundColors.randomElement()!,
+                        foregroundColor: centerColors.randomElement()!,
+                        rotateContent: isDiagonal ? Bool.random() : true
+                    ))
+                } else {
+                    labels.append(LabelConfiguration(
+                        position: position,
+                        text: labelTexts.randomElement()!,
+                        backgroundColor: backgroundColors.randomElement()!,
+                        foregroundColor: centerColors.randomElement()!,
+                        rotateContent: isDiagonal ? Bool.random() : true
+                    ))
+                }
             }
         }
 
@@ -294,7 +301,9 @@ struct IconConfiguration: Codable, Sendable {
 
 struct LabelConfiguration: Codable, Sendable {
     let position: String
-    let content: String
+    var text: String?
+    var symbol: String?
+    var image: String?
     var backgroundColor: String?
     var foregroundColor: String?
     var rotateContent: Bool?
@@ -302,14 +311,18 @@ struct LabelConfiguration: Codable, Sendable {
 
     init(
         position: String,
-        content: String,
+        text: String? = nil,
+        symbol: String? = nil,
+        image: String? = nil,
         backgroundColor: String? = nil,
         foregroundColor: String? = nil,
         rotateContent: Bool? = nil,
         rotation: Double? = nil
     ) {
         self.position = position
-        self.content = content
+        self.text = text
+        self.symbol = symbol
+        self.image = image
         self.backgroundColor = backgroundColor
         self.foregroundColor = foregroundColor
         self.rotateContent = rotateContent
@@ -318,11 +331,27 @@ struct LabelConfiguration: Codable, Sendable {
 
     enum CodingKeys: String, CodingKey {
         case position
-        case content
+        case text
+        case symbol
+        case image
         case backgroundColor = "background-color"
         case foregroundColor = "foreground-color"
         case rotateContent = "rotate-content"
         case rotation
+    }
+
+    /// Resolve the content from text/symbol/image keys
+    private func resolveContent() throws -> String {
+        if let text = text {
+            return text
+        }
+        if let symbol = symbol {
+            return "sf:\(symbol)"
+        }
+        if let image = image {
+            return "@\(image)"
+        }
+        throw ConfigurationError.missingContent("label at position '\(position)'")
     }
 
     func toIconLabel() throws -> IconLabel {
@@ -330,8 +359,10 @@ struct LabelConfiguration: Codable, Sendable {
             throw ConfigurationError.invalidPosition(position)
         }
 
+        let resolvedContent = try resolveContent()
+
         return IconLabel(
-            content: parseLabelContent(content),
+            content: parseLabelContent(resolvedContent),
             position: labelPosition,
             backgroundColor: CSSColor(backgroundColor ?? "red"),
             foregroundColor: CSSColor(foregroundColor ?? "white"),
@@ -342,7 +373,9 @@ struct LabelConfiguration: Codable, Sendable {
 }
 
 struct CenterConfiguration: Codable, Sendable {
-    let content: String
+    var text: String?
+    var symbol: String?
+    var image: String?
     var color: String?
     var size: Double?
     var alignment: CenterAlignment?
@@ -351,7 +384,9 @@ struct CenterConfiguration: Codable, Sendable {
     var rotation: Double?
 
     init(
-        content: String,
+        text: String? = nil,
+        symbol: String? = nil,
+        image: String? = nil,
         color: String? = nil,
         size: Double? = nil,
         alignment: CenterAlignment? = nil,
@@ -359,7 +394,9 @@ struct CenterConfiguration: Codable, Sendable {
         yOffset: Double? = nil,
         rotation: Double? = nil
     ) {
-        self.content = content
+        self.text = text
+        self.symbol = symbol
+        self.image = image
         self.color = color
         self.size = size
         self.alignment = alignment
@@ -369,7 +406,9 @@ struct CenterConfiguration: Codable, Sendable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case content
+        case text
+        case symbol
+        case image
         case color
         case size
         case alignment
@@ -378,9 +417,24 @@ struct CenterConfiguration: Codable, Sendable {
         case rotation
     }
 
-    func toCenterContent() -> CenterContent {
-        CenterContent(
-            contentString: content,
+    /// Resolve the content from text/symbol/image keys
+    func resolveContent() throws -> String {
+        if let text = text {
+            return text
+        }
+        if let symbol = symbol {
+            return "sf:\(symbol)"
+        }
+        if let image = image {
+            return "@\(image)"
+        }
+        throw ConfigurationError.missingContent("center")
+    }
+
+    func toCenterContent() throws -> CenterContent {
+        let resolvedContent = try resolveContent()
+        return CenterContent(
+            contentString: resolvedContent,
             color: CSSColor(color ?? "black"),
             sizeRatio: size ?? 0.5,
             alignment: alignment ?? .typographic,
@@ -452,11 +506,11 @@ extension LabelConfiguration {
         self.position = label.position.rawValue
         switch label.content {
         case .text(let text):
-            self.content = text
+            self.text = text
         case .sfSymbol(let name):
-            self.content = "sf:\(name)"
+            self.symbol = name
         case .image(let url):
-            self.content = "@\(url.path)"
+            self.image = url.path
         }
         self.backgroundColor = label.backgroundColor.rawValue
         self.foregroundColor = label.foregroundColor.rawValue
@@ -470,11 +524,11 @@ extension CenterConfiguration {
     init(from centerContent: CenterContent) {
         switch centerContent.content {
         case .text(let text):
-            self.content = text
+            self.text = text
         case .sfSymbol(let name):
-            self.content = "sf:\(name)"
+            self.symbol = name
         case .image(let url):
-            self.content = "@\(url.path)"
+            self.image = url.path
         }
         self.color = centerContent.color.rawValue
         self.size = centerContent.sizeRatio
@@ -490,6 +544,7 @@ enum ConfigurationError: Error, CustomStringConvertible {
     case invalidColor(String)
     case fileNotFound(String)
     case invalidJSON(String)
+    case missingContent(String)
 
     var description: String {
         switch self {
@@ -501,6 +556,8 @@ enum ConfigurationError: Error, CustomStringConvertible {
             return "Configuration file not found: \(path)"
         case .invalidJSON(let message):
             return "Invalid JSON configuration: \(message)"
+        case .missingContent(let context):
+            return "Missing content for \(context): specify 'text', 'symbol', or 'image'"
         }
     }
 }
