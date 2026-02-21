@@ -23,6 +23,10 @@ public final class SVGRasterizer: NSObject, @unchecked Sendable {
 
         let webView = WKWebView(frame: CGRect(x: 0, y: 0, width: width, height: height), configuration: config)
         webView.navigationDelegate = self
+
+        // Make WebView background transparent
+        webView.setValue(false, forKey: "drawsBackground")
+
         self.webView = webView
 
         // Create HTML with SVG embedded, with transparent background
@@ -121,11 +125,45 @@ public final class SVGRasterizer: NSObject, @unchecked Sendable {
 
         let image = try await webView.takeSnapshot(configuration: config)
 
+        // Get the expected size (1x, not Retina scaled)
+        let expectedWidth = Int(webView.bounds.width)
+        let expectedHeight = Int(webView.bounds.height)
+
         guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
             throw SVGRasterizerError.snapshotFailed
         }
 
+        // If image is scaled (Retina), resize to expected dimensions
+        if cgImage.width != expectedWidth || cgImage.height != expectedHeight {
+            return try resizeImage(cgImage, to: CGSize(width: expectedWidth, height: expectedHeight))
+        }
+
         return cgImage
+    }
+
+    private func resizeImage(_ image: CGImage, to size: CGSize) throws -> CGImage {
+        let context = CGContext(
+            data: nil,
+            width: Int(size.width),
+            height: Int(size.height),
+            bitsPerComponent: 8,
+            bytesPerRow: 0,
+            space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        )
+
+        guard let context = context else {
+            throw SVGRasterizerError.snapshotFailed
+        }
+
+        context.interpolationQuality = .high
+        context.draw(image, in: CGRect(origin: .zero, size: size))
+
+        guard let resized = context.makeImage() else {
+            throw SVGRasterizerError.snapshotFailed
+        }
+
+        return resized
     }
 }
 
