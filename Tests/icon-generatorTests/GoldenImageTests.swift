@@ -462,6 +462,182 @@ struct GoldenImageTests {
         let matches = try textComparison.image(image: image, matchesGoldenImageNamed: "gradient-center-labels")
         #expect(matches, "Gradient with center and labels should match golden image")
     }
+
+    // MARK: - Label norotate Tests
+
+    @Test("Golden: Corner ribbon norotate")
+    @MainActor
+    func cornerRibbonNorotate() throws {
+        // With rotateContent=false, text stays upright on diagonal ribbons
+        let image = try renderIcon(
+            labels: [
+                IconLabel(content: .text("UP"), position: .topRight, backgroundColor: CSSColor("#FF0000"), foregroundColor: CSSColor("#FFFFFF"), rotateContent: false)
+            ]
+        )
+
+        let matches = try textComparison.image(image: image, matchesGoldenImageNamed: "corner-ribbon-norotate")
+        #expect(matches, "Corner ribbon norotate should match golden image")
+    }
+
+    @Test("Golden: Corner ribbon rotated vs norotate comparison")
+    @MainActor
+    func cornerRibbonRotateComparison() throws {
+        // Show both rotated (default) and non-rotated on same icon
+        let image = try renderIcon(
+            labels: [
+                IconLabel(content: .text("ROT"), position: .topLeft, backgroundColor: CSSColor("#FF0000"), foregroundColor: CSSColor("#FFFFFF"), rotateContent: true),
+                IconLabel(content: .text("UP"), position: .topRight, backgroundColor: CSSColor("#0000FF"), foregroundColor: CSSColor("#FFFFFF"), rotateContent: false),
+            ]
+        )
+
+        let matches = try textComparison.image(image: image, matchesGoldenImageNamed: "corner-ribbon-rotate-comparison")
+        #expect(matches, "Corner ribbon rotate comparison should match golden image")
+    }
+
+    // MARK: - Center Alignment Tests
+
+    @Test("Golden: Center visual alignment")
+    @MainActor
+    func centerVisualAlignment() throws {
+        // Visual alignment centers based on glyph bounding box - good for asymmetric characters
+        let image = try renderIcon(
+            centerContent: CenterContent(content: .text("Ə"), color: CSSColor("#FFFFFF"), sizeRatio: 0.5, alignment: .visual)
+        )
+
+        let matches = try textComparison.image(image: image, matchesGoldenImageNamed: "center-visual-alignment")
+        #expect(matches, "Center visual alignment should match golden image")
+    }
+
+    @Test("Golden: Center typographic alignment")
+    @MainActor
+    func centerTypographicAlignment() throws {
+        // Typographic alignment (default) - uses font metrics
+        let image = try renderIcon(
+            centerContent: CenterContent(content: .text("Ə"), color: CSSColor("#FFFFFF"), sizeRatio: 0.5, alignment: .typographic)
+        )
+
+        let matches = try textComparison.image(image: image, matchesGoldenImageNamed: "center-typographic-alignment")
+        #expect(matches, "Center typographic alignment should match golden image")
+    }
+
+    // MARK: - Center Anchor Tests
+
+    @Test("Golden: Center anchor baseline")
+    @MainActor
+    func centerAnchorBaseline() throws {
+        let image = try renderIcon(
+            centerContent: CenterContent(content: .text("Ag"), color: CSSColor("#FFFFFF"), sizeRatio: 0.4, anchor: .baseline)
+        )
+
+        let matches = try textComparison.image(image: image, matchesGoldenImageNamed: "center-anchor-baseline")
+        #expect(matches, "Center anchor baseline should match golden image")
+    }
+
+    @Test("Golden: Center anchor cap")
+    @MainActor
+    func centerAnchorCap() throws {
+        let image = try renderIcon(
+            centerContent: CenterContent(content: .text("Ag"), color: CSSColor("#FFFFFF"), sizeRatio: 0.4, anchor: .cap)
+        )
+
+        let matches = try textComparison.image(image: image, matchesGoldenImageNamed: "center-anchor-cap")
+        #expect(matches, "Center anchor cap should match golden image")
+    }
+
+    @Test("Golden: Center anchor center")
+    @MainActor
+    func centerAnchorCenter() throws {
+        let image = try renderIcon(
+            centerContent: CenterContent(content: .text("Ag"), color: CSSColor("#FFFFFF"), sizeRatio: 0.4, anchor: .center)
+        )
+
+        let matches = try textComparison.image(image: image, matchesGoldenImageNamed: "center-anchor-center")
+        #expect(matches, "Center anchor center should match golden image")
+    }
+
+    // MARK: - Embedded Image Tests
+
+    @Test("Golden: Embedded image in center")
+    @MainActor
+    func embeddedImageCenter() throws {
+        // First generate a simple test image
+        let testImageURL = try createTestImage()
+
+        let image = try renderIcon(
+            centerContent: CenterContent(content: .image(testImageURL), color: CSSColor("#FFFFFF"), sizeRatio: 0.4)
+        )
+
+        let matches = try textComparison.image(image: image, matchesGoldenImageNamed: "embedded-image-center")
+        #expect(matches, "Embedded image in center should match golden image")
+    }
+
+    @Test("Golden: Embedded image in pill label")
+    @MainActor
+    func embeddedImagePill() throws {
+        let testImageURL = try createTestImage()
+
+        let image = try renderIcon(
+            labels: [
+                IconLabel(content: .image(testImageURL), position: .pillCenter, backgroundColor: CSSColor("#FFFFFF"), foregroundColor: CSSColor("#000000"))
+            ]
+        )
+
+        let matches = try textComparison.image(image: image, matchesGoldenImageNamed: "embedded-image-pill")
+        #expect(matches, "Embedded image in pill should match golden image")
+    }
+
+    @Test("Golden: Embedded image in corner ribbon")
+    @MainActor
+    func embeddedImageCornerRibbon() throws {
+        let testImageURL = try createTestImage()
+
+        let image = try renderIcon(
+            labels: [
+                IconLabel(content: .image(testImageURL), position: .topRight, backgroundColor: CSSColor("#FFD700"), foregroundColor: CSSColor("#000000"))
+            ]
+        )
+
+        let matches = try textComparison.image(image: image, matchesGoldenImageNamed: "embedded-image-corner")
+        #expect(matches, "Embedded image in corner ribbon should match golden image")
+    }
+
+    // MARK: - Helper for Creating Test Image
+
+    /// Creates a simple 64x64 test image (red circle on transparent background)
+    @MainActor
+    private func createTestImage() throws -> URL {
+        let size = 64
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("test-icon-\(size).png")
+
+        // Check if already exists (reuse for consistency)
+        if FileManager.default.fileExists(atPath: url.path) {
+            return url
+        }
+
+        // Create a simple red circle image
+        let view = Canvas { context, canvasSize in
+            let rect = CGRect(origin: .zero, size: canvasSize)
+            context.fill(Ellipse().path(in: rect), with: .color(.red))
+        }
+        .frame(width: CGFloat(size), height: CGFloat(size))
+
+        let renderer = ImageRenderer(content: view)
+        renderer.scale = 1.0
+
+        guard let cgImage = renderer.cgImage else {
+            throw GoldenImageTestError.renderFailed
+        }
+
+        guard let destination = CGImageDestinationCreateWithURL(url as CFURL, UTType.png.identifier as CFString, 1, nil) else {
+            throw GoldenImageTestError.renderFailed
+        }
+        CGImageDestinationAddImage(destination, cgImage, nil)
+        guard CGImageDestinationFinalize(destination) else {
+            throw GoldenImageTestError.renderFailed
+        }
+
+        return url
+    }
 }
 
 enum GoldenImageTestError: Error {
