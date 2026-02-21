@@ -26,6 +26,12 @@ icon-generator --config config.json
 
 # Kitchen sink demo (all features)
 icon-generator --kitchen-sink -o demo.png
+
+# Icon Composer bundle (Xcode 26+)
+icon-generator --background "#3366FF" -o MyApp.icon
+
+# Icon Composer with visionOS features
+icon-generator --background "#3366FF" -o MyApp.icon --translucency 0.5 --shadow neutral --glass
 ```
 
 ### Options
@@ -43,6 +49,9 @@ icon-generator --kitchen-sink -o demo.png
 | `--corner-radius` | `0.2237` | Corner radius ratio (0.0-0.5) |
 | `--platform` | `ios` | App icon platform: `ios`, `macos`, `watchos`, `universal` |
 | `--layer` | - | Layer specification (repeatable) |
+| `--translucency` | - | Translucency for .icon output (0.0-1.0, visionOS) |
+| `--shadow` | `neutral` | Shadow style for .icon: `neutral` or `layer-color` |
+| `--glass` | - | Enable glass effect on center content (.icon only) |
 
 ### Corner Styles
 
@@ -60,6 +69,21 @@ When output path ends with `.appiconset`, generates an Xcode asset catalog icon 
 | `macos` | 16, 32, 64, 128, 256, 512, 1024px |
 | `watchos` | 1024px |
 | `universal` | iOS + macOS combined |
+
+### Icon Composer Bundles (.icon)
+
+When output path ends with `.icon`, generates an Xcode 26+ Icon Composer bundle:
+
+```bash
+icon-generator --background "#3366FF" -o MyApp.icon
+icon-generator --background "#3366FF" -o MyApp.icon --translucency 0.7 --shadow layer-color --glass
+```
+
+| Option | Description |
+|--------|-------------|
+| `--translucency <value>` | Enable visionOS translucency (0.0-1.0) |
+| `--shadow <style>` | Shadow style: `neutral` (default) or `layer-color` |
+| `--glass` | Enable glass effect on center content |
 
 CLI arguments override config file values.
 
@@ -155,14 +179,26 @@ All options can be specified in a JSON file with `--config`:
 
 ```
 Sources/icon-generator/
-├── IconGenerator.swift   # CLI entry point (ArgumentParser)
-├── SquircleView.swift    # SwiftUI Canvas rendering
-├── Label.swift           # Label model types
-├── LabelParser.swift     # CLI argument parsing for labels
-├── Configuration.swift   # JSON config file parsing
-├── CornerStyle.swift     # Corner style enum (none/rounded/squircle)
-├── AppIconSet.swift      # Xcode .appiconset generation
-└── CSSColor.swift        # CSS color parsing (hex, rgb, named colors)
+├── IconGenerator.swift       # CLI entry point (ArgumentParser)
+├── IconBundleGenerator.swift # .icon bundle generation
+├── Configuration.swift       # JSON config file parsing
+├── AppIconSet.swift          # Xcode .appiconset generation
+└── LayerParser.swift         # CLI argument parsing for layers
+
+Sources/IconRendering/        # Core rendering library
+├── SquircleView.swift        # SwiftUI Canvas rendering
+├── Label.swift               # Label model types
+├── CornerStyle.swift         # Corner style enum
+└── CSSColor.swift            # CSS color parsing
+
+Sources/IconComposerFormat/   # Apple .icon format library
+├── IconBundle.swift          # Bundle write support
+├── IconDocument.swift        # icon.json structure
+├── IconGroup.swift           # Layer groups
+├── IconLayer.swift           # Individual layers
+├── IconFill.swift            # Fill types
+├── IconColor.swift           # Color parsing (extended-srgb, display-p3, etc.)
+└── ...                       # Supporting types
 ```
 
 ### Key Implementation Details

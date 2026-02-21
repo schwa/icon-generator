@@ -1,4 +1,5 @@
 import IconRendering
+import IconComposerFormat
 import ArgumentParser
 import ImageIO
 import SwiftUI
@@ -33,6 +34,7 @@ struct IconGenerator: AsyncParsableCommand {
               - Single PNG: --output icon.png
               - Single SVG: --output icon.svg
               - App Icon Set: --output AppIcon.appiconset --platform ios
+              - Icon Composer: --output MyApp.icon (Xcode 26+)
 
             App Icon Platforms:
               ios        Single 1024x1024 icon for iOS/iPadOS
@@ -93,6 +95,7 @@ struct IconGenerator: AsyncParsableCommand {
             Examples:
               icon-generator --background "#3366FF" -o icon.png
               icon-generator --background "#3366FF" -o icon.svg
+              icon-generator --background "#3366FF" -o MyApp.icon
               icon-generator -o AppIcon.appiconset --platform ios --background "#FF0000"
               icon-generator --config config.json
               --layer "center:sf:swift:color=#FFFFFF:size=0.5"
@@ -136,6 +139,16 @@ struct IconGenerator: AsyncParsableCommand {
 
     @Flag(name: .long, help: "Generate an icon using every feature (kitchen sink demo)")
     var kitchenSink: Bool = false
+
+    // .icon bundle specific options
+    @Option(name: .long, help: "Translucency value for .icon output (0.0 to 1.0, enables visionOS glass effect)")
+    var translucency: Double?
+
+    @Option(name: .long, help: "Shadow style for .icon output: neutral or layer-color")
+    var shadow: ShadowStyle?
+
+    @Flag(name: .long, help: "Enable glass effect for center content in .icon output")
+    var glass: Bool = false
 
     mutating func run() async throws {
         // If no meaningful arguments provided, show help
@@ -304,9 +317,45 @@ struct IconGenerator: AsyncParsableCommand {
 
         // Check output format
         let isAppIconSet = resolvedOutput.hasSuffix(".appiconset")
+        let isIconBundle = resolvedOutput.hasSuffix(".icon")
         let isSVG = resolvedOutput.lowercased().hasSuffix(".svg")
 
-        if isSVG {
+        if isIconBundle {
+            // Icon Composer bundle output
+            let bundleOptions = IconBundleOptions(
+                translucency: translucency,
+                shadowStyle: shadow,
+                glass: glass
+            )
+
+            try await MainActor.run {
+                try IconBundleGenerator.generate(
+                    at: resolvedOutput,
+                    background: resolvedBackground,
+                    labels: labels,
+                    centerContent: centerContent,
+                    size: resolvedSize,
+                    options: bundleOptions
+                )
+            }
+
+            print("Generated Icon Composer bundle at \(resolvedOutput)")
+            if !labels.isEmpty {
+                print("  with \(labels.count) label(s)")
+            }
+            if centerContent != nil {
+                print("  with center content")
+            }
+            if translucency != nil {
+                print("  with translucency: \(translucency!)")
+            }
+            if shadow != nil {
+                print("  with shadow: \(shadow!.rawValue)")
+            }
+            if glass {
+                print("  with glass effect")
+            }
+        } else if isSVG {
             // SVG output
             let svg = await MainActor.run {
                 renderSVG(

@@ -10,6 +10,7 @@ let package = Package(
     products: [
         .library(name: "SVGXML", targets: ["SVGXML"]),
         .library(name: "IconRendering", targets: ["IconRendering"]),
+        .library(name: "IconComposerFormat", targets: ["IconComposerFormat"]),
         .library(name: "SVGRasterizer", targets: ["SVGRasterizer"]),
         .executable(name: "icon-generator", targets: ["icon-generator"]),
     ],
@@ -34,11 +35,17 @@ let package = Package(
             name: "SVGRasterizer"
         ),
 
-        // CLI executable (depends on IconRendering and ArgumentParser)
+        // IconComposerFormat - Apple .icon bundle format support
+        .target(
+            name: "IconComposerFormat"
+        ),
+
+        // CLI executable (depends on IconRendering, IconComposerFormat, and ArgumentParser)
         .executableTarget(
             name: "icon-generator",
             dependencies: [
                 "IconRendering",
+                "IconComposerFormat",
                 .product(name: "ArgumentParser", package: "swift-argument-parser")
             ]
         ),
@@ -51,6 +58,10 @@ let package = Package(
         .testTarget(
             name: "IconRenderingTests",
             dependencies: ["IconRendering"]
+        ),
+        .testTarget(
+            name: "IconComposerFormatTests",
+            dependencies: ["IconComposerFormat"]
         ),
         .testTarget(
             name: "icon-generatorTests",
