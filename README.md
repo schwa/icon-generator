@@ -101,7 +101,13 @@ icon-generator -o AppIcon.appiconset --platform macos --background "#F05138"
     "angle": 135
   },
   "output": "icon.png",
-  "labels": [
+  "layers": [
+    {
+      "position": "center",
+      "symbol": "swift",
+      "color": "#FFFFFF",
+      "size": 0.5
+    },
     {
       "position": "topRight",
       "text": "BETA",
@@ -112,14 +118,13 @@ icon-generator -o AppIcon.appiconset --platform macos --background "#F05138"
       }
     },
     {"position": "topLeft", "symbol": "star.fill", "background-color": "#FFD700"}
-  ],
-  "center": {
-    "symbol": "swift",
-    "color": "#FFFFFF",
-    "size": 0.5
-  }
+  ]
 }
 ```
+
+### Layer Positions
+- `center` - Center content (text, symbol, or image)
+- Label positions: `top`, `bottom`, `left`, `right`, `topLeft`, `topRight`, `bottomLeft`, `bottomRight`, `pillLeft`, `pillCenter`, `pillRight`
 
 ### Content Keys
 - `text` - Plain text string
@@ -203,19 +208,20 @@ JSON Config Example:
     "size": 1024,
     "corner-style": "squircle",
     "corner-radius": 0.2237,
-    "platform": "ios",
-    "labels": [
+    "layers": [
+      {"position": "center", "symbol": "swift", "color": "#FFFFFF", "size": 0.5},
       {"position": "topRight", "text": "BETA", "background-color": "#FF0000"},
       {"position": "pillCenter", "symbol": "star.fill", "foreground-color": "#FFD700"}
-    ],
-    "center": {
-      "symbol": "swift",
-      "color": "#FFFFFF",
-      "size": 0.5
-    }
+    ]
   }
 
-JSON content keys (use one per label/center):
+Layer positions:
+  "center"     Center content (uses color, size, alignment, anchor, y-offset)
+  Labels       top, bottom, left, right, topLeft, topRight, bottomLeft,
+               bottomRight, pillLeft, pillCenter, pillRight
+               (use background-color, foreground-color, rotate-content)
+
+JSON content keys (use one per layer):
   "text": "BETA"           Plain text
   "symbol": "star.fill"    SF Symbol name
   "image": "/path/to.png"  Image file path

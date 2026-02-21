@@ -4,6 +4,22 @@ import ImageIO
 import SwiftUI
 import UniformTypeIdentifiers
 
+/// Extract labels and center content from a layers array
+func extractLayerContent(from layers: [LayerConfiguration]) throws -> (labels: [IconLabel], center: CenterContent?) {
+    var labels: [IconLabel] = []
+    var center: CenterContent? = nil
+
+    for layer in layers {
+        if layer.isCenter {
+            center = try layer.toCenterContent()
+        } else {
+            labels.append(try layer.toIconLabel())
+        }
+    }
+
+    return (labels, center)
+}
+
 @main
 struct IconGenerator: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
@@ -31,24 +47,24 @@ struct IconGenerator: AsyncParsableCommand {
 
             JSON Config Example:
               {
-                "background": "#3366FF",
+                "background": {"type": "linear", "colors": ["#667eea", "#764ba2"], "angle": 135},
                 "output": "icon.png",
                 "size": 1024,
                 "corner-style": "squircle",
                 "corner-radius": 0.2237,
-                "platform": "ios",
-                "labels": [
+                "layers": [
+                  {"position": "center", "symbol": "swift", "color": "#FFFFFF", "size": 0.5},
                   {"position": "topRight", "text": "BETA", "background-color": "#FF0000"},
                   {"position": "pillCenter", "symbol": "star.fill", "foreground-color": "#FFD700"}
-                ],
-                "center": {
-                  "symbol": "swift",
-                  "color": "#FFFFFF",
-                  "size": 0.5
-                }
+                ]
               }
 
-            JSON content keys (use one per label/center):
+            Layer positions:
+              "center"   Center content (uses color, size, alignment, anchor, y-offset)
+              Labels     top, bottom, left, right, topLeft, topRight, bottomLeft,
+                         bottomRight, pillLeft, pillCenter, pillRight
+
+            JSON content keys (use one per layer):
               "text": "BETA"           Plain text
               "symbol": "star.fill"    SF Symbol name
               "image": "/path/to.png"  Image file path
@@ -170,8 +186,7 @@ struct IconGenerator: AsyncParsableCommand {
                 return
             }
 
-            let labels = try (kitchenSinkConfig.labels ?? []).map { try $0.toIconLabel() }
-            let centerContent = try kitchenSinkConfig.center?.toCenterContent()
+            let (labels, centerContent) = try extractLayerContent(from: kitchenSinkConfig.layers ?? [])
             let resolvedOutput = output ?? kitchenSinkConfig.output
 
             let cgImage = try await MainActor.run {
@@ -206,8 +221,7 @@ struct IconGenerator: AsyncParsableCommand {
             }
 
             // Generate image from random config
-            let labels = try (randomConfig.labels ?? []).map { try $0.toIconLabel() }
-            let centerContent = try randomConfig.center?.toCenterContent()
+            let (labels, centerContent) = try extractLayerContent(from: randomConfig.layers ?? [])
             let resolvedOutput = output ?? randomConfig.output
 
             let isAppIconSet = resolvedOutput.hasSuffix(".appiconset")
@@ -268,38 +282,35 @@ struct IconGenerator: AsyncParsableCommand {
         let resolvedCornerRadius = cornerRadius ?? fileConfig?.cornerRadius ?? 0.2237
         let resolvedPlatform = platform ?? fileConfig?.platform
 
-        // Merge labels: CLI labels + config labels
-        var labels = label.map(\.label)
-        if let configLabels = fileConfig?.labels {
-            for labelConfig in configLabels {
-                labels.append(try labelConfig.toIconLabel())
-            }
-        }
+        // Extract layers from config file
+        let (configLabels, configCenter) = try extractLayerContent(from: fileConfig?.layers ?? [])
 
-        // Resolve center content: CLI > config, with CLI options overriding config values
+        // Merge labels: CLI labels + config labels
+        let labels = label.map(\.label) + configLabels
+
+        // Resolve center content: CLI > config
         let centerContent: CenterContent?
         if let centerString = center {
-            // CLI --center specified: use it with CLI overrides, falling back to config values
+            // CLI --center specified
             centerContent = CenterContent(
                 contentString: centerString,
-                color: CSSColor(centerColor ?? fileConfig?.center?.color ?? "black"),
-                sizeRatio: centerSize ?? fileConfig?.center?.size ?? 0.5,
-                alignment: centerAlign ?? fileConfig?.center?.alignment ?? .typographic,
-                anchor: centerAnchor ?? fileConfig?.center?.anchor ?? .center,
-                yOffset: centerYOffset ?? fileConfig?.center?.yOffset ?? 0,
-                rotation: centerRotation ?? fileConfig?.center?.rotation ?? 0
+                color: CSSColor(centerColor ?? "black"),
+                sizeRatio: centerSize ?? 0.5,
+                alignment: centerAlign ?? .typographic,
+                anchor: centerAnchor ?? .center,
+                yOffset: centerYOffset ?? 0,
+                rotation: centerRotation ?? 0
             )
-        } else if let configCenter = fileConfig?.center {
-            // No CLI --center, but config has center: use config with CLI overrides
-            let resolvedContent = try configCenter.resolveContent()
+        } else if let cc = configCenter {
+            // Use center from config, with CLI overrides
             centerContent = CenterContent(
-                contentString: resolvedContent,
-                color: CSSColor(centerColor ?? configCenter.color ?? "black"),
-                sizeRatio: centerSize ?? configCenter.size ?? 0.5,
-                alignment: centerAlign ?? configCenter.alignment ?? .typographic,
-                anchor: centerAnchor ?? configCenter.anchor ?? .center,
-                yOffset: centerYOffset ?? configCenter.yOffset ?? 0,
-                rotation: centerRotation ?? configCenter.rotation ?? 0
+                content: cc.content,
+                color: CSSColor(centerColor ?? cc.color.rawValue),
+                sizeRatio: centerSize ?? cc.sizeRatio,
+                alignment: centerAlign ?? cc.alignment,
+                anchor: centerAnchor ?? cc.anchor,
+                yOffset: centerYOffset ?? cc.yOffset,
+                rotation: centerRotation ?? cc.rotation
             )
         } else {
             centerContent = nil
@@ -307,6 +318,12 @@ struct IconGenerator: AsyncParsableCommand {
 
         // If --dump-config, output JSON and exit without generating image
         if dumpConfig {
+            var layers: [LayerConfiguration] = []
+            if let cc = centerContent {
+                layers.append(LayerConfiguration(from: cc))
+            }
+            layers.append(contentsOf: labels.map { LayerConfiguration(from: $0) })
+
             let resolvedConfig = ResolvedConfiguration(
                 background: BackgroundConfiguration(from: resolvedBackground),
                 output: resolvedOutput,
@@ -314,8 +331,7 @@ struct IconGenerator: AsyncParsableCommand {
                 cornerStyle: resolvedCornerStyle,
                 cornerRadius: resolvedCornerRadius,
                 platform: resolvedPlatform,
-                labels: labels.map { LabelConfiguration(from: $0) },
-                center: centerContent.map { CenterConfiguration(from: $0) }
+                layers: layers.isEmpty ? nil : layers
             )
             let encoder = JSONEncoder()
             encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
