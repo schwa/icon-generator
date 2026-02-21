@@ -111,6 +111,15 @@ struct IconGenerator: AsyncParsableCommand {
     @Option(name: .long, help: "Center content size ratio (0.0 to 1.0)")
     var centerSize: Double?
 
+    @Option(name: .long, help: "Center alignment mode: visual (glyph bounds) or typographic (font metrics)")
+    var centerAlign: CenterAlignment?
+
+    @Option(name: .long, help: "Center vertical anchor: baseline, cap, or center")
+    var centerAnchor: CenterAnchor?
+
+    @Option(name: .long, help: "Center vertical offset ratio (-1.0 to 1.0, positive moves up)")
+    var centerYOffset: Double?
+
     mutating func run() async throws {
         // Load config file if specified
         let fileConfig: IconConfiguration?
@@ -141,6 +150,9 @@ struct IconGenerator: AsyncParsableCommand {
         if let centerString = center {
             let resolvedCenterColor = CSSColor(centerColor ?? "black")
             let resolvedCenterSize = centerSize ?? 0.5
+            let resolvedCenterAlign = centerAlign ?? fileConfig?.center?.alignment ?? .typographic
+            let resolvedCenterAnchor = centerAnchor ?? fileConfig?.center?.anchor ?? .center
+            let resolvedCenterYOffset = centerYOffset ?? fileConfig?.center?.yOffset ?? 0
             let contentType: CenterContentType
             if centerString.hasPrefix("sf:") {
                 contentType = .sfSymbol(String(centerString.dropFirst(3)))
@@ -152,7 +164,10 @@ struct IconGenerator: AsyncParsableCommand {
             centerContent = CenterContent(
                 content: contentType,
                 color: resolvedCenterColor,
-                sizeRatio: resolvedCenterSize
+                sizeRatio: resolvedCenterSize,
+                alignment: resolvedCenterAlign,
+                anchor: resolvedCenterAnchor,
+                yOffset: resolvedCenterYOffset
             )
         } else if let configCenter = fileConfig?.center {
             centerContent = configCenter.toCenterContent()

@@ -70,6 +70,18 @@ struct CenterConfiguration: Codable, Sendable {
     let content: String
     var color: String?
     var size: Double?
+    var alignment: CenterAlignment?
+    var anchor: CenterAnchor?
+    var yOffset: Double?
+
+    enum CodingKeys: String, CodingKey {
+        case content
+        case color
+        case size
+        case alignment
+        case anchor
+        case yOffset = "y-offset"
+    }
 
     func toCenterContent() -> CenterContent {
         let contentType: CenterContentType
@@ -84,7 +96,10 @@ struct CenterConfiguration: Codable, Sendable {
         return CenterContent(
             content: contentType,
             color: CSSColor(color ?? "black"),
-            sizeRatio: size ?? 0.5
+            sizeRatio: size ?? 0.5,
+            alignment: alignment ?? .typographic,
+            anchor: anchor ?? .center,
+            yOffset: yOffset ?? 0
         )
     }
 }
