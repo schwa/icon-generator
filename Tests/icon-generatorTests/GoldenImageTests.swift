@@ -772,6 +772,153 @@ struct GoldenImageTests {
         #expect(matches, "Full alpha transparency should match golden image")
     }
 
+    @Test("Golden: Hex with alpha")
+    @MainActor
+    func hexWithAlpha() throws {
+        let image = try renderIcon(
+            background: .solid(CSSColor("#FF000080")),  // Red at 50% opacity
+            centerContent: CenterContent(content: .text("50%"), color: CSSColor("#000000"), sizeRatio: 0.3)
+        )
+
+        let matches = try textComparison.image(image: image, matchesGoldenImageNamed: "hex-with-alpha")
+        #expect(matches, "Hex with alpha should match golden image")
+    }
+
+    @Test("Golden: Transparent named color")
+    @MainActor
+    func transparentNamedColor() throws {
+        let image = try renderIcon(
+            background: .solid(CSSColor("transparent")),
+            centerContent: CenterContent(content: .sfSymbol("eye"), color: CSSColor("#333333"), sizeRatio: 0.5)
+        )
+
+        let matches = try textComparison.image(image: image, matchesGoldenImageNamed: "transparent-named-color")
+        #expect(matches, "Transparent named color should match golden image")
+    }
+
+    // MARK: - Bottom Corner Labels (less common positions)
+
+    @Test("Golden: Bottom left corner ribbon")
+    @MainActor
+    func bottomLeftCornerRibbon() throws {
+        let image = try renderIcon(
+            labels: [
+                IconLabel(content: .text("BL"), position: .bottomLeft, backgroundColor: CSSColor("#9933FF"), foregroundColor: CSSColor("#FFFFFF"))
+            ]
+        )
+
+        let matches = try textComparison.image(image: image, matchesGoldenImageNamed: "bottom-left-corner-ribbon")
+        #expect(matches, "Bottom left corner ribbon should match golden image")
+    }
+
+    @Test("Golden: Bottom right corner ribbon")
+    @MainActor
+    func bottomRightCornerRibbon() throws {
+        let image = try renderIcon(
+            labels: [
+                IconLabel(content: .text("BR"), position: .bottomRight, backgroundColor: CSSColor("#FF9933"), foregroundColor: CSSColor("#000000"))
+            ]
+        )
+
+        let matches = try textComparison.image(image: image, matchesGoldenImageNamed: "bottom-right-corner-ribbon")
+        #expect(matches, "Bottom right corner ribbon should match golden image")
+    }
+
+    // MARK: - Side Edge Ribbons
+
+    @Test("Golden: Left edge ribbon")
+    @MainActor
+    func leftEdgeRibbon() throws {
+        let image = try renderIcon(
+            labels: [
+                IconLabel(content: .text("LEFT"), position: .left, backgroundColor: CSSColor("#00CC99"), foregroundColor: CSSColor("#000000"))
+            ]
+        )
+
+        let matches = try textComparison.image(image: image, matchesGoldenImageNamed: "left-edge-ribbon")
+        #expect(matches, "Left edge ribbon should match golden image")
+    }
+
+    @Test("Golden: Right edge ribbon")
+    @MainActor
+    func rightEdgeRibbon() throws {
+        let image = try renderIcon(
+            labels: [
+                IconLabel(content: .text("RIGHT"), position: .right, backgroundColor: CSSColor("#CC9900"), foregroundColor: CSSColor("#000000"))
+            ]
+        )
+
+        let matches = try textComparison.image(image: image, matchesGoldenImageNamed: "right-edge-ribbon")
+        #expect(matches, "Right edge ribbon should match golden image")
+    }
+
+    @Test("Golden: Bottom edge ribbon")
+    @MainActor
+    func bottomEdgeRibbon() throws {
+        let image = try renderIcon(
+            labels: [
+                IconLabel(content: .text("BOTTOM"), position: .bottom, backgroundColor: CSSColor("#CC0099"), foregroundColor: CSSColor("#FFFFFF"))
+            ]
+        )
+
+        let matches = try textComparison.image(image: image, matchesGoldenImageNamed: "bottom-edge-ribbon")
+        #expect(matches, "Bottom edge ribbon should match golden image")
+    }
+
+    // MARK: - Pill Positions
+
+    @Test("Golden: Pill left")
+    @MainActor
+    func pillLeft() throws {
+        let image = try renderIcon(
+            labels: [
+                IconLabel(content: .text("L"), position: .pillLeft, backgroundColor: CSSColor("#FFFFFF"), foregroundColor: CSSColor("#000000"))
+            ]
+        )
+
+        let matches = try textComparison.image(image: image, matchesGoldenImageNamed: "pill-left")
+        #expect(matches, "Pill left should match golden image")
+    }
+
+    @Test("Golden: Pill right")
+    @MainActor
+    func pillRight() throws {
+        let image = try renderIcon(
+            labels: [
+                IconLabel(content: .text("R"), position: .pillRight, backgroundColor: CSSColor("#FFFFFF"), foregroundColor: CSSColor("#000000"))
+            ]
+        )
+
+        let matches = try textComparison.image(image: image, matchesGoldenImageNamed: "pill-right")
+        #expect(matches, "Pill right should match golden image")
+    }
+
+    // MARK: - Special Characters
+
+    @Test("Golden: Emoji in center")
+    @MainActor
+    func emojiInCenter() throws {
+        let image = try renderIcon(
+            centerContent: CenterContent(content: .text("🚀"), color: CSSColor("#FFFFFF"), sizeRatio: 0.5)
+        )
+
+        let matches = try textComparison.image(image: image, matchesGoldenImageNamed: "emoji-in-center")
+        #expect(matches, "Emoji in center should match golden image")
+    }
+
+    @Test("Golden: Unicode in label")
+    @MainActor
+    func unicodeInLabel() throws {
+        let image = try renderIcon(
+            labels: [
+                IconLabel(content: .text("日本"), position: .pillCenter, backgroundColor: CSSColor("#FFFFFF"), foregroundColor: CSSColor("#000000"))
+            ]
+        )
+
+        let matches = try textComparison.image(image: image, matchesGoldenImageNamed: "unicode-in-label")
+        #expect(matches, "Unicode in label should match golden image")
+    }
+
     // MARK: - Helper for Creating Test Image
 
     /// Creates a simple 64x64 test image (red circle on transparent background)
