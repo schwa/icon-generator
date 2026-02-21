@@ -15,6 +15,7 @@ struct CenterContent: Sendable {
 struct SquircleView: View {
     let backgroundColor: Color
     let size: CGFloat
+    let cornerStyle: CornerStyle
     let cornerRadiusRatio: CGFloat
     let labels: [IconLabel]
     let centerContent: CenterContent?
@@ -22,12 +23,14 @@ struct SquircleView: View {
     init(
         backgroundColor: Color,
         size: CGFloat,
+        cornerStyle: CornerStyle = .squircle,
         cornerRadiusRatio: CGFloat,
         labels: [IconLabel] = [],
         centerContent: CenterContent? = nil
     ) {
         self.backgroundColor = backgroundColor
         self.size = size
+        self.cornerStyle = cornerStyle
         self.cornerRadiusRatio = cornerRadiusRatio
         self.labels = labels
         self.centerContent = centerContent
@@ -39,7 +42,12 @@ struct SquircleView: View {
         Canvas { context, canvasSize in
             let rect = CGRect(origin: .zero, size: canvasSize)
             let cornerRadius = min(canvasSize.width, canvasSize.height) * cornerRadiusRatio
-            let squirclePath = Path(roundedRect: rect, cornerRadius: cornerRadius, style: .continuous)
+            let squirclePath: Path
+            if let style = cornerStyle.roundedCornerStyle {
+                squirclePath = Path(roundedRect: rect, cornerRadius: cornerRadius, style: style)
+            } else {
+                squirclePath = Path(rect)
+            }
 
             // Fill background
             context.fill(squirclePath, with: .color(backgroundColor))
@@ -163,10 +171,12 @@ struct SquircleView: View {
             if let symbol = context.resolveSymbol(id: label.id) {
                 // Centroid of triangle at (0,0), (w,0), (0,w) is (w/3, w/3)
                 let centroid = CGPoint(x: diagonalWidth / 3, y: diagonalWidth / 3)
-                var rotatedContext = context
-                rotatedContext.translateBy(x: centroid.x, y: centroid.y)
-                rotatedContext.rotate(by: .degrees(-45))
-                rotatedContext.draw(symbol, at: .zero)
+                var drawContext = context
+                drawContext.translateBy(x: centroid.x, y: centroid.y)
+                if label.rotateContent {
+                    drawContext.rotate(by: .degrees(-45))
+                }
+                drawContext.draw(symbol, at: .zero)
             }
 
         case .topRight:
@@ -178,10 +188,12 @@ struct SquircleView: View {
                     x: canvasSize.width - diagonalWidth / 3,
                     y: diagonalWidth / 3
                 )
-                var rotatedContext = context
-                rotatedContext.translateBy(x: centroid.x, y: centroid.y)
-                rotatedContext.rotate(by: .degrees(45))
-                rotatedContext.draw(symbol, at: .zero)
+                var drawContext = context
+                drawContext.translateBy(x: centroid.x, y: centroid.y)
+                if label.rotateContent {
+                    drawContext.rotate(by: .degrees(45))
+                }
+                drawContext.draw(symbol, at: .zero)
             }
 
         case .bottomLeft:
@@ -193,10 +205,12 @@ struct SquircleView: View {
                     x: diagonalWidth / 3,
                     y: canvasSize.height - diagonalWidth / 3
                 )
-                var rotatedContext = context
-                rotatedContext.translateBy(x: centroid.x, y: centroid.y)
-                rotatedContext.rotate(by: .degrees(45))
-                rotatedContext.draw(symbol, at: .zero)
+                var drawContext = context
+                drawContext.translateBy(x: centroid.x, y: centroid.y)
+                if label.rotateContent {
+                    drawContext.rotate(by: .degrees(45))
+                }
+                drawContext.draw(symbol, at: .zero)
             }
 
         case .bottomRight:
@@ -208,10 +222,12 @@ struct SquircleView: View {
                     x: canvasSize.width - diagonalWidth / 3,
                     y: canvasSize.height - diagonalWidth / 3
                 )
-                var rotatedContext = context
-                rotatedContext.translateBy(x: centroid.x, y: centroid.y)
-                rotatedContext.rotate(by: .degrees(-45))
-                rotatedContext.draw(symbol, at: .zero)
+                var drawContext = context
+                drawContext.translateBy(x: centroid.x, y: centroid.y)
+                if label.rotateContent {
+                    drawContext.rotate(by: .degrees(-45))
+                }
+                drawContext.draw(symbol, at: .zero)
             }
 
         // Pill overlays

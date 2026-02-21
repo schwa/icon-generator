@@ -1,0 +1,16 @@
+{
+  "background": "#3366FF",
+  "output": "test-config-output.png",
+  "size": 512,
+  "corner-style": "rounded",
+  "corner-radius": 0.2237,
+  "labels": [
+    {"position": "topRight", "content": "BETA", "background-color": "#FF0000", "foreground-color": "#FFFFFF"},
+    {"position": "pillCenter", "content": "v1.0", "background-color": "#000000"}
+  ],
+  "center": {
+    "content": "sf:swift",
+    "color": "#FFFFFF",
+    "size": 0.5
+  }
+}

@@ -34,16 +34,19 @@ struct IconLabel: Sendable, Identifiable {
     let position: LabelPosition
     let backgroundColor: Color
     let foregroundColor: Color
+    let rotateContent: Bool
 
     init(
         content: LabelContent,
         position: LabelPosition,
         backgroundColor: Color = .red,
-        foregroundColor: Color = .white
+        foregroundColor: Color = .white,
+        rotateContent: Bool = true
     ) {
         self.content = content
         self.position = position
         self.backgroundColor = backgroundColor
         self.foregroundColor = foregroundColor
+        self.rotateContent = rotateContent
     }
 }
