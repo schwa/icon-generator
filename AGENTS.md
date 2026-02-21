@@ -27,7 +27,9 @@ icon-generator --config config.json
 | Option | Default | Description |
 |--------|---------|-------------|
 | `-c, --config` | - | Path to JSON configuration file |
-| `--background` | `white` | Background color (CSS format) |
+| `--background` | `white` | Background color or gradient |
+| `--random` | - | Generate random icon configuration |
+| `--dump-config` | - | Output resolved config as JSON (no image) |
 | `-o, --output` | `icon.png` | Output file path (use `.appiconset` for Xcode asset) |
 | `--size` | `1024` | Image size in pixels (single PNG only) |
 | `--corner-style` | `squircle` | Corner style: `none`, `rounded`, or `squircle` |
@@ -107,6 +109,20 @@ Format: `position:content[:backgroundColor[:foregroundColor]]`
 
 # Fine-tune with proportional offset
 --center "ə" --center-y-offset 0.15
+```
+
+### Gradient Backgrounds
+
+```bash
+# Linear gradient
+--background "linear-gradient(to bottom, red, blue)"
+--background "linear-gradient(45deg, orange, purple)"
+
+# Radial gradient
+--background "radial-gradient(#FFCC00, #FF6600)"
+
+# Angular/conic gradient
+--background "angular-gradient(red, orange, yellow, green, blue, purple, red)"
 ```
 
 ### JSON Configuration File

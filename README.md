@@ -208,7 +208,9 @@ icon-generator --background "#FF3B30" --center "sf:gift.fill" --center-color "#F
 | Option | Default | Description |
 |--------|---------|-------------|
 | `-c, --config` | - | JSON config file |
-| `--background` | `white` | Background color (CSS format) |
+| `--background` | `white` | Background color or gradient |
+| `--random` | - | Generate random icon configuration |
+| `--dump-config` | - | Output resolved config as JSON (no image) |
 | `-o, --output` | `icon.png` | Output path (`.png` or `.appiconset`) |
 | `--size` | `1024` | Size in pixels (single PNG only) |
 | `--corner-style` | `squircle` | `none`, `rounded`, `squircle` |
@@ -274,6 +276,31 @@ Colors can be specified in multiple CSS-compatible formats:
 --background "rgba(255, 0, 0, 0.5)"
 --background "rgba(0 128 255 / 0.8)"
 ```
+
+### Gradient Backgrounds
+
+The background can also be a gradient:
+
+```bash
+# Linear gradient (top to bottom by default)
+--background "linear-gradient(red, blue)"
+--background "linear-gradient(to right, #FF0000, #0000FF)"
+--background "linear-gradient(to bottom right, orange, purple)"
+--background "linear-gradient(45deg, #FF6B6B, #4ECDC4)"
+
+# Radial gradient (center outward)
+--background "radial-gradient(#FFCC00, #FF6600)"
+--background "radial-gradient(white, gray, black)"
+
+# Angular/conic gradient (around center)
+--background "angular-gradient(red, orange, yellow, green, blue, purple, red)"
+--background "conic-gradient(#FF0000, #00FF00, #0000FF, #FF0000)"
+```
+
+**Linear gradient directions:**
+- `to top`, `to bottom`, `to left`, `to right`
+- `to top left`, `to top right`, `to bottom left`, `to bottom right`
+- Angle in degrees: `45deg`, `90deg`, `135deg`, etc.
 
 ## License
 

@@ -114,7 +114,7 @@ struct AppIconSetGenerator {
     static func generate(
         at outputPath: String,
         platform: AppIconPlatform,
-        backgroundColor: CSSColor,
+        background: Background,
         cornerStyle: CornerStyle,
         cornerRadiusRatio: Double,
         labels: [IconLabel],
@@ -130,7 +130,7 @@ struct AppIconSetGenerator {
         // Generate each unique size
         for pixelSize in uniqueSizes {
             let view = SquircleView(
-                backgroundColor: backgroundColor,
+                background: background,
                 size: CGFloat(pixelSize),
                 cornerStyle: cornerStyle,
                 cornerRadiusRatio: cornerRadiusRatio,

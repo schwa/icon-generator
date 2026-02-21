@@ -81,7 +81,7 @@ struct IconGenerator: AsyncParsableCommand {
     @Option(name: .shortAndLong, help: "Path to JSON configuration file")
     var config: String?
 
-    @Option(name: .long, help: "Background color in hex format (e.g., #FF0000)")
+    @Option(name: .long, help: "Background color or gradient (e.g., #FF0000, linear-gradient(to bottom, red, blue))")
     var background: String?
 
     @Option(name: .shortAndLong, help: "Output file path")
@@ -153,7 +153,7 @@ struct IconGenerator: AsyncParsableCommand {
                     try AppIconSetGenerator.generate(
                         at: resolvedOutput,
                         platform: iconPlatform,
-                        backgroundColor: CSSColor(randomConfig.background),
+                        background: Background(randomConfig.background),
                         cornerStyle: randomConfig.cornerStyle,
                         cornerRadiusRatio: randomConfig.cornerRadius,
                         labels: labels,
@@ -164,7 +164,7 @@ struct IconGenerator: AsyncParsableCommand {
             } else {
                 let cgImage = try await MainActor.run {
                     try renderSquircle(
-                        backgroundColor: CSSColor(randomConfig.background),
+                        background: Background(randomConfig.background),
                         size: randomConfig.size,
                         cornerStyle: randomConfig.cornerStyle,
                         cornerRadiusRatio: randomConfig.cornerRadius,
@@ -189,7 +189,7 @@ struct IconGenerator: AsyncParsableCommand {
         }
 
         // Resolve values: CLI > config > defaults
-        let resolvedBackground = CSSColor(background ?? fileConfig?.background ?? "white")
+        let resolvedBackground = Background(background ?? fileConfig?.background ?? "white")
         let resolvedOutput = output ?? fileConfig?.output ?? "icon.png"
         let resolvedSize = size ?? fileConfig?.size ?? 1024
         let resolvedCornerStyle = cornerStyle ?? fileConfig?.cornerStyle ?? .squircle
@@ -258,7 +258,7 @@ struct IconGenerator: AsyncParsableCommand {
                 try AppIconSetGenerator.generate(
                     at: resolvedOutput,
                     platform: iconPlatform,
-                    backgroundColor: resolvedBackground,
+                    background: resolvedBackground,
                     cornerStyle: resolvedCornerStyle,
                     cornerRadiusRatio: resolvedCornerRadius,
                     labels: labels,
@@ -279,7 +279,7 @@ struct IconGenerator: AsyncParsableCommand {
         } else {
             let cgImage = try await MainActor.run {
                 try renderSquircle(
-                    backgroundColor: resolvedBackground,
+                    background: resolvedBackground,
                     size: resolvedSize,
                     cornerStyle: resolvedCornerStyle,
                     cornerRadiusRatio: resolvedCornerRadius,
@@ -303,7 +303,7 @@ struct IconGenerator: AsyncParsableCommand {
 
     @MainActor
     private func renderSquircle(
-        backgroundColor: CSSColor,
+        background: Background,
         size: Int,
         cornerStyle: CornerStyle,
         cornerRadiusRatio: Double,
@@ -311,7 +311,7 @@ struct IconGenerator: AsyncParsableCommand {
         centerContent: CenterContent?
     ) throws -> CGImage {
         let squircleView = SquircleView(
-            backgroundColor: backgroundColor,
+            background: background,
             size: CGFloat(size),
             cornerStyle: cornerStyle,
             cornerRadiusRatio: cornerRadiusRatio,

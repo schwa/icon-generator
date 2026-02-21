@@ -151,18 +151,30 @@ struct CenterContent: Sendable {
 }
 
 struct SquircleView: View {
-    let backgroundColor: CSSColor
+    let background: Background
     let size: CGFloat
     let cornerStyle: CornerStyle
     let cornerRadiusRatio: CGFloat
     let labels: [IconLabel]
     let centerContent: CenterContent?
 
-    /// Resolved SwiftUI background color
-    var resolvedBackgroundColor: Color {
-        backgroundColor.color() ?? .white
+    init(
+        background: Background,
+        size: CGFloat,
+        cornerStyle: CornerStyle = .squircle,
+        cornerRadiusRatio: CGFloat,
+        labels: [IconLabel] = [],
+        centerContent: CenterContent? = nil
+    ) {
+        self.background = background
+        self.size = size
+        self.cornerStyle = cornerStyle
+        self.cornerRadiusRatio = cornerRadiusRatio
+        self.labels = labels
+        self.centerContent = centerContent
     }
 
+    /// Convenience initializer for solid color backgrounds
     init(
         backgroundColor: CSSColor,
         size: CGFloat,
@@ -171,7 +183,7 @@ struct SquircleView: View {
         labels: [IconLabel] = [],
         centerContent: CenterContent? = nil
     ) {
-        self.backgroundColor = backgroundColor
+        self.background = .solid(backgroundColor)
         self.size = size
         self.cornerStyle = cornerStyle
         self.cornerRadiusRatio = cornerRadiusRatio
@@ -193,7 +205,7 @@ struct SquircleView: View {
             }
 
             // Fill background
-            context.fill(squirclePath, with: .color(resolvedBackgroundColor))
+            context.fill(squirclePath, with: .style(background.shapeStyle(in: rect)))
 
             // Draw center content (before clipping so it's not affected by label clip)
             if centerContent != nil, let symbol = context.resolveSymbol(id: centerContentID) {

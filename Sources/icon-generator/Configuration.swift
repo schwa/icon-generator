@@ -62,9 +62,35 @@ struct RandomConfigGenerator {
         return String(format: "#%02X%02X%02X", r, g, b)
     }
 
+    /// Generate a random background (solid or gradient)
+    static func randomBackground() -> String {
+        // 70% solid, 20% linear gradient, 10% radial/angular
+        let roll = Int.random(in: 1...10)
+        if roll <= 7 {
+            return backgroundColors.randomElement()!
+        } else if roll <= 9 {
+            // Linear gradient
+            let color1 = backgroundColors.randomElement()!
+            let color2 = backgroundColors.randomElement()!
+            let directions = ["to bottom", "to right", "to bottom right", "45deg", "135deg"]
+            let direction = directions.randomElement()!
+            return "linear-gradient(\(direction), \(color1), \(color2))"
+        } else {
+            // Radial or angular
+            if Bool.random() {
+                let color1 = backgroundColors.randomElement()!
+                let color2 = backgroundColors.randomElement()!
+                return "radial-gradient(\(color1), \(color2))"
+            } else {
+                let colors = (0..<Int.random(in: 3...6)).map { _ in backgroundColors.randomElement()! }
+                return "angular-gradient(\(colors.joined(separator: ", ")))"
+            }
+        }
+    }
+
     /// Generate a random configuration
     static func generate() -> ResolvedConfiguration {
-        let background = backgroundColors.randomElement()!
+        let background = randomBackground()
         let cornerStyle = CornerStyle.allCases.randomElement()!
         let cornerRadius = cornerStyle == .squircle ? 0.2237 : Double.random(in: 0.1...0.4)
 
