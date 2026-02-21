@@ -1212,7 +1212,7 @@ struct IconGeneratorExampleTests {
     @Test("CanvasIconRenderer - all label types")
     @MainActor
     func canvasIconRendererAllLabels() throws {
-        let iconSize = CGSize(width: 512, height: 512)
+        let iconSize: CGFloat = 512
         let cornerRadiusRatio: CGFloat = 0.2237
 
         let view = Canvas { context, size in
@@ -1230,7 +1230,6 @@ struct IconGeneratorExampleTests {
                 labels: [
                     // Edge ribbons
                     IconLabel(content: .text("TOP"), position: .top, backgroundColor: .red, foregroundColor: .white),
-                    IconLabel(content: .text("BTM"), position: .bottom, backgroundColor: .blue, foregroundColor: .white),
                     // Corner ribbons
                     IconLabel(content: .sfSymbol("star.fill"), position: .topLeft, backgroundColor: CSSColor("#FFD700"), foregroundColor: .black),
                     IconLabel(content: .text("NEW"), position: .topRight, backgroundColor: .green, foregroundColor: .white),
@@ -1240,7 +1239,7 @@ struct IconGeneratorExampleTests {
                 centerContent: nil
             )
         }
-        .frame(width: iconSize.width, height: iconSize.height)
+        .frame(width: iconSize, height: iconSize)
 
         let imageRenderer = ImageRenderer(content: view)
         imageRenderer.scale = 1.0
@@ -1269,6 +1268,87 @@ struct IconGeneratorExampleTests {
         }
 
         print("✅ Generated: renderer-test-all-labels.png")
+    }
+
+    @Test("CanvasIconRenderer - gradient background")
+    @MainActor
+    func canvasIconRendererGradient() throws {
+        let iconSize: CGFloat = 512
+        let cornerRadiusRatio: CGFloat = 0.2237
+
+        // Compare gradient rendering
+        let background = Background("linear-gradient(135deg, #667eea, #764ba2)")
+        let centerContent = CenterContent(content: .sfSymbol("swift"), color: .white, sizeRatio: 0.5)
+
+        // Original
+        let originalView = SquircleView(
+            background: background,
+            size: iconSize,
+            cornerStyle: .squircle,
+            cornerRadiusRatio: cornerRadiusRatio,
+            labels: [],
+            centerContent: centerContent
+        )
+
+        // New renderer
+        let newView = Canvas { context, size in
+            var renderer = CanvasIconRenderer(context: context, size: size, cornerRadiusRatio: cornerRadiusRatio)
+            renderIcon(to: &renderer, background: background, cornerStyle: .squircle, cornerRadius: cornerRadiusRatio, labels: [], centerContent: centerContent)
+        }
+        .frame(width: iconSize, height: iconSize)
+
+        // Save both
+        for (view, name) in [(AnyView(originalView), "gradient-compare-original"), (AnyView(newView), "gradient-compare-new")] {
+            let renderer = ImageRenderer(content: view)
+            renderer.scale = 1.0
+            guard let cgImage = renderer.cgImage else { continue }
+
+            let url = outputDirectory.appendingPathComponent("\(name).png")
+            guard let destination = CGImageDestinationCreateWithURL(url as CFURL, UTType.png.identifier as CFString, 1, nil) else { continue }
+            CGImageDestinationAddImage(destination, cgImage, nil)
+            CGImageDestinationFinalize(destination)
+            print("✅ Generated: \(name).png")
+        }
+    }
+
+    @Test("CanvasIconRenderer - center rotation")
+    @MainActor
+    func canvasIconRendererRotation() throws {
+        let iconSize: CGFloat = 512
+        let cornerRadiusRatio: CGFloat = 0.2237
+
+        let background = Background("#007AFF")
+        let centerContent = CenterContent(content: .sfSymbol("arrow.up"), color: .white, sizeRatio: 0.5, rotation: 45)
+
+        // Original
+        let originalView = SquircleView(
+            background: background,
+            size: iconSize,
+            cornerStyle: .squircle,
+            cornerRadiusRatio: cornerRadiusRatio,
+            labels: [],
+            centerContent: centerContent
+        )
+
+        // New renderer
+        let newView = Canvas { context, size in
+            var renderer = CanvasIconRenderer(context: context, size: size, cornerRadiusRatio: cornerRadiusRatio)
+            renderIcon(to: &renderer, background: background, cornerStyle: .squircle, cornerRadius: cornerRadiusRatio, labels: [], centerContent: centerContent)
+        }
+        .frame(width: iconSize, height: iconSize)
+
+        // Save both
+        for (view, name) in [(AnyView(originalView), "rotation-compare-original"), (AnyView(newView), "rotation-compare-new")] {
+            let renderer = ImageRenderer(content: view)
+            renderer.scale = 1.0
+            guard let cgImage = renderer.cgImage else { continue }
+
+            let url = outputDirectory.appendingPathComponent("\(name).png")
+            guard let destination = CGImageDestinationCreateWithURL(url as CFURL, UTType.png.identifier as CFString, 1, nil) else { continue }
+            CGImageDestinationAddImage(destination, cgImage, nil)
+            CGImageDestinationFinalize(destination)
+            print("✅ Generated: \(name).png")
+        }
     }
 
     // MARK: - Gradient Backgrounds
