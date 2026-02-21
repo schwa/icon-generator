@@ -69,11 +69,12 @@ struct IconGenerator: AsyncParsableCommand {
               "symbol": "star.fill"    SF Symbol name
               "image": "/path/to.png"  Image file path
 
-            Labels can be added using the --label option (repeatable).
+            Layers can be added using --layer (repeatable).
 
-            Label format: position:content[:backgroundColor[:foregroundColor]]
+            Layer format: position:content[:key=value...]
 
             Positions:
+              center           Center content
               Edge ribbons:    top, bottom, left, right
               Corner ribbons:  topLeft, topRight, bottomLeft, bottomRight
               Bottom pills:    pillLeft, pillCenter, pillRight
@@ -83,22 +84,20 @@ struct IconGenerator: AsyncParsableCommand {
               Image:     Prefix with @ (e.g., "@/path/to/icon.png")
               SF Symbol: Prefix with sf: (e.g., "sf:star.fill")
 
-            Colors: Hex format (e.g., #FF0000)
-            Defaults: backgroundColor=#FF0000 (red), foregroundColor=#FFFFFF (white)
-
-            Center content can be added with --center:
-              --center "Hello"              Text with default color (#000000) and size (0.5)
-              --center "@/path/to/img.png"  Image file
-              --center "sf:star.fill"       SF Symbol
+            Options (key=value):
+              color, fg    Foreground color
+              bg           Background color (labels only)
+              size         Size ratio 0.0-1.0 (center only)
+              norotate     Don't rotate content (diagonal labels)
 
             Examples:
               icon-generator --background "#3366FF" -o icon.png
               icon-generator --background "#3366FF" -o icon.svg
               icon-generator -o AppIcon.appiconset --platform ios --background "#FF0000"
-              icon-generator -o AppIcon.appiconset --platform macos --center "sf:swift"
               icon-generator --config config.json
-              --label topRight:BETA
-              --center "sf:swift" --center-color "#F05138"
+              --layer "center:sf:swift:color=#FFFFFF:size=0.5"
+              --layer "topRight:BETA:bg=#FF0000"
+              --layer "topLeft:sf:star.fill:bg=#FFD700:norotate"
             """
     )
 
@@ -123,29 +122,8 @@ struct IconGenerator: AsyncParsableCommand {
     @Option(name: .long, help: "App icon platform: ios, macos, watchos, or universal")
     var platform: AppIconPlatform?
 
-    @Option(name: .long, parsing: .upToNextOption, help: "Label specification (repeatable)")
-    var label: [LabelSpecification] = []
-
-    @Option(name: .long, help: "Center content (text, @image path, or sf:symbol)")
-    var center: String?
-
-    @Option(name: .long, help: "Center content color in hex format")
-    var centerColor: String?
-
-    @Option(name: .long, help: "Center content size ratio (0.0 to 1.0)")
-    var centerSize: Double?
-
-    @Option(name: .long, help: "Center alignment mode: visual (glyph bounds) or typographic (font metrics)")
-    var centerAlign: CenterAlignment?
-
-    @Option(name: .long, help: "Center vertical anchor: baseline, cap, or center")
-    var centerAnchor: CenterAnchor?
-
-    @Option(name: .long, help: "Center vertical offset ratio (-1.0 to 1.0, positive moves up)")
-    var centerYOffset: Double?
-
-    @Option(name: .long, help: "Center rotation in degrees (positive = clockwise)")
-    var centerRotation: Double?
+    @Option(name: .long, parsing: .upToNextOption, help: "Layer specification (repeatable)")
+    var layer: [LayerSpecification] = []
 
     @Option(name: .long, help: "Font family for SVG text (default: system fonts)")
     var svgFont: String?
@@ -164,8 +142,7 @@ struct IconGenerator: AsyncParsableCommand {
         let hasAnyInput = config != nil ||
                           background != nil ||
                           output != nil ||
-                          center != nil ||
-                          !label.isEmpty ||
+                          !layer.isEmpty ||
                           kitchenSink ||
                           random ||
                           dumpConfig
@@ -285,36 +262,21 @@ struct IconGenerator: AsyncParsableCommand {
         // Extract layers from config file
         let (configLabels, configCenter) = try extractLayerContent(from: fileConfig?.layers ?? [])
 
-        // Merge labels: CLI labels + config labels
-        let labels = label.map(\.label) + configLabels
-
-        // Resolve center content: CLI > config
-        let centerContent: CenterContent?
-        if let centerString = center {
-            // CLI --center specified
-            centerContent = CenterContent(
-                contentString: centerString,
-                color: CSSColor(centerColor ?? "black"),
-                sizeRatio: centerSize ?? 0.5,
-                alignment: centerAlign ?? .typographic,
-                anchor: centerAnchor ?? .center,
-                yOffset: centerYOffset ?? 0,
-                rotation: centerRotation ?? 0
-            )
-        } else if let cc = configCenter {
-            // Use center from config, with CLI overrides
-            centerContent = CenterContent(
-                content: cc.content,
-                color: CSSColor(centerColor ?? cc.color.rawValue),
-                sizeRatio: centerSize ?? cc.sizeRatio,
-                alignment: centerAlign ?? cc.alignment,
-                anchor: centerAnchor ?? cc.anchor,
-                yOffset: centerYOffset ?? cc.yOffset,
-                rotation: centerRotation ?? cc.rotation
-            )
-        } else {
-            centerContent = nil
+        // Extract layers from CLI
+        var cliLabels: [IconLabel] = []
+        var cliCenter: CenterContent? = nil
+        for spec in layer {
+            switch spec.content {
+            case .center(let cc):
+                cliCenter = cc
+            case .label(let lbl):
+                cliLabels.append(lbl)
+            }
         }
+
+        // Merge: CLI layers override config
+        let labels = cliLabels + configLabels
+        let centerContent = cliCenter ?? configCenter
 
         // If --dump-config, output JSON and exit without generating image
         if dumpConfig {
