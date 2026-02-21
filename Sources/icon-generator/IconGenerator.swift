@@ -120,7 +120,66 @@ struct IconGenerator: AsyncParsableCommand {
     @Option(name: .long, help: "Center vertical offset ratio (-1.0 to 1.0, positive moves up)")
     var centerYOffset: Double?
 
+    @Flag(name: .long, help: "Output resolved configuration as JSON (no image generated)")
+    var dumpConfig: Bool = false
+
+    @Flag(name: .long, help: "Generate random icon configuration")
+    var random: Bool = false
+
     mutating func run() async throws {
+        // Handle --random flag: generate random config
+        if random {
+            let randomConfig = RandomConfigGenerator.generate()
+
+            if dumpConfig {
+                // Just output the random config as JSON
+                let encoder = JSONEncoder()
+                encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+                let data = try encoder.encode(randomConfig)
+                print(String(data: data, encoding: .utf8)!)
+                return
+            }
+
+            // Generate image from random config
+            let labels = try (randomConfig.labels ?? []).map { try $0.toIconLabel() }
+            let centerContent = randomConfig.center?.toCenterContent()
+            let resolvedOutput = output ?? randomConfig.output
+
+            let isAppIconSet = resolvedOutput.hasSuffix(".appiconset")
+
+            if isAppIconSet {
+                let iconPlatform = randomConfig.platform ?? .ios
+                try await MainActor.run {
+                    try AppIconSetGenerator.generate(
+                        at: resolvedOutput,
+                        platform: iconPlatform,
+                        backgroundColor: CSSColor(randomConfig.background),
+                        cornerStyle: randomConfig.cornerStyle,
+                        cornerRadiusRatio: randomConfig.cornerRadius,
+                        labels: labels,
+                        centerContent: centerContent
+                    )
+                }
+                print("Generated random \(iconPlatform.rawValue) app icon set at \(resolvedOutput)")
+            } else {
+                let cgImage = try await MainActor.run {
+                    try renderSquircle(
+                        backgroundColor: CSSColor(randomConfig.background),
+                        size: randomConfig.size,
+                        cornerStyle: randomConfig.cornerStyle,
+                        cornerRadiusRatio: randomConfig.cornerRadius,
+                        labels: labels,
+                        centerContent: centerContent
+                    )
+                }
+
+                let url = URL(fileURLWithPath: resolvedOutput)
+                try savePNG(cgImage: cgImage, to: url)
+                print("Generated random \(randomConfig.size)x\(randomConfig.size) icon at \(resolvedOutput)")
+            }
+            return
+        }
+
         // Load config file if specified
         let fileConfig: IconConfiguration?
         if let configPath = config {
@@ -145,34 +204,49 @@ struct IconGenerator: AsyncParsableCommand {
             }
         }
 
-        // Resolve center content: CLI > config
+        // Resolve center content: CLI > config, with CLI options overriding config values
         let centerContent: CenterContent?
         if let centerString = center {
-            let resolvedCenterColor = CSSColor(centerColor ?? "black")
-            let resolvedCenterSize = centerSize ?? 0.5
-            let resolvedCenterAlign = centerAlign ?? fileConfig?.center?.alignment ?? .typographic
-            let resolvedCenterAnchor = centerAnchor ?? fileConfig?.center?.anchor ?? .center
-            let resolvedCenterYOffset = centerYOffset ?? fileConfig?.center?.yOffset ?? 0
-            let contentType: CenterContentType
-            if centerString.hasPrefix("sf:") {
-                contentType = .sfSymbol(String(centerString.dropFirst(3)))
-            } else if centerString.hasPrefix("@") {
-                contentType = .image(URL(fileURLWithPath: String(centerString.dropFirst())))
-            } else {
-                contentType = .text(centerString)
-            }
+            // CLI --center specified: use it with CLI overrides, falling back to config values
             centerContent = CenterContent(
-                content: contentType,
-                color: resolvedCenterColor,
-                sizeRatio: resolvedCenterSize,
-                alignment: resolvedCenterAlign,
-                anchor: resolvedCenterAnchor,
-                yOffset: resolvedCenterYOffset
+                contentString: centerString,
+                color: CSSColor(centerColor ?? fileConfig?.center?.color ?? "black"),
+                sizeRatio: centerSize ?? fileConfig?.center?.size ?? 0.5,
+                alignment: centerAlign ?? fileConfig?.center?.alignment ?? .typographic,
+                anchor: centerAnchor ?? fileConfig?.center?.anchor ?? .center,
+                yOffset: centerYOffset ?? fileConfig?.center?.yOffset ?? 0
             )
         } else if let configCenter = fileConfig?.center {
-            centerContent = configCenter.toCenterContent()
+            // No CLI --center, but config has center: use config with CLI overrides
+            centerContent = CenterContent(
+                contentString: configCenter.content,
+                color: CSSColor(centerColor ?? configCenter.color ?? "black"),
+                sizeRatio: centerSize ?? configCenter.size ?? 0.5,
+                alignment: centerAlign ?? configCenter.alignment ?? .typographic,
+                anchor: centerAnchor ?? configCenter.anchor ?? .center,
+                yOffset: centerYOffset ?? configCenter.yOffset ?? 0
+            )
         } else {
             centerContent = nil
+        }
+
+        // If --dump-config, output JSON and exit without generating image
+        if dumpConfig {
+            let resolvedConfig = ResolvedConfiguration(
+                background: resolvedBackground.rawValue,
+                output: resolvedOutput,
+                size: resolvedSize,
+                cornerStyle: resolvedCornerStyle,
+                cornerRadius: resolvedCornerRadius,
+                platform: resolvedPlatform,
+                labels: labels.map { LabelConfiguration(from: $0) },
+                center: centerContent.map { CenterConfiguration(from: $0) }
+            )
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+            let data = try encoder.encode(resolvedConfig)
+            print(String(data: data, encoding: .utf8)!)
+            return
         }
 
         // Check if output is an appiconset directory

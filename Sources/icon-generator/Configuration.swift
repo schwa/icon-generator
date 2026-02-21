@@ -1,6 +1,142 @@
 import Foundation
 import SwiftUI
 
+// MARK: - Random Configuration Generation
+
+/// Generates a random icon configuration
+struct RandomConfigGenerator {
+    /// Common SF Symbols suitable for app icons
+    static let sfSymbols = [
+        "star.fill", "heart.fill", "bolt.fill", "flame.fill", "leaf.fill",
+        "cloud.fill", "moon.fill", "sun.max.fill", "drop.fill", "snowflake",
+        "swift", "apple.logo", "app.fill", "gear", "gearshape.fill",
+        "house.fill", "person.fill", "bell.fill", "envelope.fill", "paperplane.fill",
+        "bookmark.fill", "tag.fill", "camera.fill", "photo.fill", "music.note",
+        "play.fill", "pause.fill", "forward.fill", "backward.fill", "shuffle",
+        "rectangle.stack.fill", "square.grid.2x2.fill", "circle.grid.3x3.fill",
+        "cpu.fill", "memorychip.fill", "network", "wifi", "antenna.radiowaves.left.and.right",
+        "lock.fill", "key.fill", "shield.fill", "checkmark.seal.fill", "rosette",
+        "chart.bar.fill", "chart.pie.fill", "waveform", "gauge.with.needle.fill",
+        "paintbrush.fill", "pencil", "scissors", "hammer.fill", "wrench.and.screwdriver.fill",
+        "folder.fill", "doc.fill", "doc.text.fill", "book.fill", "newspaper.fill",
+        "graduationcap.fill", "brain.head.profile", "lightbulb.fill", "puzzlepiece.fill",
+        "flag.fill", "mappin", "location.fill", "globe", "map.fill",
+        "car.fill", "airplane", "tram.fill", "bicycle", "figure.walk",
+        "cart.fill", "bag.fill", "creditcard.fill", "banknote.fill", "dollarsign.circle.fill",
+        "phone.fill", "video.fill", "mic.fill", "speaker.wave.3.fill", "headphones",
+        "gamecontroller.fill", "paintpalette.fill", "theatermasks.fill", "film.fill", "tv.fill",
+        "desktopcomputer", "laptopcomputer", "iphone", "ipad", "applewatch",
+        "atom", "function", "number", "textformat", "character.book.closed.fill"
+    ]
+
+    /// Vibrant colors suitable for app icon backgrounds
+    static let backgroundColors = [
+        "#FF3B30", "#FF9500", "#FFCC00", "#34C759", "#00C7BE", "#30B0C7",
+        "#007AFF", "#5856D6", "#AF52DE", "#FF2D55", "#A2845E",
+        "#1C1C1E", "#2C2C2E", "#3A3A3C", "#48484A", "#636366",
+        "#F05138", "#00A86B", "#FF6B6B", "#4ECDC4", "#45B7D1",
+        "#96CEB4", "#FFEAA7", "#DDA0DD", "#98D8C8", "#F7DC6F",
+        "#BB8FCE", "#85C1E9", "#F8B500", "#00CED1", "#FF6347",
+        "dodgerblue", "crimson", "darkorange", "mediumseagreen", "slateblue",
+        "tomato", "steelblue", "mediumvioletred", "darkcyan", "coral"
+    ]
+
+    /// Colors suitable for center content (high contrast)
+    static let centerColors = [
+        "#FFFFFF", "#000000", "#FFD700", "#F0F0F0", "#1A1A1A",
+        "white", "black", "gold", "ivory", "snow"
+    ]
+
+    /// Label text options
+    static let labelTexts = [
+        "BETA", "NEW", "PRO", "LITE", "FREE", "PLUS", "DEV", "DEBUG",
+        "ALPHA", "TEST", "DEMO", "PREVIEW", "v1.0", "v2.0", "v3.0",
+        "HOT", "TOP", "VIP", "AI", "ML", "AR", "XR", "2024", "2025"
+    ]
+
+    /// Generate a random hex color
+    static func randomHexColor() -> String {
+        let r = Int.random(in: 0...255)
+        let g = Int.random(in: 0...255)
+        let b = Int.random(in: 0...255)
+        return String(format: "#%02X%02X%02X", r, g, b)
+    }
+
+    /// Generate a random configuration
+    static func generate() -> ResolvedConfiguration {
+        let background = backgroundColors.randomElement()!
+        let cornerStyle = CornerStyle.allCases.randomElement()!
+        let cornerRadius = cornerStyle == .squircle ? 0.2237 : Double.random(in: 0.1...0.4)
+
+        // Randomly decide on center content (80% chance)
+        let center: CenterConfiguration?
+        if Bool.random() || Bool.random() || Bool.random() || Bool.random() { // ~94% chance
+            let useSymbol = Bool.random() || Bool.random() // ~75% chance of SF Symbol
+            let content: String
+            if useSymbol {
+                content = "sf:\(sfSymbols.randomElement()!)"
+            } else {
+                // Single letter or short text
+                let letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                content = String(letters.randomElement()!)
+            }
+
+            center = CenterConfiguration(
+                content: content,
+                color: centerColors.randomElement()!,
+                size: Double.random(in: 0.4...0.7),
+                alignment: Bool.random() ? .visual : .typographic,
+                anchor: CenterAnchor.allCases.randomElement()!,
+                yOffset: Bool.random() ? 0 : Double.random(in: -0.1...0.1)
+            )
+        } else {
+            center = nil
+        }
+
+        // Randomly add labels (50% chance, 1-2 labels)
+        var labels: [LabelConfiguration] = []
+        if Bool.random() {
+            let labelCount = Int.random(in: 1...2)
+            var usedPositions: Set<String> = []
+
+            for _ in 0..<labelCount {
+                let positions = LabelPosition.allCases.map(\.rawValue).filter { !usedPositions.contains($0) }
+                guard let position = positions.randomElement() else { break }
+                usedPositions.insert(position)
+
+                let useSymbol = Bool.random() && Bool.random() // 25% chance
+                let content: String
+                if useSymbol {
+                    content = "sf:\(sfSymbols.prefix(20).randomElement()!)"
+                } else {
+                    content = labelTexts.randomElement()!
+                }
+
+                let isDiagonal = ["topLeft", "topRight", "bottomLeft", "bottomRight"].contains(position)
+
+                labels.append(LabelConfiguration(
+                    position: position,
+                    content: content,
+                    backgroundColor: backgroundColors.randomElement()!,
+                    foregroundColor: centerColors.randomElement()!,
+                    rotateContent: isDiagonal ? Bool.random() : true
+                ))
+            }
+        }
+
+        return ResolvedConfiguration(
+            background: background,
+            output: "icon.png",
+            size: 1024,
+            cornerStyle: cornerStyle,
+            cornerRadius: cornerRadius,
+            platform: nil,
+            labels: labels.isEmpty ? nil : labels,
+            center: center
+        )
+    }
+}
+
 /// JSON configuration for icon generation
 struct IconConfiguration: Codable, Sendable {
     var background: String?
@@ -31,6 +167,20 @@ struct LabelConfiguration: Codable, Sendable {
     var foregroundColor: String?
     var rotateContent: Bool?
 
+    init(
+        position: String,
+        content: String,
+        backgroundColor: String? = nil,
+        foregroundColor: String? = nil,
+        rotateContent: Bool? = nil
+    ) {
+        self.position = position
+        self.content = content
+        self.backgroundColor = backgroundColor
+        self.foregroundColor = foregroundColor
+        self.rotateContent = rotateContent
+    }
+
     enum CodingKeys: String, CodingKey {
         case position
         case content
@@ -40,27 +190,15 @@ struct LabelConfiguration: Codable, Sendable {
     }
 
     func toIconLabel() throws -> IconLabel {
-        guard let position = LabelPosition(rawValue: position) else {
+        guard let labelPosition = LabelPosition(rawValue: position) else {
             throw ConfigurationError.invalidPosition(position)
         }
 
-        let labelContent: LabelContent
-        if content.hasPrefix("sf:") {
-            labelContent = .sfSymbol(String(content.dropFirst(3)))
-        } else if content.hasPrefix("@") {
-            labelContent = .image(URL(fileURLWithPath: String(content.dropFirst())))
-        } else {
-            labelContent = .text(content)
-        }
-
-        let bgColor = CSSColor(backgroundColor ?? "red")
-        let fgColor = CSSColor(foregroundColor ?? "white")
-
         return IconLabel(
-            content: labelContent,
-            position: position,
-            backgroundColor: bgColor,
-            foregroundColor: fgColor,
+            content: parseLabelContent(content),
+            position: labelPosition,
+            backgroundColor: CSSColor(backgroundColor ?? "red"),
+            foregroundColor: CSSColor(foregroundColor ?? "white"),
             rotateContent: rotateContent ?? true
         )
     }
@@ -74,6 +212,22 @@ struct CenterConfiguration: Codable, Sendable {
     var anchor: CenterAnchor?
     var yOffset: Double?
 
+    init(
+        content: String,
+        color: String? = nil,
+        size: Double? = nil,
+        alignment: CenterAlignment? = nil,
+        anchor: CenterAnchor? = nil,
+        yOffset: Double? = nil
+    ) {
+        self.content = content
+        self.color = color
+        self.size = size
+        self.alignment = alignment
+        self.anchor = anchor
+        self.yOffset = yOffset
+    }
+
     enum CodingKeys: String, CodingKey {
         case content
         case color
@@ -84,23 +238,106 @@ struct CenterConfiguration: Codable, Sendable {
     }
 
     func toCenterContent() -> CenterContent {
-        let contentType: CenterContentType
-        if content.hasPrefix("sf:") {
-            contentType = .sfSymbol(String(content.dropFirst(3)))
-        } else if content.hasPrefix("@") {
-            contentType = .image(URL(fileURLWithPath: String(content.dropFirst())))
-        } else {
-            contentType = .text(content)
-        }
-
-        return CenterContent(
-            content: contentType,
+        CenterContent(
+            contentString: content,
             color: CSSColor(color ?? "black"),
             sizeRatio: size ?? 0.5,
             alignment: alignment ?? .typographic,
             anchor: anchor ?? .center,
             yOffset: yOffset ?? 0
         )
+    }
+}
+
+// MARK: - Content Parsing Utilities
+
+/// Parses a content string into CenterContentType
+/// - "sf:symbol.name" -> .sfSymbol("symbol.name")
+/// - "@/path/to/image" -> .image(URL)
+/// - "text" -> .text("text")
+func parseCenterContentType(_ string: String) -> CenterContentType {
+    if string.hasPrefix("sf:") {
+        return .sfSymbol(String(string.dropFirst(3)))
+    } else if string.hasPrefix("@") {
+        return .image(URL(fileURLWithPath: String(string.dropFirst())))
+    } else {
+        return .text(string)
+    }
+}
+
+/// Parses a content string into LabelContent
+/// - "sf:symbol.name" -> .sfSymbol("symbol.name")
+/// - "@/path/to/image" -> .image(URL)
+/// - "text" -> .text("text")
+func parseLabelContent(_ string: String) -> LabelContent {
+    if string.hasPrefix("sf:") {
+        return .sfSymbol(String(string.dropFirst(3)))
+    } else if string.hasPrefix("@") {
+        return .image(URL(fileURLWithPath: String(string.dropFirst())))
+    } else {
+        return .text(string)
+    }
+}
+
+// MARK: - Resolved Configuration (for --dump-config)
+
+/// Fully resolved configuration with all defaults applied
+struct ResolvedConfiguration: Codable, Sendable {
+    let background: String
+    let output: String
+    let size: Int
+    let cornerStyle: CornerStyle
+    let cornerRadius: Double
+    let platform: AppIconPlatform?
+    let labels: [LabelConfiguration]?
+    let center: CenterConfiguration?
+
+    enum CodingKeys: String, CodingKey {
+        case background
+        case output
+        case size
+        case cornerStyle = "corner-style"
+        case cornerRadius = "corner-radius"
+        case platform
+        case labels
+        case center
+    }
+}
+
+extension LabelConfiguration {
+    /// Initialize from an IconLabel (for dump-config)
+    init(from label: IconLabel) {
+        self.position = label.position.rawValue
+        switch label.content {
+        case .text(let text):
+            self.content = text
+        case .sfSymbol(let name):
+            self.content = "sf:\(name)"
+        case .image(let url):
+            self.content = "@\(url.path)"
+        }
+        self.backgroundColor = label.backgroundColor.rawValue
+        self.foregroundColor = label.foregroundColor.rawValue
+        self.rotateContent = label.rotateContent
+    }
+}
+
+extension CenterConfiguration {
+    /// Initialize from a CenterContent (for dump-config)
+    init(from centerContent: CenterContent) {
+        switch centerContent.content {
+        case .text(let text):
+            self.content = text
+        case .sfSymbol(let name):
+            self.content = "sf:\(name)"
+        case .image(let url):
+            self.content = "@\(url.path)"
+        }
+        self.color = centerContent.color.rawValue
+        self.size = centerContent.sizeRatio
+        self.alignment = centerContent.alignment
+        self.anchor = centerContent.anchor
+        self.yOffset = centerContent.yOffset
     }
 }
 

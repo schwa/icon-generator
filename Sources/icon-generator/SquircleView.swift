@@ -127,6 +127,23 @@ struct CenterContent: Sendable {
         self.yOffset = yOffset
     }
 
+    /// Convenience initializer that parses content string
+    init(
+        contentString: String,
+        color: CSSColor,
+        sizeRatio: CGFloat,
+        alignment: CenterAlignment = .typographic,
+        anchor: CenterAnchor = .center,
+        yOffset: CGFloat = 0
+    ) {
+        self.content = parseCenterContentType(contentString)
+        self.color = color
+        self.sizeRatio = sizeRatio
+        self.alignment = alignment
+        self.anchor = anchor
+        self.yOffset = yOffset
+    }
+
     /// Resolved SwiftUI color
     var resolvedColor: Color {
         color.color() ?? .black
