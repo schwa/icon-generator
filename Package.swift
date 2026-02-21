@@ -48,9 +48,10 @@ let package = Package(
         ),
         .testTarget(
             name: "icon-generatorTests",
-            dependencies: ["icon-generator", "IconRendering", "GoldenImage"],
+            dependencies: ["icon-generator", "IconRendering", "SVGXML", "GoldenImage"],
             resources: [
-                .copy("GoldenImages")
+                .copy("GoldenImages"),
+                .copy("GoldenSVGs")
             ]
         ),
     ],
