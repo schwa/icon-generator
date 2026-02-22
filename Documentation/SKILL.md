@@ -25,7 +25,7 @@ icon-generator --background "#3366FF" -o AppIcon.appiconset --platform ios
 | `.png` | Single PNG image |
 | `.svg` | Single SVG image |
 | `.appiconset` | Xcode asset catalog (all required sizes) |
-| `.icon` | Xcode 26+ Icon Composer bundle |
+| `.icon` | Xcode 26+ (macOS/iOS/visionOS 26) Icon Composer bundle |
 
 ## Layer Syntax
 
@@ -98,3 +98,11 @@ icon-generator --config icon.json
 | `--dump-config` | Output resolved config as JSON |
 | `--random` | Generate random icon |
 | `--kitchen-sink` | Demo all features |
+
+## Icon Composer Options (.icon)
+
+| Option | Description |
+|--------|-------------|
+| `--translucency <0.0-1.0>` | visionOS translucency level |
+| `--shadow <style>` | `neutral` (default) or `layer-color` |
+| `--glass` | Enable glass effect on center content |

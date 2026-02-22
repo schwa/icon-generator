@@ -2,7 +2,7 @@
 
 CLI to generate app icons with squircles, gradients, and SF Symbols.
 
-Outputs single PNGs, SVGs, or complete Xcode `.appiconset` bundles.
+Outputs single PNGs, SVGs, Xcode `.appiconset` bundles, or Xcode 26+ Icon Composer `.icon` bundles.
 
 ## Installation
 
@@ -29,7 +29,7 @@ cp .build/release/icon-generator /usr/local/bin/
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `-o, --output` | `icon.png` | Output path (`.png`, `.svg`, or `.appiconset`) |
+| `-o, --output` | `icon.png` | Output path (`.png`, `.svg`, `.appiconset`, or `.icon`) |
 | `--background` | `white` | Background color or gradient |
 | `--size` | `1024` | Size in pixels (single image only) |
 | `--corner-style` | `squircle` | `none`, `rounded`, or `squircle` |
@@ -96,6 +96,27 @@ icon-generator -o AppIcon.appiconset --platform ios --background "#007AFF"
 # macOS (16-1024px, all sizes)
 icon-generator -o AppIcon.appiconset --platform macos --background "#F05138"
 ```
+
+## Icon Composer Bundles (Xcode 26+)
+
+Generate `.icon` bundles for Xcode 26's Icon Composer, with support for visionOS features:
+
+```bash
+# Basic Icon Composer bundle
+icon-generator --background "#3366FF" -o MyApp.icon
+
+# With visionOS translucency and glass effect
+icon-generator --background "#3366FF" -o MyApp.icon --translucency 0.5 --glass
+
+# With layer-colored shadow
+icon-generator --background "#3366FF" -o MyApp.icon --shadow layer-color
+```
+
+| Option | Description |
+|--------|-------------|
+| `--translucency <0.0-1.0>` | visionOS translucency level |
+| `--shadow <style>` | `neutral` (default) or `layer-color` |
+| `--glass` | Enable glass effect on center content |
 
 ## JSON Config
 
@@ -195,6 +216,7 @@ Output Formats:
   - Single PNG: --output icon.png
   - Single SVG: --output icon.svg
   - App Icon Set: --output AppIcon.appiconset --platform ios
+  - Icon Composer: --output MyApp.icon (Xcode 26+)
 
 App Icon Platforms:
   ios        Single 1024x1024 icon for iOS/iPadOS
