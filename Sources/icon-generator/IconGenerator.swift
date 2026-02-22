@@ -423,18 +423,21 @@ struct IconGenerator: AsyncParsableCommand {
                 glass: glass
             )
             
+            // Always generate .icon at 1024x1024 (Apple's standard size)
+            let iconBundleSize = 1024
+            
             try await MainActor.run {
                 try IconBundleGenerator.generate(
                     at: tempIconPath.path,
                     background: resolvedBackground,
                     labels: labels,
                     centerContent: centerContent,
-                    size: resolvedSize,
+                    size: iconBundleSize,
                     options: bundleOptions
                 )
             }
             
-            // Use QuickLook to render the .icon bundle to PNG
+            // Use QuickLook to render the .icon bundle to PNG at requested size
             let request = QLThumbnailGenerator.Request(
                 fileAt: tempIconPath,
                 size: CGSize(width: resolvedSize, height: resolvedSize),
