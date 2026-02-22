@@ -163,6 +163,55 @@ struct IconBundleGenerator {
         )
     }
 
+    // MARK: - Emoji Detection
+    
+    /// Check if a string contains emoji characters.
+    private static func containsEmoji(_ string: String) -> Bool {
+        for scalar in string.unicodeScalars {
+            if scalar.properties.isEmoji && scalar.properties.isEmojiPresentation {
+                return true
+            }
+            // Also check for emoji modifiers and sequences
+            if scalar.value >= 0x1F600 && scalar.value <= 0x1F64F { return true } // Emoticons
+            if scalar.value >= 0x1F300 && scalar.value <= 0x1F5FF { return true } // Misc Symbols and Pictographs
+            if scalar.value >= 0x1F680 && scalar.value <= 0x1F6FF { return true } // Transport and Map
+            if scalar.value >= 0x1F1E0 && scalar.value <= 0x1F1FF { return true } // Flags
+            if scalar.value >= 0x2600 && scalar.value <= 0x26FF { return true }   // Misc symbols
+            if scalar.value >= 0x2700 && scalar.value <= 0x27BF { return true }   // Dingbats
+            if scalar.value >= 0x1F900 && scalar.value <= 0x1F9FF { return true } // Supplemental Symbols and Pictographs
+            if scalar.value >= 0x1FA00 && scalar.value <= 0x1FA6F { return true } // Chess Symbols
+            if scalar.value >= 0x1FA70 && scalar.value <= 0x1FAFF { return true } // Symbols and Pictographs Extended-A
+        }
+        return false
+    }
+    
+    /// Render text (including emoji) to an NSImage.
+    @MainActor
+    private static func renderTextToImage(text: String, fontSize: CGFloat, color: String) -> NSImage? {
+        let cssColor = CSSColor(color)
+        let nsColor = cssColor.color().map({ NSColor($0) }) ?? .white
+        
+        let font = NSFont.systemFont(ofSize: fontSize, weight: .bold)
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: font,
+            .foregroundColor: nsColor
+        ]
+        
+        let attributedString = NSAttributedString(string: text, attributes: attributes)
+        let size = attributedString.size()
+        
+        // Add some padding
+        let imageSize = NSSize(width: ceil(size.width) + 4, height: ceil(size.height) + 4)
+        
+        let image = NSImage(size: imageSize, flipped: false) { rect in
+            let drawPoint = NSPoint(x: 2, y: 2)
+            attributedString.draw(at: drawPoint)
+            return true
+        }
+        
+        return image
+    }
+
     // MARK: - SVG Rendering for .icon Assets
     //
     // These render minimal SVGs with just the content, no background shapes.
@@ -384,13 +433,55 @@ struct IconBundleGenerator {
     private static func addLabelContent(_ content: LabelContent, at point: CGPoint, fontSize: CGFloat, foreground: String, rotation: Double, to doc: inout SVGDocument) {
         switch content {
         case .text(let text):
-            // Use Core Text to render text as SVG path for proper centering
-            addTextAsPath(to: &doc, text: text, at: point, fontSize: fontSize, foreground: foreground, rotation: rotation)
+            // Use PNG for emoji, Core Text paths for regular text
+            if containsEmoji(text) {
+                addEmojiElement(to: &doc, text: text, at: point, fontSize: fontSize, rotation: rotation)
+            } else {
+                addTextAsPath(to: &doc, text: text, at: point, fontSize: fontSize, foreground: foreground, rotation: rotation)
+            }
         case .sfSymbol(let name):
             addSFSymbolElement(to: &doc, name: name, at: point, fontSize: fontSize, foreground: foreground, rotation: rotation)
         case .image(let url):
             addImageElement(to: &doc, url: url, at: point, size: fontSize, rotation: rotation)
         }
+    }
+    
+    /// Render emoji text as embedded PNG image.
+    @MainActor
+    private static func addEmojiElement(to doc: inout SVGDocument, text: String, at point: CGPoint, fontSize: CGFloat, rotation: Double) {
+        guard let nsImage = renderTextToImage(text: text, fontSize: fontSize, color: "#FFFFFF") else {
+            return
+        }
+        
+        guard let tiffData = nsImage.tiffRepresentation,
+              let bitmap = NSBitmapImageRep(data: tiffData),
+              let pngData = bitmap.representation(using: .png, properties: [:]) else {
+            return
+        }
+        
+        let base64 = pngData.base64EncodedString()
+        let dataURL = "data:image/png;base64,\(base64)"
+        
+        let imageWidth = nsImage.size.width
+        let imageHeight = nsImage.size.height
+        let x = point.x - imageWidth / 2
+        let y = point.y - imageHeight / 2
+        
+        let transform: String?
+        if rotation != 0 {
+            transform = SVGTransform.rotate(rotation, around: point)
+        } else {
+            transform = nil
+        }
+        
+        doc.addElement(XMLElement.image(
+            href: dataURL,
+            x: x,
+            y: y,
+            width: imageWidth,
+            height: imageHeight,
+            transform: transform
+        ))
     }
     
     /// Render text as SVG path using Core Text, properly centered at point.
@@ -442,6 +533,7 @@ struct IconBundleGenerator {
     private static let fontFamily = "-apple-system, BlinkMacSystemFont, 'SF Pro', sans-serif"
 
     /// Render text as SVG path using Core Text glyph outlines, properly centered.
+    /// For emoji, renders as embedded PNG instead.
     @MainActor
     private static func addTextElement(
         to doc: inout SVGDocument,
@@ -451,6 +543,12 @@ struct IconBundleGenerator {
         foreground: String,
         rotation: Double
     ) {
+        // Use PNG embedding for emoji
+        if containsEmoji(text) {
+            addEmojiElement(to: &doc, text: text, at: point, fontSize: fontSize, rotation: rotation)
+            return
+        }
+        
         // Create font
         let font = CTFontCreateWithName("SF Pro Bold" as CFString, fontSize, nil)
         
