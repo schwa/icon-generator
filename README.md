@@ -1,6 +1,8 @@
 # icon-generator
 
-A Swift CLI tool for generating app icons with squircle shapes, labels, and SF Symbols. Outputs single PNGs, SVGs, or complete Xcode `.appiconset` bundles.
+CLI to generate app icons with squircles, gradients, and SF Symbols.
+
+Outputs single PNGs, SVGs, or complete Xcode `.appiconset` bundles.
 
 ## Installation
 
