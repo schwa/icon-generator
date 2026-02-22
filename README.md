@@ -13,17 +13,19 @@ cp .build/release/icon-generator /usr/local/bin/
 
 ## Examples
 
-| Command | Result |
-|---------|--------|
-| `icon-generator --background "#3366FF"` | ![Basic](Documentation/example-basic.png) |
-| `icon-generator --background "linear-gradient(to bottom, #FF6600, #CC0066)"` | ![Gradient](Documentation/example-gradient.png) |
-| `icon-generator --background "radial-gradient(#FFCC00, #FF6600)"` | ![Radial](Documentation/example-radial.png) |
-| `icon-generator --background "angular-gradient(red, orange, yellow, green, blue, purple, red)"` | ![Angular](Documentation/example-angular.png) |
-| `icon-generator --background "#3366FF" --layer "center:A:color=#FFFFFF:size=0.6"` | ![Text](Documentation/example-text.png) |
-| `icon-generator --background "#3366FF" --layer "center:sf:swift:color=#FFFFFF"` | ![SF Symbol](Documentation/example-center.png) |
-| `icon-generator --background "#3366FF" --layer "topRight:BETA:bg=#FF0000"` | ![Label](Documentation/example-label.png) |
-| `icon-generator --background "#3366FF" --layer "pillCenter:v2.0:bg=#FFFFFF:fg=#000000"` | ![Pill](Documentation/example-pill.png) |
-| `icon-generator --background "#3366FF" --corner-style rounded` | ![Rounded](Documentation/example-rounded.png) |
+| Command | PNG | Icon Composer |
+|---------|-----|---------------|
+| `--background "#3366FF"` | ![Basic](Documentation/example-basic.png) | ![Basic IC](Documentation/example-basic-ic.png) |
+| `--background "linear-gradient(...)"` | ![Gradient](Documentation/example-gradient.png) | ![Gradient IC](Documentation/example-gradient-ic.png) |
+| `--background "radial-gradient(...)"` | ![Radial](Documentation/example-radial.png) | ![Radial IC](Documentation/example-radial-ic.png) |
+| `--background "angular-gradient(...)"` | ![Angular](Documentation/example-angular.png) | ![Angular IC](Documentation/example-angular-ic.png) |
+| `--layer "center:A:color=#FFFFFF:size=0.6"` | ![Text](Documentation/example-text.png) | ![Text IC](Documentation/example-text-ic.png) |
+| `--layer "center:sf:swift:color=#FFFFFF"` | ![SF Symbol](Documentation/example-center.png) | ![SF Symbol IC](Documentation/example-center-ic.png) |
+| `--layer "topRight:BETA:bg=#FF0000"` | ![Label](Documentation/example-label.png) | ![Label IC](Documentation/example-label-ic.png) |
+| `--layer "pillCenter:v2.0:bg=#FFFFFF:fg=#000000"` | ![Pill](Documentation/example-pill.png) | ![Pill IC](Documentation/example-pill-ic.png) |
+| `--corner-style rounded` | ![Rounded](Documentation/example-rounded.png) | ![Rounded IC](Documentation/example-rounded-ic.png) |
+
+Use `--use-icon-composer` to render via Icon Composer (generates `.icon` internally and uses QuickLook).
 
 ## Options
 
@@ -39,6 +41,7 @@ cp .build/release/icon-generator /usr/local/bin/
 | `-c, --config` | - | JSON config file |
 | `--kitchen-sink` | - | Demo icon with all features |
 | `--random` | - | Random icon configuration |
+| `--use-icon-composer` | - | Render PNG via Icon Composer (QuickLook) |
 
 ## Layers
 
