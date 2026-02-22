@@ -118,7 +118,7 @@ icon-generator --background "#3366FF" -o MyApp.icon --shadow layer-color
 | `--shadow <style>` | `neutral` (default) or `layer-color` |
 | `--glass` | Enable glass effect on center content |
 
-## JSON Config
+## JSON Config (JSON5 supported)
 
 ```json
 {

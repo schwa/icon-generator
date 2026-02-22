@@ -805,6 +805,7 @@ extension IconConfiguration {
         }
 
         let decoder = JSONDecoder()
+        decoder.allowsJSON5 = true
         do {
             return try decoder.decode(IconConfiguration.self, from: data)
         } catch let error as DecodingError {

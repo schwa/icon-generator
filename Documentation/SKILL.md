@@ -67,9 +67,9 @@ icon-generator --background "#3366FF" -o AppIcon.appiconset --platform macos
 icon-generator --background "#3366FF" -o App.icon --translucency 0.5 --glass
 ```
 
-## JSON Config
+## JSON Config (JSON5 supported)
 
-For complex icons, use a JSON config file:
+For complex icons, use a JSON or JSON5 config file:
 
 ```bash
 icon-generator --config icon.json

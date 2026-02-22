@@ -21,7 +21,7 @@ icon-generator -o AppIcon.appiconset --platform ios --background "#3366FF"
 # App Icon Set for macOS
 icon-generator -o AppIcon.appiconset --platform macos --layer "center:sf:swift:color=#FFFFFF"
 
-# From JSON config
+# From JSON/JSON5 config
 icon-generator --config config.json
 
 # Kitchen sink demo (all features)
@@ -38,7 +38,7 @@ icon-generator --background "#3366FF" -o MyApp.icon --translucency 0.5 --shadow 
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `-c, --config` | - | Path to JSON configuration file |
+| `-c, --config` | - | Path to JSON/JSON5 configuration file |
 | `--background` | `white` | Background color or gradient |
 | `--random` | - | Generate random icon configuration |
 | `--kitchen-sink` | - | Generate demo icon using all features |
