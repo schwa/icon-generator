@@ -4,6 +4,8 @@ import ArgumentParser
 import ImageIO
 import SwiftUI
 import UniformTypeIdentifiers
+import QuickLookThumbnailing
+import AppKit
 
 /// Extract labels and center content from a layers array
 func extractLayerContent(from layers: [LayerConfiguration]) throws -> (labels: [IconLabel], center: CenterContent?) {
@@ -149,6 +151,9 @@ struct IconGenerator: AsyncParsableCommand {
 
     @Flag(name: .long, help: "Enable glass effect for center content in .icon output")
     var glass: Bool = false
+
+    @Flag(name: .long, help: "Render PNG via Icon Composer (generates .icon internally and uses QuickLook to render)")
+    var useIconComposer: Bool = false
 
     mutating func run() async throws {
         // If no meaningful arguments provided, show help
@@ -397,6 +402,59 @@ struct IconGenerator: AsyncParsableCommand {
             let uniqueSizes = Set(specs.map(\.pixelSize)).sorted()
             print("Generated \(iconPlatform.rawValue) app icon set at \(resolvedOutput)")
             print("  sizes: \(uniqueSizes.map { "\($0)px" }.joined(separator: ", "))")
+            if !labels.isEmpty {
+                print("  with \(labels.count) label(s)")
+            }
+            if centerContent != nil {
+                print("  with center content")
+            }
+        } else if useIconComposer {
+            // Generate via Icon Composer: create temp .icon bundle, then use QuickLook to render PNG
+            let tempDir = FileManager.default.temporaryDirectory
+            let tempIconPath = tempDir.appendingPathComponent(UUID().uuidString + ".icon")
+            
+            defer {
+                try? FileManager.default.removeItem(at: tempIconPath)
+            }
+            
+            let bundleOptions = IconBundleOptions(
+                translucency: translucency,
+                shadowStyle: shadow,
+                glass: glass
+            )
+            
+            try await MainActor.run {
+                try IconBundleGenerator.generate(
+                    at: tempIconPath.path,
+                    background: resolvedBackground,
+                    labels: labels,
+                    centerContent: centerContent,
+                    size: resolvedSize,
+                    options: bundleOptions
+                )
+            }
+            
+            // Use QuickLook to render the .icon bundle to PNG
+            let request = QLThumbnailGenerator.Request(
+                fileAt: tempIconPath,
+                size: CGSize(width: resolvedSize, height: resolvedSize),
+                scale: 1.0,
+                representationTypes: .all
+            )
+            
+            let thumbnail = try await QLThumbnailGenerator.shared.generateBestRepresentation(for: request)
+            let cgImage = thumbnail.cgImage
+            
+            let bitmapRep = NSBitmapImageRep(cgImage: cgImage)
+            guard let pngData = bitmapRep.representation(using: .png, properties: [:]) else {
+                throw RuntimeError("Failed to encode thumbnail as PNG")
+            }
+            
+            let url = URL(fileURLWithPath: resolvedOutput)
+            try pngData.write(to: url)
+            
+            print("Generated \(resolvedSize)x\(resolvedSize) icon at \(resolvedOutput)")
+            print("  rendered via Icon Composer")
             if !labels.isEmpty {
                 print("  with \(labels.count) label(s)")
             }
