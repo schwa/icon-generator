@@ -16,7 +16,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.3.0"),
-        .package(path: "../../../Projects/GoldenImage"),
+        .package(url: "https://github.com/schwa/GoldenImage.git", from: "0.1.2"),
     ],
     targets: [
         // SVGXML - XML/SVG infrastructure (no dependencies)
@@ -27,7 +27,10 @@ let package = Package(
         // IconRendering - Core icon rendering (depends on SVGXML)
         .target(
             name: "IconRendering",
-            dependencies: ["SVGXML"]
+            dependencies: [
+                "SVGXML",
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
+            ]
         ),
 
         // SVGRasterizer - WebKit-based SVG to PNG conversion
