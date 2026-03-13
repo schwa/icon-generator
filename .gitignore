@@ -127,3 +127,4 @@ xcuserdata
 
 # Jujutsu
 .jj/
+.swiftpm
