@@ -1,6 +1,15 @@
 {
-  "originHash" : "4a97481bad04767ee20f25f67348d733b0f80052c7829178a15aa46aad6073b6",
+  "originHash" : "5f96a01459021c1e19e0abd6b6fc2499217b9d2687ee5afc2812fd4d93b73339",
   "pins" : [
+    {
+      "identity" : "goldenimage",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/schwa/GoldenImage.git",
+      "state" : {
+        "revision" : "6f134ad54fa8877c8245775078986038ea38ac42",
+        "version" : "0.1.2"
+      }
+    },
     {
       "identity" : "swift-argument-parser",
       "kind" : "remoteSourceControl",
