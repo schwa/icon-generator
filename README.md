@@ -375,4 +375,4 @@ MIT
 
 ## Vibe Coded
 
-100% vibe coded with [Claude](https://claude.ai).
+100% vibe coded with [pi](https://pi.dev) and Claude Opus/Sonnet.
