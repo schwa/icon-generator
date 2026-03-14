@@ -161,9 +161,18 @@ struct IconGenerator: AsyncParsableCommand {
     @Flag(name: .shortAndLong, help: "Enable verbose output")
     var verbose: Bool = false
 
+    @Flag(name: .long, help: "Render the output image inline in the terminal after generating")
+    var view: Bool = false
+
+    @Option(name: .long, help: "Scale factor for --view output (e.g. 0.25 for quarter size)")
+    var viewScale: Double?
+
     mutating func run() async throws {
         if let userPrompt = prompt {
             try await runPrompt(userPrompt)
+            if view {
+                try viewImage(at: output ?? "icon.png")
+            }
             return
         }
         // If no meaningful arguments provided, show help
@@ -174,7 +183,8 @@ struct IconGenerator: AsyncParsableCommand {
                           kitchenSink ||
                           random ||
                           dumpConfig ||
-                          prompt != nil
+                          prompt != nil ||
+                          view
 
         if !hasAnyInput {
             throw CleanExit.helpRequest(self)
@@ -437,6 +447,21 @@ struct IconGenerator: AsyncParsableCommand {
                 print("  with center content")
             }
         }
+
+        if view {
+            try viewImage(at: resolvedOutput)
+        }
+    }
+
+    private func viewImage(at path: String) throws {
+        // .icon bundles and .appiconset directories aren't single images — skip viewing them.
+        let url = URL(fileURLWithPath: path)
+        let ext = url.pathExtension.lowercased()
+        guard ext != "icon", ext != "appiconset", ext != "svg" else {
+            fputs("--view is only supported for PNG/JPEG output files.\n", stderr)
+            return
+        }
+        try TerminalImageRenderer.render(url: url, scale: viewScale)
     }
 
     private func runPrompt(_ userPrompt: String) async throws {
