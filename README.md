@@ -42,6 +42,10 @@ Use `--use-icon-composer` to render via Icon Composer (generates `.icon` interna
 | `--kitchen-sink` | - | Demo icon with all features |
 | `--random` | - | Random icon configuration |
 | `--use-icon-composer` | - | Render PNG via Icon Composer (QuickLook) |
+| `--prompt <description>` | - | Generate icon from a plain-language description (requires `llm` CLI) |
+| `--view` | - | Render the output image inline in the terminal |
+| `--view-scale <float>` | - | Scale factor for `--view` output (e.g. `0.25`) |
+| `-v, --verbose` | - | Enable verbose output |
 
 ## Layers
 
@@ -120,6 +124,40 @@ icon-generator --background "#3366FF" -o MyApp.icon --shadow layer-color
 | `--translucency <0.0-1.0>` | visionOS translucency level |
 | `--shadow <style>` | `neutral` (default) or `layer-color` |
 | `--glass` | Enable glass effect on center content |
+
+## AI-Generated Icons
+
+Use `--prompt` to describe an icon in plain language. It calls the [`llm`](https://llm.datasette.io) CLI to generate a JSON configuration, then renders it.
+
+```bash
+# Basic usage
+icon-generator --prompt "A blue weather app with a cloud symbol" -o weather.png
+
+# View the result inline in the terminal
+icon-generator --prompt "A dark productivity app" -o tasks.png --view --view-scale 0.25
+
+# Inspect the generated config without rendering
+icon-generator --prompt "A red music app" --dump-config
+
+# All other flags override the AI-generated config
+icon-generator --prompt "A finance app" -o finance.icon --platform macos
+```
+
+Requires the `llm` CLI: `pip install llm`. Works with any model configured in `llm`.
+
+Use `--verbose` to see the generated JSON config and subprocess output.
+
+## Terminal Preview
+
+`--view` renders the output image inline in the terminal after generating it. Automatically uses the appropriate protocol for your terminal:
+
+- **Kitty graphics protocol** — Ghostty, Kitty, WezTerm
+- **iTerm2 inline image protocol** — iTerm2, WezTerm
+
+```bash
+icon-generator --background "#3366FF" --layer "center:sf:swift:color=#FFFFFF" -o icon.png --view
+icon-generator --background "#3366FF" -o icon.png --view --view-scale 0.5
+```
 
 ## JSON Config (JSON5 supported)
 
