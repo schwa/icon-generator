@@ -253,7 +253,7 @@ struct IconGenerator: AsyncParsableCommand {
         let labels = cliLabels + configLabels
         let centerContent = cliCenter ?? configCenter
 
-        // If --dump-config, output JSON and exit without generating image
+        // If --dump-config, output JSON. Exit without rendering unless --view is also set.
         if dumpConfig {
             var layers: [LayerConfiguration] = []
             if let cc = centerContent {
@@ -274,7 +274,6 @@ struct IconGenerator: AsyncParsableCommand {
             encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
             let data = try encoder.encode(resolvedConfig)
             print(String(data: data, encoding: .utf8)!)
-            return
         }
 
         // Check output format
