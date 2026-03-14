@@ -170,13 +170,6 @@ struct IconGenerator: AsyncParsableCommand {
     var viewScale: Double?
 
     mutating func run() async throws {
-        if let userPrompt = prompt {
-            try await runPrompt(userPrompt)
-            if view {
-                try viewImage(at: output ?? "icon.png")
-            }
-            return
-        }
         // If no meaningful arguments provided, show help
         let hasAnyInput = config != nil ||
                           background != nil ||
@@ -192,7 +185,7 @@ struct IconGenerator: AsyncParsableCommand {
             throw CleanExit.helpRequest(self)
         }
 
-        // Load config file — or seed it from --random / --kitchen-sink.
+        // Load config file — or seed it from --random / --kitchen-sink / --prompt.
         // Generated configs produce a ResolvedConfiguration; wrap it into an IconConfiguration
         // so the main resolution path can still override individual values via CLI args.
         let fileConfig: IconConfiguration?
@@ -218,6 +211,8 @@ struct IconGenerator: AsyncParsableCommand {
                 platform: generated.platform,
                 layers: generated.layers
             )
+        } else if let userPrompt = prompt {
+            fileConfig = try await fetchPromptConfig(userPrompt)
         } else if let configPath = config {
             fileConfig = try IconConfiguration.load(from: configPath)
         } else {
@@ -450,15 +445,13 @@ struct IconGenerator: AsyncParsableCommand {
         try TerminalImageRenderer.render(url: url, scale: viewScale)
     }
 
-    private func runPrompt(_ userPrompt: String) async throws {
-        // Get the help text from icon-generator --help
+    private func fetchPromptConfig(_ userPrompt: String) async throws -> IconConfiguration {
         let helpText = try await captureOutput(executable: "/usr/bin/env", arguments: ["icon-generator", "--help"])
 
         let systemPrompt = """
             You are an expert at generating icon-generator JSON configuration files.
             Given a plain-language description of an icon, output ONLY a valid JSON \
             configuration object (no markdown, no code fences, no explanation).
-            The JSON will be passed directly to icon-generator via --config.
             Always include an "output" key (e.g. "icon.png").
 
             Guidelines for center content:
@@ -478,87 +471,27 @@ struct IconGenerator: AsyncParsableCommand {
 
         if verbose { fputs("Asking llm to generate a configuration…\n", stderr) }
 
-        var jsonConfig = try await captureOutput(
+        var jsonString = try await captureOutput(
             executable: "/usr/bin/env",
             arguments: ["llm", "-s", systemPrompt, userPrompt]
         )
 
         // Strip markdown code fences if the LLM wrapped the JSON
-        jsonConfig = stripCodeFences(from: jsonConfig)
+        jsonString = stripCodeFences(from: jsonString)
 
-        if verbose { fputs("Generated config:\n\(jsonConfig)\n", stderr) }
+        if verbose { fputs("Generated config:\n\(jsonString)\n", stderr) }
 
-        // Write config to a temp file
-        let tempURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString + ".json")
-
-        try jsonConfig.write(to: tempURL, atomically: true, encoding: .utf8)
-
-        if verbose { fputs("Running icon-generator…\n", stderr) }
-
-        // Re-invoke icon-generator with the generated config plus all CLI overrides.
-        var args: [String] = ["icon-generator", "--config", tempURL.path]
-
-        // Explicit CLI flags override whatever the LLM put in the JSON
-        args += ["--output", output ?? "icon.png"]
-        if let bg = background        { args += ["--background", bg] }
-        if let s = size               { args += ["--size", "\(s)"] }
-        if let cs = cornerStyle       { args += ["--corner-style", cs.rawValue] }
-        if let cr = cornerRadius      { args += ["--corner-radius", "\(cr)"] }
-        if let p = platform           { args += ["--platform", p.rawValue] }
-        if let sf = svgFont           { args += ["--svg-font", sf] }
-        if let t = translucency       { args += ["--translucency", "\(t)"] }
-        if let sh = shadow            { args += ["--shadow", sh.rawValue] }
-        if glass                      { args += ["--glass"] }
-        if useIconComposer            { args += ["--use-icon-composer"] }
-        if dumpConfig                 { args += ["--dump-config"] }
-        if view                       { args += ["--view"] }
-        if let vs = viewScale         { args += ["--view-scale", "\(vs)"] }
-        for l in layer                { args += ["--layer", l.rawValue] }
-
-        do {
-            try await runProcess(executable: "/usr/bin/env", arguments: args, inheritOutput: verbose || dumpConfig || view)
-        } catch {
-            try? FileManager.default.removeItem(at: tempURL)
-            throw error
+        guard let data = jsonString.data(using: .utf8) else {
+            throw RuntimeError("LLM returned invalid UTF-8")
         }
-
-        try? FileManager.default.removeItem(at: tempURL)
+        return try JSONDecoder().decode(IconConfiguration.self, from: data)
     }
 
     private func stripCodeFences(from text: String) -> String {
         var lines = text.components(separatedBy: "\n")
-        if let first = lines.first, first.hasPrefix("```") {
-            lines.removeFirst()
-        }
-        if let last = lines.last, last.hasPrefix("```") {
-            lines.removeLast()
-        }
+        if let first = lines.first, first.hasPrefix("```") { lines.removeFirst() }
+        if let last = lines.last, last.hasPrefix("```") { lines.removeLast() }
         return lines.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    /// Run a process, optionally inheriting stdout from the parent. Throws on non-zero exit.
-    private func runProcess(executable: String, arguments: [String], inheritOutput: Bool = true) async throws {
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-            do {
-                let process = Process()
-                process.executableURL = URL(fileURLWithPath: executable)
-                process.arguments = arguments
-                let stdoutPipe = inheritOutput ? nil : Pipe()
-                if let stdoutPipe { process.standardOutput = stdoutPipe }
-                process.terminationHandler = { p in
-                    _ = stdoutPipe?.fileHandleForReading.readDataToEndOfFile()
-                    if p.terminationStatus == 0 {
-                        continuation.resume()
-                    } else {
-                        continuation.resume(throwing: RuntimeError("'\(arguments.joined(separator: " "))' failed (exit \(p.terminationStatus))"))
-                    }
-                }
-                try process.run()
-            } catch {
-                continuation.resume(throwing: error)
-            }
-        }
     }
 
     private func captureOutput(executable: String, arguments: [String]) async throws -> String {
