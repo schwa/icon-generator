@@ -75,7 +75,9 @@ struct IconGenerator: AsyncParsableCommand {
 
             Layers can be added using --layer (repeatable).
 
-            Layer format: position:content[:key=value...]
+            Layer format: position; content[; key=value...]
+
+            Parts are separated by semicolons (whitespace around ; is optional).
 
             Positions:
               center           Center content
@@ -100,9 +102,9 @@ struct IconGenerator: AsyncParsableCommand {
               icon-generator --background "#3366FF" -o MyApp.icon
               icon-generator -o AppIcon.appiconset --platform ios --background "#FF0000"
               icon-generator --config config.json
-              --layer "center:sf:swift:color=#FFFFFF:size=0.5"
-              --layer "topRight:BETA:bg=#FF0000"
-              --layer "topLeft:sf:star.fill:bg=#FFD700:norotate"
+              --layer "center; sf:swift; color=#FFFFFF; size=0.5"
+              --layer "topRight; BETA; bg=#FF0000"
+              --layer "topLeft; sf:star.fill; bg=#FFD700; norotate"
             """
     )
 
@@ -304,21 +306,13 @@ struct IconGenerator: AsyncParsableCommand {
                 )
             }
 
-            print("Generated Icon Composer bundle at \(resolvedOutput)")
-            if !labels.isEmpty {
-                print("  with \(labels.count) label(s)")
-            }
-            if centerContent != nil {
-                print("  with center content")
-            }
-            if translucency != nil {
-                print("  with translucency: \(translucency!)")
-            }
-            if shadow != nil {
-                print("  with shadow: \(shadow!.rawValue)")
-            }
-            if glass {
-                print("  with glass effect")
+            if verbose {
+                print("Generated Icon Composer bundle at \(resolvedOutput)")
+                if !labels.isEmpty { print("  with \(labels.count) label(s)") }
+                if centerContent != nil { print("  with center content") }
+                if translucency != nil { print("  with translucency: \(translucency!)") }
+                if shadow != nil { print("  with shadow: \(shadow!.rawValue)") }
+                if glass { print("  with glass effect") }
             }
         } else if isSVG {
             // SVG output
@@ -337,12 +331,10 @@ struct IconGenerator: AsyncParsableCommand {
             let url = URL(fileURLWithPath: resolvedOutput)
             try svg.write(to: url, atomically: true, encoding: .utf8)
 
-            print("Generated \(resolvedSize)x\(resolvedSize) SVG icon at \(resolvedOutput)")
-            if !labels.isEmpty {
-                print("  with \(labels.count) label(s)")
-            }
-            if centerContent != nil {
-                print("  with center content")
+            if verbose {
+                print("Generated \(resolvedSize)x\(resolvedSize) SVG icon at \(resolvedOutput)")
+                if !labels.isEmpty { print("  with \(labels.count) label(s)") }
+                if centerContent != nil { print("  with center content") }
             }
         } else if isAppIconSet {
             let iconPlatform = resolvedPlatform ?? .ios
@@ -360,13 +352,11 @@ struct IconGenerator: AsyncParsableCommand {
 
             let specs = AppIconSetGenerator.specs(for: iconPlatform)
             let uniqueSizes = Set(specs.map(\.pixelSize)).sorted()
-            print("Generated \(iconPlatform.rawValue) app icon set at \(resolvedOutput)")
-            print("  sizes: \(uniqueSizes.map { "\($0)px" }.joined(separator: ", "))")
-            if !labels.isEmpty {
-                print("  with \(labels.count) label(s)")
-            }
-            if centerContent != nil {
-                print("  with center content")
+            if verbose {
+                print("Generated \(iconPlatform.rawValue) app icon set at \(resolvedOutput)")
+                print("  sizes: \(uniqueSizes.map { "\($0)px" }.joined(separator: ", "))")
+                if !labels.isEmpty { print("  with \(labels.count) label(s)") }
+                if centerContent != nil { print("  with center content") }
             }
         } else if useIconComposer {
             // Generate via Icon Composer: create temp .icon bundle, then use QuickLook to render PNG
@@ -416,13 +406,11 @@ struct IconGenerator: AsyncParsableCommand {
             let url = URL(fileURLWithPath: resolvedOutput)
             try pngData.write(to: url)
             
-            print("Generated \(resolvedSize)x\(resolvedSize) icon at \(resolvedOutput)")
-            print("  rendered via Icon Composer")
-            if !labels.isEmpty {
-                print("  with \(labels.count) label(s)")
-            }
-            if centerContent != nil {
-                print("  with center content")
+            if verbose {
+                print("Generated \(resolvedSize)x\(resolvedSize) icon at \(resolvedOutput)")
+                print("  rendered via Icon Composer")
+                if !labels.isEmpty { print("  with \(labels.count) label(s)") }
+                if centerContent != nil { print("  with center content") }
             }
         } else {
             let cgImage = try await MainActor.run {
@@ -439,12 +427,10 @@ struct IconGenerator: AsyncParsableCommand {
             let url = URL(fileURLWithPath: resolvedOutput)
             try savePNG(cgImage: cgImage, to: url)
 
-            print("Generated \(resolvedSize)x\(resolvedSize) squircle icon at \(resolvedOutput)")
-            if !labels.isEmpty {
-                print("  with \(labels.count) label(s)")
-            }
-            if centerContent != nil {
-                print("  with center content")
+            if verbose {
+                print("Generated \(resolvedSize)x\(resolvedSize) squircle icon at \(resolvedOutput)")
+                if !labels.isEmpty { print("  with \(labels.count) label(s)") }
+                if centerContent != nil { print("  with center content") }
             }
         }
 

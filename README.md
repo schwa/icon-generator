@@ -19,10 +19,10 @@ cp .build/release/icon-generator /usr/local/bin/
 | `--background "linear-gradient(...)"` | ![Gradient](Documentation/example-gradient.png) | ![Gradient IC](Documentation/example-gradient-ic.png) |
 | `--background "radial-gradient(...)"` | ![Radial](Documentation/example-radial.png) | ![Radial IC](Documentation/example-radial-ic.png) |
 | `--background "angular-gradient(...)"` | ![Angular](Documentation/example-angular.png) | ![Angular IC](Documentation/example-angular-ic.png) |
-| `--layer "center:A:color=#FFFFFF:size=0.6"` | ![Text](Documentation/example-text.png) | ![Text IC](Documentation/example-text-ic.png) |
-| `--layer "center:sf:swift:color=#FFFFFF"` | ![SF Symbol](Documentation/example-center.png) | ![SF Symbol IC](Documentation/example-center-ic.png) |
-| `--layer "topRight:BETA:bg=#FF0000"` | ![Label](Documentation/example-label.png) | ![Label IC](Documentation/example-label-ic.png) |
-| `--layer "pillCenter:v2.0:bg=#FFFFFF:fg=#000000"` | ![Pill](Documentation/example-pill.png) | ![Pill IC](Documentation/example-pill-ic.png) |
+| `--layer "center; A; color=#FFFFFF; size=0.6"` | ![Text](Documentation/example-text.png) | ![Text IC](Documentation/example-text-ic.png) |
+| `--layer "center; sf:swift; color=#FFFFFF"` | ![SF Symbol](Documentation/example-center.png) | ![SF Symbol IC](Documentation/example-center-ic.png) |
+| `--layer "topRight; BETA; bg=#FF0000"` | ![Label](Documentation/example-label.png) | ![Label IC](Documentation/example-label-ic.png) |
+| `--layer "pillCenter; v2.0; bg=#FFFFFF; fg=#000000"` | ![Pill](Documentation/example-pill.png) | ![Pill IC](Documentation/example-pill-ic.png) |
 | `--corner-style rounded` | ![Rounded](Documentation/example-rounded.png) | ![Rounded IC](Documentation/example-rounded-ic.png) |
 
 Use `--use-icon-composer` to render via Icon Composer (generates `.icon` internally and uses QuickLook).
@@ -49,7 +49,9 @@ Use `--use-icon-composer` to render via Icon Composer (generates `.icon` interna
 
 ## Layers
 
-Format: `position:content[:key=value...]`
+Format: `position; content[; key=value...]`
+
+Parts are separated by semicolons. Whitespace around `;` is optional.
 
 **Positions:**
 - `center` - Center content
@@ -67,13 +69,13 @@ Format: `position:content[:key=value...]`
 
 ```bash
 # Center content
---layer "center:sf:swift:color=#FFFFFF:size=0.5"
---layer "center:A:color=#FFFFFF:size=0.6"
+--layer "center; sf:swift; color=#FFFFFF; size=0.5"
+--layer "center; A; color=#FFFFFF; size=0.6"
 
 # Labels
---layer "topRight:BETA:bg=#FF0000"
---layer "topRight:sf:star.fill:bg=#FFD700:norotate"
---layer "pillCenter:v2.0:bg=#FFFFFF:fg=#000000"
+--layer "topRight; BETA; bg=#FF0000"
+--layer "topRight; sf:star.fill; bg=#FFD700; norotate"
+--layer "pillCenter; v2.0; bg=#FFFFFF; fg=#000000"
 ```
 
 ## Gradients

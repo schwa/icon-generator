@@ -19,7 +19,7 @@ icon-generator --background "#3366FF" -o icon.svg
 icon-generator -o AppIcon.appiconset --platform ios --background "#3366FF"
 
 # App Icon Set for macOS
-icon-generator -o AppIcon.appiconset --platform macos --layer "center:sf:swift:color=#FFFFFF"
+icon-generator -o AppIcon.appiconset --platform macos --layer "center; sf:swift; color=#FFFFFF"
 
 # From JSON/JSON5 config
 icon-generator --config config.json
@@ -89,7 +89,7 @@ CLI arguments override config file values.
 
 ### Layers
 
-Format: `position:content[:key=value...]`
+Format: `position; content[; key=value...]`
 
 **Positions:**
 - `center` - Center content
@@ -115,15 +115,15 @@ Format: `position:content[:key=value...]`
 **Examples:**
 ```bash
 # Center content
---layer "center:sf:swift:color=#FFFFFF:size=0.5"
---layer "center:A:color=#FFFFFF:size=0.6"
---layer "center:@/path/to/logo.png:size=0.4"
+--layer "center; sf:swift; color=#FFFFFF; size=0.5"
+--layer "center; A; color=#FFFFFF; size=0.6"
+--layer "center; @/path/to/logo.png; size=0.4"
 
 # Labels
---layer "topRight:BETA:bg=#FF0000"
---layer "bottom:v1.0:bg=#0000FF"
---layer "pillCenter:NEW:bg=#FF0000:fg=#000000"
---layer "topRight:sf:star.fill:bg=#FFD700:norotate"
+--layer "topRight; BETA; bg=#FF0000"
+--layer "bottom; v1.0; bg=#0000FF"
+--layer "pillCenter; NEW; bg=#FF0000; fg=#000000"
+--layer "topRight; sf:star.fill; bg=#FFD700; norotate"
 ```
 
 ### Gradient Backgrounds
