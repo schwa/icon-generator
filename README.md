@@ -372,3 +372,7 @@ OPTIONS:
 ## License
 
 MIT
+
+## Vibe Coded
+
+100% vibe coded with [Claude](https://claude.ai).
