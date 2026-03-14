@@ -65,6 +65,21 @@ struct LayerSpecification: ExpressibleByArgument, Sendable {
             }
         }
 
+        // Validate option keys
+        let knownCenterKeys: Set<String>  = ["color", "fg", "size", "align", "anchor", "y-offset", "rotation"]
+        let knownLabelKeys: Set<String>   = ["color", "fg", "foreground", "bg", "background", "rotation"]
+        let knownFlags: Set<String>       = ["norotate"]
+        let knownKeys = position == "center" ? knownCenterKeys : knownLabelKeys
+
+        let unknownKeys = options.keys.filter { !knownKeys.contains($0) }
+        let unknownFlags = flags.filter { !knownFlags.contains($0) }
+
+        if !unknownKeys.isEmpty || !unknownFlags.isEmpty {
+            let bad = (unknownKeys + Array(unknownFlags)).joined(separator: ", ")
+            fputs("error: unknown layer option(s): \(bad)\n", stderr)
+            return nil
+        }
+
         // Create appropriate layer type
         if position == "center" {
             let color = options["color"] ?? options["fg"] ?? "black"
