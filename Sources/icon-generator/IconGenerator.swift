@@ -525,10 +525,13 @@ struct IconGenerator: AsyncParsableCommand {
         if let sh = shadow            { args += ["--shadow", sh.rawValue] }
         if glass                      { args += ["--glass"] }
         if useIconComposer            { args += ["--use-icon-composer"] }
+        if dumpConfig                 { args += ["--dump-config"] }
+        if view                       { args += ["--view"] }
+        if let vs = viewScale         { args += ["--view-scale", "\(vs)"] }
         for l in layer                { args += ["--layer", l.rawValue] }
 
         do {
-            try await runProcess(executable: "/usr/bin/env", arguments: args, inheritOutput: verbose)
+            try await runProcess(executable: "/usr/bin/env", arguments: args, inheritOutput: verbose || dumpConfig || view)
         } catch {
             try? FileManager.default.removeItem(at: tempURL)
             throw error
