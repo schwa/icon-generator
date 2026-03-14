@@ -155,7 +155,17 @@ struct IconGenerator: AsyncParsableCommand {
     @Flag(name: .long, help: "Render PNG via Icon Composer (generates .icon internally and uses QuickLook to render)")
     var useIconComposer: Bool = false
 
+    @Option(name: .long, help: "Describe the icon you want in plain language; uses the `llm` CLI to generate a configuration")
+    var prompt: String?
+
+    @Flag(name: .shortAndLong, help: "Enable verbose output")
+    var verbose: Bool = false
+
     mutating func run() async throws {
+        if let userPrompt = prompt {
+            try await runPrompt(userPrompt)
+            return
+        }
         // If no meaningful arguments provided, show help
         let hasAnyInput = config != nil ||
                           background != nil ||
@@ -163,100 +173,40 @@ struct IconGenerator: AsyncParsableCommand {
                           !layer.isEmpty ||
                           kitchenSink ||
                           random ||
-                          dumpConfig
+                          dumpConfig ||
+                          prompt != nil
 
         if !hasAnyInput {
             throw CleanExit.helpRequest(self)
         }
 
-        // Handle --kitchen-sink flag: generate demo using all features
-        if kitchenSink {
-            let kitchenSinkConfig = KitchenSinkGenerator.generate()
-
-            if dumpConfig {
-                let encoder = JSONEncoder()
-                encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-                let data = try encoder.encode(kitchenSinkConfig)
-                print(String(data: data, encoding: .utf8)!)
-                return
-            }
-
-            let (labels, centerContent) = try extractLayerContent(from: kitchenSinkConfig.layers ?? [])
-            let resolvedOutput = output ?? kitchenSinkConfig.output
-
-            let cgImage = try await MainActor.run {
-                try renderSquircle(
-                    background: kitchenSinkConfig.background.toBackground(),
-                    size: kitchenSinkConfig.size,
-                    cornerStyle: kitchenSinkConfig.cornerStyle,
-                    cornerRadiusRatio: kitchenSinkConfig.cornerRadius,
-                    labels: labels,
-                    centerContent: centerContent
-                )
-            }
-
-            let url = URL(fileURLWithPath: resolvedOutput)
-            try savePNG(cgImage: cgImage, to: url)
-            print("Generated kitchen sink demo icon at \(resolvedOutput)")
-            print("  Features: gradient background, rotated center content, multiple label types")
-            return
-        }
-
-        // Handle --random flag: generate random config
-        if random {
-            let randomConfig = RandomConfigGenerator.generate()
-
-            if dumpConfig {
-                // Just output the random config as JSON
-                let encoder = JSONEncoder()
-                encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-                let data = try encoder.encode(randomConfig)
-                print(String(data: data, encoding: .utf8)!)
-                return
-            }
-
-            // Generate image from random config
-            let (labels, centerContent) = try extractLayerContent(from: randomConfig.layers ?? [])
-            let resolvedOutput = output ?? randomConfig.output
-
-            let isAppIconSet = resolvedOutput.hasSuffix(".appiconset")
-
-            if isAppIconSet {
-                let iconPlatform = randomConfig.platform ?? .ios
-                try await MainActor.run {
-                    try AppIconSetGenerator.generate(
-                        at: resolvedOutput,
-                        platform: iconPlatform,
-                        background: randomConfig.background.toBackground(),
-                        cornerStyle: randomConfig.cornerStyle,
-                        cornerRadiusRatio: randomConfig.cornerRadius,
-                        labels: labels,
-                        centerContent: centerContent
-                    )
-                }
-                print("Generated random \(iconPlatform.rawValue) app icon set at \(resolvedOutput)")
-            } else {
-                let cgImage = try await MainActor.run {
-                    try renderSquircle(
-                        background: randomConfig.background.toBackground(),
-                        size: randomConfig.size,
-                        cornerStyle: randomConfig.cornerStyle,
-                        cornerRadiusRatio: randomConfig.cornerRadius,
-                        labels: labels,
-                        centerContent: centerContent
-                    )
-                }
-
-                let url = URL(fileURLWithPath: resolvedOutput)
-                try savePNG(cgImage: cgImage, to: url)
-                print("Generated random \(randomConfig.size)x\(randomConfig.size) icon at \(resolvedOutput)")
-            }
-            return
-        }
-
-        // Load config file if specified
+        // Load config file — or seed it from --random / --kitchen-sink.
+        // Generated configs produce a ResolvedConfiguration; wrap it into an IconConfiguration
+        // so the main resolution path can still override individual values via CLI args.
         let fileConfig: IconConfiguration?
-        if let configPath = config {
+        if kitchenSink {
+            let generated = KitchenSinkGenerator.generate()
+            fileConfig = IconConfiguration(
+                background: generated.background,
+                output: generated.output,
+                size: generated.size,
+                cornerStyle: generated.cornerStyle,
+                cornerRadius: generated.cornerRadius,
+                platform: generated.platform,
+                layers: generated.layers
+            )
+        } else if random {
+            let generated = RandomConfigGenerator.generate()
+            fileConfig = IconConfiguration(
+                background: generated.background,
+                output: generated.output,
+                size: generated.size,
+                cornerStyle: generated.cornerStyle,
+                cornerRadius: generated.cornerRadius,
+                platform: generated.platform,
+                layers: generated.layers
+            )
+        } else if let configPath = config {
             fileConfig = try IconConfiguration.load(from: configPath)
         } else {
             fileConfig = nil
@@ -485,6 +435,145 @@ struct IconGenerator: AsyncParsableCommand {
             }
             if centerContent != nil {
                 print("  with center content")
+            }
+        }
+    }
+
+    private func runPrompt(_ userPrompt: String) async throws {
+        // Get the help text from icon-generator --help
+        let helpText = try await captureOutput(executable: "/usr/bin/env", arguments: ["icon-generator", "--help"])
+
+        let systemPrompt = """
+            You are an expert at generating icon-generator JSON configuration files.
+            Given a plain-language description of an icon, output ONLY a valid JSON \
+            configuration object (no markdown, no code fences, no explanation).
+            The JSON will be passed directly to icon-generator via --config.
+            Always include an "output" key (e.g. "icon.png").
+
+            Guidelines for center content:
+            - SF Symbols, emojis, and short text are all equally valid choices — pick whichever best suits the description.
+            - If using text or an emoji, keep it very short — 1 to 4 characters maximum (e.g. initials, abbreviations, or a single emoji).
+            - Avoid long words or sentences as center content.
+            - If using an emoji, ensure the background color contrasts with it — do not use a background of a similar hue to the emoji.
+
+            Guidelines for labels (side/corner ribbons):
+            - Labels are for tags like "DEV", "BETA", "v2", "NEW" — not for app names or descriptions.
+            - Never put the app name or any long text in a label.
+
+            Here is the full icon-generator help for reference:
+
+            \(helpText)
+            """
+
+        if verbose { fputs("Asking llm to generate a configuration…\n", stderr) }
+
+        var jsonConfig = try await captureOutput(
+            executable: "/usr/bin/env",
+            arguments: ["llm", "-s", systemPrompt, userPrompt]
+        )
+
+        // Strip markdown code fences if the LLM wrapped the JSON
+        jsonConfig = stripCodeFences(from: jsonConfig)
+
+        if verbose { fputs("Generated config:\n\(jsonConfig)\n", stderr) }
+
+        // Write config to a temp file
+        let tempURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString + ".json")
+
+        try jsonConfig.write(to: tempURL, atomically: true, encoding: .utf8)
+
+        if verbose { fputs("Running icon-generator…\n", stderr) }
+
+        // Re-invoke icon-generator with the generated config plus all CLI overrides.
+        var args: [String] = ["icon-generator", "--config", tempURL.path]
+
+        // Explicit CLI flags override whatever the LLM put in the JSON
+        args += ["--output", output ?? "icon.png"]
+        if let bg = background        { args += ["--background", bg] }
+        if let s = size               { args += ["--size", "\(s)"] }
+        if let cs = cornerStyle       { args += ["--corner-style", cs.rawValue] }
+        if let cr = cornerRadius      { args += ["--corner-radius", "\(cr)"] }
+        if let p = platform           { args += ["--platform", p.rawValue] }
+        if let sf = svgFont           { args += ["--svg-font", sf] }
+        if let t = translucency       { args += ["--translucency", "\(t)"] }
+        if let sh = shadow            { args += ["--shadow", sh.rawValue] }
+        if glass                      { args += ["--glass"] }
+        if useIconComposer            { args += ["--use-icon-composer"] }
+        for l in layer                { args += ["--layer", l.rawValue] }
+
+        do {
+            try await runProcess(executable: "/usr/bin/env", arguments: args, inheritOutput: verbose)
+        } catch {
+            try? FileManager.default.removeItem(at: tempURL)
+            throw error
+        }
+
+        try? FileManager.default.removeItem(at: tempURL)
+    }
+
+    private func stripCodeFences(from text: String) -> String {
+        var lines = text.components(separatedBy: "\n")
+        if let first = lines.first, first.hasPrefix("```") {
+            lines.removeFirst()
+        }
+        if let last = lines.last, last.hasPrefix("```") {
+            lines.removeLast()
+        }
+        return lines.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    /// Run a process, optionally inheriting stdout from the parent. Throws on non-zero exit.
+    private func runProcess(executable: String, arguments: [String], inheritOutput: Bool = true) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            do {
+                let process = Process()
+                process.executableURL = URL(fileURLWithPath: executable)
+                process.arguments = arguments
+                let stdoutPipe = inheritOutput ? nil : Pipe()
+                if let stdoutPipe { process.standardOutput = stdoutPipe }
+                process.terminationHandler = { p in
+                    _ = stdoutPipe?.fileHandleForReading.readDataToEndOfFile()
+                    if p.terminationStatus == 0 {
+                        continuation.resume()
+                    } else {
+                        continuation.resume(throwing: RuntimeError("'\(arguments.joined(separator: " "))' failed (exit \(p.terminationStatus))"))
+                    }
+                }
+                try process.run()
+            } catch {
+                continuation.resume(throwing: error)
+            }
+        }
+    }
+
+    private func captureOutput(executable: String, arguments: [String]) async throws -> String {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<String, Error>) in
+            do {
+                let process = Process()
+                process.executableURL = URL(fileURLWithPath: executable)
+                process.arguments = arguments
+
+                let stdoutPipe = Pipe()
+                let stderrPipe = Pipe()
+                process.standardOutput = stdoutPipe
+                process.standardError = stderrPipe
+
+                process.terminationHandler = { p in
+                    let stdoutData = stdoutPipe.fileHandleForReading.readDataToEndOfFile()
+                    let stderrData = stderrPipe.fileHandleForReading.readDataToEndOfFile()
+                    if p.terminationStatus == 0 {
+                        let output = String(data: stdoutData, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                        continuation.resume(returning: output)
+                    } else {
+                        let errText = String(data: stderrData, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                        let detail = errText.isEmpty ? "" : ": \(errText)"
+                        continuation.resume(throwing: RuntimeError("'\(arguments.joined(separator: " "))' failed (exit \(p.terminationStatus))\(detail)"))
+                    }
+                }
+                try process.run()
+            } catch {
+                continuation.resume(throwing: error)
             }
         }
     }

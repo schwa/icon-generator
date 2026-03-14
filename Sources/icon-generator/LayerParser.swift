@@ -34,8 +34,10 @@ struct LayerSpecification: ExpressibleByArgument, Sendable {
     }
 
     let content: LayerContent
+    let rawValue: String
 
     init?(argument: String) {
+        self.rawValue = argument
         // Split on colons, but be careful with sf: prefix
         let parts = Self.splitLayerArgument(argument)
 
