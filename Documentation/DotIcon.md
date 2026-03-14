@@ -285,7 +285,7 @@ Values: `normal`, `multiply`, `screen`, `overlay`, `darken`, `lighten`, `color-d
 | Shadow style | `--shadow` | `--shadow neutral`, `--shadow layer-color` |
 | Translucency | `--translucency` | `--translucency 0.7` |
 | Glass effect | `--glass` | `--glass` |
-| Layers | `--layer` | `--layer "center:sf:swift:color=#FFFFFF"` |
+| Layers | `--layer` | `--layer "center; sf:swift; color=#FFFFFF"` |
 
 ### Supported in Types (not exposed via CLI)
 

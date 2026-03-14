@@ -157,7 +157,7 @@ Use `--verbose` to see the generated JSON config and subprocess output.
 - **iTerm2 inline image protocol** — iTerm2, WezTerm
 
 ```bash
-icon-generator --background "#3366FF" --layer "center:sf:swift:color=#FFFFFF" -o icon.png --view
+icon-generator --background "#3366FF" --layer "center; sf:swift; color=#FFFFFF" -o icon.png --view
 icon-generator --background "#3366FF" -o icon.png --view --view-scale 0.5
 ```
 

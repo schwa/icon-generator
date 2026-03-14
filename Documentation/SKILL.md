@@ -12,7 +12,7 @@ swift build -c release
 icon-generator --background "#3366FF" -o icon.png
 
 # With center symbol
-icon-generator --background "#3366FF" --layer "center:sf:swift:color=#FFFFFF" -o icon.png
+icon-generator --background "#3366FF" --layer "center; sf:swift; color=#FFFFFF" -o icon.png
 
 # Xcode asset catalog
 icon-generator --background "#3366FF" -o AppIcon.appiconset --platform ios
@@ -30,7 +30,7 @@ icon-generator --background "#3366FF" -o AppIcon.appiconset --platform ios
 ## Layer Syntax
 
 ```
---layer "position:content[:key=value...]"
+--layer "position; content[; key=value...]"
 ```
 
 **Positions:** `center`, `top`, `bottom`, `left`, `right`, `topLeft`, `topRight`, `bottomLeft`, `bottomRight`, `pillLeft`, `pillCenter`, `pillRight`
@@ -52,12 +52,12 @@ icon-generator --background "#3366FF" -o AppIcon.appiconset --platform ios
 icon-generator --background "linear-gradient(45deg, #667eea, #764ba2)" -o icon.png
 
 # Beta badge
-icon-generator --background "#3366FF" --layer "topRight:BETA:bg=#FF0000" -o icon.png
+icon-generator --background "#3366FF" --layer "topRight; BETA; bg=#FF0000" -o icon.png
 
 # Multiple layers
 icon-generator --background "#3366FF" \
-  --layer "center:sf:swift:color=#FFFFFF:size=0.5" \
-  --layer "topRight:BETA:bg=#FF0000" \
+  --layer "center; sf:swift; color=#FFFFFF; size=0.5" \
+  --layer "topRight; BETA; bg=#FF0000" \
   -o icon.png
 
 # macOS app icon set
