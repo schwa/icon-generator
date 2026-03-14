@@ -446,8 +446,6 @@ struct IconGenerator: AsyncParsableCommand {
     }
 
     private func fetchPromptConfig(_ userPrompt: String) async throws -> IconConfiguration {
-        let helpText = try await captureOutput(executable: "/usr/bin/env", arguments: ["icon-generator", "--help"])
-
         let systemPrompt = """
             You are an expert at generating icon-generator JSON configuration files.
             Given a plain-language description of an icon, output ONLY a valid JSON \
@@ -464,9 +462,27 @@ struct IconGenerator: AsyncParsableCommand {
             - Labels are for tags like "DEV", "BETA", "v2", "NEW" — not for app names or descriptions.
             - Never put the app name or any long text in a label.
 
-            Here is the full icon-generator help for reference:
+            JSON configuration format:
+            {
+              "background": "#RRGGBB" or {"type": "linear"|"radial"|"angular", "colors": [...], "angle": 45},
+              "output": "icon.png",
+              "size": 1024,
+              "corner-style": "squircle",
+              "corner-radius": 0.2237,
+              "layers": [
+                {"position": "center", "symbol": "swift", "color": "#FFFFFF", "size": 0.5},
+                {"position": "center", "text": "🚀"},
+                {"position": "topRight", "text": "BETA", "background-color": "#FF0000"},
+                {"position": "pillCenter", "symbol": "star.fill", "foreground-color": "#FFD700"}
+              ]
+            }
 
-            \(helpText)
+            Layer positions: center, top, bottom, left, right,
+              topLeft, topRight, bottomLeft, bottomRight,
+              pillLeft, pillCenter, pillRight
+
+            Layer content keys (use one): "text", "symbol" (SF Symbol name), "image" (file path)
+            Layer color keys: "color" or "foreground-color", "background-color" (labels only)
             """
 
         if verbose { fputs("Asking llm to generate a configuration…\n", stderr) }
