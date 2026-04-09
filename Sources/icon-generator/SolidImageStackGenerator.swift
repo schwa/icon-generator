@@ -145,7 +145,8 @@ struct SolidImageStackGenerator {
         // Write the PNG
         let imageName = "\(layer.rawValue.lowercased()).png"
         let imageURL = imagesetURL.appendingPathComponent(imageName)
-        try savePNG(cgImage: image, to: imageURL)
+        let opaque = (layer == .back)
+        try savePNG(cgImage: image, to: imageURL, opaque: opaque)
 
         // Write Content.imageset/Contents.json
         let imagesetContents = imagesetContentsJSON(filename: imageName)
@@ -241,7 +242,14 @@ struct SolidImageStackGenerator {
 
     // MARK: - PNG Writing
 
-    private static func savePNG(cgImage: CGImage, to url: URL) throws {
+    private static func savePNG(cgImage: CGImage, to url: URL, opaque: Bool = false) throws {
+        let imageToWrite: CGImage
+        if opaque {
+            imageToWrite = try removeAlphaChannel(from: cgImage)
+        } else {
+            imageToWrite = cgImage
+        }
+
         guard let destination = CGImageDestinationCreateWithURL(
             url as CFURL,
             UTType.png.identifier as CFString,
@@ -251,11 +259,31 @@ struct SolidImageStackGenerator {
             throw SolidImageStackError.destinationFailed(path: url.path)
         }
 
-        CGImageDestinationAddImage(destination, cgImage, nil)
+        CGImageDestinationAddImage(destination, imageToWrite, nil)
 
         guard CGImageDestinationFinalize(destination) else {
             throw SolidImageStackError.writeFailed(path: url.path)
         }
+    }
+
+    /// Re-render a CGImage without an alpha channel, producing a fully opaque image.
+    private static func removeAlphaChannel(from image: CGImage) throws -> CGImage {
+        guard let context = CGContext(
+            data: nil,
+            width: image.width,
+            height: image.height,
+            bitsPerComponent: image.bitsPerComponent,
+            bytesPerRow: 0,
+            space: image.colorSpace ?? CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue
+        ) else {
+            throw SolidImageStackError.renderFailed
+        }
+        context.draw(image, in: CGRect(x: 0, y: 0, width: image.width, height: image.height))
+        guard let opaqueImage = context.makeImage() else {
+            throw SolidImageStackError.renderFailed
+        }
+        return opaqueImage
     }
 }
 

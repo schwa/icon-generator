@@ -132,10 +132,12 @@ Needs:
 ---
 
 ## 10: solidimagestack back layer has transparent pixels
-status: new
+status: closed
 priority: medium
 kind: bug
 created: 2026-04-09T19:13:28Z
+updated: 2026-04-09T22:02:42Z
+closed: 2026-04-09T22:02:42Z
 
 When generating a .solidimagestack, the back layer PNG has alpha channel even when using a solid background color. visionOS requires the back layer to be fully opaque. Workaround: magick back.png -alpha off back.png
 
