@@ -144,10 +144,12 @@ When generating a .solidimagestack, the back layer PNG has alpha channel even wh
 ---
 
 ## 11: Render text and emoji at higher font sizes for better quality
-status: new
+status: closed
 priority: medium
 kind: enhancement
 created: 2026-04-09T22:04:46Z
+updated: 2026-04-09T22:07:31Z
+closed: 2026-04-09T22:07:31Z
 
 
 ---

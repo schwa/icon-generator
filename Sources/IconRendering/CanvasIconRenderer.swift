@@ -216,26 +216,20 @@ public struct CanvasIconRenderer: IconRenderer {
         color: Color,
         rotation: Double
     ) {
-        // Resolve the base SF Symbol image
-        var resolved = context.resolve(Image(systemName: name))
-        resolved.shading = .color(color)
-
-        // SF Symbols at default resolution are roughly 17pt
-        // Scale to achieve the desired fontSize
-        let baseSize: CGFloat = 17
-        let scale = fontSize / baseSize
+        // Resolve SF Symbol as Text with the target font size for native high-res rendering
+        let resolved = context.resolve(
+            Text(Image(systemName: name))
+                .font(.system(size: fontSize, weight: .regular))
+                .foregroundStyle(color)
+        )
 
         if rotation != 0 {
             var transformedContext = context
             transformedContext.translateBy(x: center.x, y: center.y)
             transformedContext.rotate(by: .degrees(rotation))
-            transformedContext.scaleBy(x: scale, y: scale)
             transformedContext.draw(resolved, at: .zero)
         } else {
-            var scaledContext = context
-            scaledContext.translateBy(x: center.x, y: center.y)
-            scaledContext.scaleBy(x: scale, y: scale)
-            scaledContext.draw(resolved, at: .zero)
+            context.draw(resolved, at: center)
         }
     }
 
@@ -273,13 +267,11 @@ public struct CanvasIconRenderer: IconRenderer {
     /// Resolved content that can be drawn
     private enum ResolvedLabelContent {
         case text(GraphicsContext.ResolvedText)
-        case symbol(GraphicsContext.ResolvedImage)
         case image(GraphicsContext.ResolvedImage)
 
         var size: CGSize {
             switch self {
             case .text(let resolved): return resolved.measure(in: CGSize(width: CGFloat.infinity, height: CGFloat.infinity))
-            case .symbol(let resolved): return resolved.size
             case .image(let resolved): return resolved.size
             }
         }
@@ -300,10 +292,11 @@ public struct CanvasIconRenderer: IconRenderer {
             return .text(context.resolve(textView))
 
         case .sfSymbol(let name):
-            var resolved = context.resolve(Image(systemName: name))
-            resolved.shading = .color(foregroundColor)
-            // Note: SF Symbol scaling is handled in drawResolved based on fontSize
-            return .symbol(resolved)
+            // Resolve SF Symbol as Text at the target font size for native high-res rendering
+            let textView = Text(Image(systemName: name))
+                .font(.system(size: fontSize, weight: .bold))
+                .foregroundStyle(foregroundColor)
+            return .text(context.resolve(textView))
 
         case .image(let url):
             if let nsImage = NSImage(contentsOf: url) {
@@ -321,20 +314,9 @@ public struct CanvasIconRenderer: IconRenderer {
     }
 
     private func drawResolved(_ content: ResolvedLabelContent, at point: CGPoint, in ctx: inout GraphicsContext) {
-        let fontSize = IconGeometry.labelFontSize(for: size)
-
         switch content {
         case .text(let resolved):
             ctx.draw(resolved, at: point)
-        case .symbol(let resolved):
-            // Scale SF Symbol to match the label font size
-            // Default SF Symbol size is roughly 17pt
-            let baseSize: CGFloat = 17
-            let scale = fontSize / baseSize
-            var scaledContext = ctx
-            scaledContext.translateBy(x: point.x, y: point.y)
-            scaledContext.scaleBy(x: scale, y: scale)
-            scaledContext.draw(resolved, at: .zero)
         case .image(let resolved):
             // Scale image to fit label height
             let targetHeight = size.height * 0.1
