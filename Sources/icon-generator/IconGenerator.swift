@@ -36,12 +36,14 @@ struct IconGenerator: AsyncParsableCommand {
               - Single PNG: --output icon.png
               - Single SVG: --output icon.svg
               - App Icon Set: --output AppIcon.appiconset --platform ios
+              - visionOS Icon: --output AppIcon.solidimagestack
               - Icon Composer: --output MyApp.icon (Xcode 26+)
 
             App Icon Platforms:
               ios        Single 1024x1024 icon for iOS/iPadOS
               macos      Multiple sizes (16-1024) for macOS
               watchos    Single 1024x1024 icon for watchOS
+              visionos   Layered icon (.solidimagestack) for visionOS
               universal  Combined iOS + macOS icons
 
             Corner Styles:
@@ -278,6 +280,7 @@ struct IconGenerator: AsyncParsableCommand {
 
         // Check output format
         let isAppIconSet = resolvedOutput.hasSuffix(".appiconset")
+        let isSolidImageStack = resolvedOutput.hasSuffix(".solidimagestack")
         let isIconBundle = resolvedOutput.hasSuffix(".icon")
         let isSVG = resolvedOutput.lowercased().hasSuffix(".svg")
 
@@ -330,8 +333,32 @@ struct IconGenerator: AsyncParsableCommand {
                 if !labels.isEmpty { print("  with \(labels.count) label(s)") }
                 if centerContent != nil { print("  with center content") }
             }
+        } else if isSolidImageStack {
+            try await MainActor.run {
+                try SolidImageStackGenerator.generate(
+                    at: resolvedOutput,
+                    background: resolvedBackground,
+                    cornerStyle: resolvedCornerStyle,
+                    cornerRadiusRatio: resolvedCornerRadius,
+                    labels: labels,
+                    centerContent: centerContent
+                )
+            }
+
+            if verbose {
+                print("Generated visionOS solidimagestack at \(resolvedOutput)")
+                print("  layers: Back (background), Middle (labels), Front (center)")
+                if !labels.isEmpty { print("  with \(labels.count) label(s) on middle layer") }
+                if centerContent != nil { print("  with center content on front layer") }
+            }
         } else if isAppIconSet {
             let iconPlatform = resolvedPlatform ?? .ios
+
+            if iconPlatform == .visionos {
+                // visionOS uses .solidimagestack, not .appiconset
+                throw RuntimeError("visionOS icons use .solidimagestack format. Use -o AppIcon.solidimagestack instead of .appiconset")
+            }
+
             try await MainActor.run {
                 try AppIconSetGenerator.generate(
                     at: resolvedOutput,

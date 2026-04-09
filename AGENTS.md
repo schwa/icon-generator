@@ -21,6 +21,9 @@ icon-generator -o AppIcon.appiconset --platform ios --background "#3366FF"
 # App Icon Set for macOS
 icon-generator -o AppIcon.appiconset --platform macos --layer "center; sf:swift; color=#FFFFFF"
 
+# visionOS layered icon
+icon-generator -o AppIcon.solidimagestack --background "#3366FF" --layer "center; sf:swift; color=#FFFFFF"
+
 # From JSON/JSON5 config
 icon-generator --config config.json
 
@@ -43,11 +46,11 @@ icon-generator --background "#3366FF" -o MyApp.icon --translucency 0.5 --shadow 
 | `--random` | - | Generate random icon configuration |
 | `--kitchen-sink` | - | Generate demo icon using all features |
 | `--dump-config` | - | Output resolved config as JSON (no image) |
-| `-o, --output` | `icon.png` | Output file path (use `.appiconset` for Xcode asset) |
+| `-o, --output` | `icon.png` | Output file path (`.appiconset`, `.solidimagestack`, `.icon`, `.svg`, `.png`) |
 | `--size` | `1024` | Image size in pixels (single PNG only) |
 | `--corner-style` | `squircle` | Corner style: `none`, `rounded`, or `squircle` |
 | `--corner-radius` | `0.2237` | Corner radius ratio (0.0-0.5) |
-| `--platform` | `ios` | App icon platform: `ios`, `macos`, `watchos`, `universal` |
+| `--platform` | `ios` | App icon platform: `ios`, `macos`, `watchos`, `visionos`, `universal` |
 | `--layer` | - | Layer specification (repeatable) |
 | `--translucency` | - | Translucency for .icon output (0.0-1.0, visionOS) |
 | `--shadow` | `neutral` | Shadow style for .icon: `neutral` or `layer-color` |
@@ -63,12 +66,26 @@ icon-generator --background "#3366FF" -o MyApp.icon --translucency 0.5 --shadow 
 
 When output path ends with `.appiconset`, generates an Xcode asset catalog icon set:
 
-| Platform | Sizes Generated |
-|----------|-----------------|
-| `ios` | 1024px |
-| `macos` | 16, 32, 64, 128, 256, 512, 1024px |
-| `watchos` | 1024px |
-| `universal` | iOS + macOS combined |
+| Platform | Format | Sizes Generated |
+|----------|--------|------------------|
+| `ios` | `.appiconset` | 1024px |
+| `macos` | `.appiconset` | 16, 32, 64, 128, 256, 512, 1024px |
+| `watchos` | `.appiconset` | 1024px |
+| `visionos` | `.solidimagestack` | 1024px × 3 layers (Back, Middle, Front) |
+| `universal` | `.appiconset` | iOS + macOS combined |
+
+### visionOS Layered Icons (.solidimagestack)
+
+When output path ends with `.solidimagestack`, generates a visionOS layered app icon:
+
+```bash
+icon-generator -o AppIcon.solidimagestack --background "#3366FF" --layer "center; sf:swift; color=#FFFFFF"
+```
+
+Layers are split automatically:
+- **Back**: Background fill (gradient/color)
+- **Middle**: Labels/ribbons
+- **Front**: Center content
 
 ### Icon Composer Bundles (.icon)
 
@@ -179,11 +196,12 @@ All options can be specified in a JSON file with `--config`:
 
 ```
 Sources/icon-generator/
-├── IconGenerator.swift       # CLI entry point (ArgumentParser)
-├── IconBundleGenerator.swift # .icon bundle generation
-├── Configuration.swift       # JSON config file parsing
-├── AppIconSet.swift          # Xcode .appiconset generation
-└── LayerParser.swift         # CLI argument parsing for layers
+├── IconGenerator.swift            # CLI entry point (ArgumentParser)
+├── IconBundleGenerator.swift      # .icon bundle generation
+├── SolidImageStackGenerator.swift # visionOS .solidimagestack generation
+├── Configuration.swift            # JSON config file parsing
+├── AppIconSet.swift               # Xcode .appiconset generation
+└── LayerParser.swift              # CLI argument parsing for layers
 
 Sources/IconRendering/        # Core rendering library
 ├── SquircleView.swift        # SwiftUI Canvas rendering

@@ -10,6 +10,7 @@ enum AppIconPlatform: String, CaseIterable, Sendable, Codable, ExpressibleByArgu
     case ios
     case macos
     case watchos
+    case visionos
     case universal  // iOS + macOS combined
 }
 
@@ -61,6 +62,9 @@ struct AppIconSetGenerator {
             return macosSpecs
         case .watchos:
             return watchosSpecs
+        case .visionos:
+            // visionOS uses .solidimagestack, not .appiconset
+            return []
         case .universal:
             return iosSpecs + macosSpecs
         }
